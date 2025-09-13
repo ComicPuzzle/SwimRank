@@ -1,4 +1,13 @@
 __pycache__/*
+selenium/*
+SwimRankEnv/*
+collect_swimmer_data/*
+chromedriver_mac_arm64/*
+.venv/*
+*.txt
+.DS_Store
+*.json
+__pycache__/*
 *.txt
 *.json
 *.pem
