@@ -10,12 +10,12 @@ from datetime import datetime, timedelta
 # --- GLOBAL DB POOL ---
 global_pool = None
 
-async def get_global_pool(dbname, port, password):
+async def get_global_pool(dbname, port, password, ip):
     """Return a shared asyncpg pool for all requests."""
     global global_pool
     if global_pool is None or global_pool.is_closing():
         global_pool = await asyncpg.create_pool(
-            dsn=f'postgres://postgres:{password}@localhost:{port}/{dbname}',
+            dsn=f'postgres://postgres:{password}@{ip}:{port}/{dbname}',
             max_inactive_connection_lifetime=20,
             min_size=1,
             max_size=10,  # adjust based on server capacity
@@ -38,6 +38,7 @@ def reset_session_vars():
         session['dbname'] = arr[0]
         session['port'] = arr[1]
         session['password'] = arr[2]
+        session['ip'] = arr[3]
     session['course_radio'], session['best_times_label'], session['meets_label'], session['season_rankings_label'], session['career_rankings_label'] = None, None, None, None, None
     session['progress_label'], session['comparison_label'], session['results_column'], session['best_times_column'] = None, None, None, None
     session['upcoming_meets_column'], session['season_rankings_column'], session['ncaa_comparison_column'] = None, None, None
@@ -113,44 +114,49 @@ async def create_pool(pool, dbname, port, password):
     #switch to personal ip
     return await asyncpg.create_pool(dsn=f'postgres://postgres:{password}@localhost:{port}/{dbname}', max_inactive_connection_lifetime=20)
 
-async def fetch_people(name, id_table, id_table_df):
+async def fetch_people(name):
     name = name.lower().strip().split()
     split_name = ''.join('%' + part for part in name) + '%'
     session = app.storage.tab
 
     query = f"""SELECT * FROM "ResultsSchema"."SwimmerIDs" WHERE LOWER("Name") LIKE '{split_name}'"""
 
-    pool = await get_global_pool(session['dbname'], session['port'], session['password'])
+    pool = await get_global_pool(session['dbname'], session['port'], session['password'], session['ip'])
     async with pool.acquire() as con:
         rows = await con.fetch(query)
     session['id_table_df'] = pd.DataFrame(rows, columns=['Name', 'Age', 'LSC', 'Club', 'PersonKey', 'Sex'])
-    #await update_id_table(id_table, id_table_df)
+    await update_id_table()
 
 
 async def fetch_person_event_data(table, key):
     session = app.storage.tab
-    pool = await get_global_pool(session['dbname'], session['port'], session['password'])
-    async with pool.acquire() as con:
-        query = f"""SELECT "event", "swimtime", "relay", "age", "points", "timestandard",  
-                            "meet", "team", "swimdate" FROM "ResultsSchema"."{table}" WHERE "personkey" = {key}"""
-        rows = await con.fetch(query)
-        return rows
+    try:
+        pool = await get_global_pool(session['dbname'], session['port'], session['password'], session['ip'])
+        async with pool.acquire() as con:
+            query = f"""SELECT "event", "swimtime", "relay", "age", "points", "timestandard",  
+                                "meet", "team", "swimdate" FROM "ResultsSchema"."{table}" WHERE "personkey" = {key}"""
+            rows = await con.fetch(query)
+            return rows
+    except Exception as e:
+        print(f"Error fetching data from {table}: {e}")
+        return []
 
 
-async def update_id_table(id_table, id_table_df):
-    id_table.columns = [{'name': col, 'label': col, 'field': col} for col in id_table_df.columns]
-    id_table.rows = id_table_df.to_dict('records')
+async def update_id_table():
+    session = app.storage.tab
+    session['id_table'].columns = [{'name': col, 'label': col, 'field': col} for col in session['id_table_df'].columns]
+    session['id_table'].rows = session['id_table_df'].to_dict('records')
 
-    id_table.add_slot('body-cell-Name', """
+    session['id_table'].add_slot('body-cell-Name', """
         <q-td :props="props">
             <q-btn @click="() => $parent.$emit('person_selected', props.row)" 
                     :label="props.row.Name" 
                     flat dense color='primary'/>
         </q-td>
     """)
-    id_table.update()
-    id_table.visible = True
-    id_table.on('person_selected', lambda msg: ui.navigate.to(f'/swimmer/{msg.args["PersonKey"]}'))
+    session['id_table'].update()
+    session['id_table'].visible = True
+    session['id_table'].on('person_selected', lambda msg: ui.navigate.to(f'/swimmer/{msg.args["PersonKey"]}'))
 
 async def update_results_table(course):
     await ui.context.client.connected()
@@ -282,73 +288,83 @@ async def collect_all_event_data(person_key):
                         '50_BR_SCY_results', '100_BR_SCY_results', '200_BR_SCY_results', '50_BR_LCM_results', '100_BR_LCM_results', '200_BR_LCM_results',
                         '100_IM_SCY_results', '200_IM_SCY_results', '400_IM_SCY_results', '200_IM_LCM_results', '400_IM_LCM_results'
                         ]
+    
     semaphore = asyncio.Semaphore(5)  # Limit concurrent queries to 5
-    tasks = []
-
-    #async def fetch_with_semaphore(table):
-     #   async with semaphore:
-     #       return await fetch_person_event_data(table, person_key)
-    for table in db_table_names:
-        tasks.append(fetch_person_event_data(table, person_key))
-    # Use asyncio.gather to collect all results
-    results = await asyncio.gather(*tasks)
-    # Flatten the list of lists
-    all_event_data = [item for sublist in results for item in sublist]
-    print('here')
-    return all_event_data
+    
+    async def fetch_with_semaphore(table):
+        async with semaphore:  # This ensures only 5 concurrent queries
+            return await fetch_person_event_data(table, person_key)
+    
+    # Create tasks using the semaphore-controlled function
+    tasks = [fetch_with_semaphore(table) for table in db_table_names]
+    
+    try:
+        # Use asyncio.gather to collect all results
+        results = await asyncio.gather(*tasks)
+        # Flatten the list of lists and filter out empty results
+        all_event_data = [item for sublist in results if sublist for item in sublist]
+        return all_event_data
+    except Exception as e:
+        print(f"Error collecting event data: {e}")
+        return []
 
 async def display_event_data(e, event_df):
-    await ui.context.client.connected()
     session = app.storage.tab
     session['lcm_df'] = event_df.loc[event_df['event'].str.contains("LCM")]
     session['scy_df'] = event_df.loc[event_df['event'].str.contains("SCY")]
-    if not session['results_column']:
-        session['best_times_column'] = ui.column().classes('w-full items-center')
-        session['ncaa_comparison_column'] = ui.column().classes('w-full items-center')
-        session['upcoming_meets_column'] = ui.column().classes('w-full items-center')
-        session['season_rankings_column'] = ui.column().classes('w-full items-center')
-        session['results_column'] = ui.column().classes('w-full items-center')
     
-    with session['best_times_column']:
-        if not session['best_times_label']:
-            session['best_times_label'] = ui.label('Best Times').style('font-size: 28px')
-        try:
-            session['best_rankings_table'].delete()
-        except:
-            pass
-        session['best_rankings_table'] = ui.table(rows=[])
-        session['best_rankings_table'].visible = False
-        await update_best_rankings_table()
-    with session['ncaa_comparison_column']:
-        if not session['ncaa_comparison_label']:
-            session['ncaa_comparison_label'] = ui.label('NCAA Comparison')
-        try:
-            session['ncaa_comparison_table'].delete()
-        except:
-            pass
-        session['ncaa_comparison_table'] = ui.table(rows=[])
-        session['ncaa_comparison_table'].visible = False
-        await update_ncaa_comparison_table()
-    with session['upcoming_meets_column']:
-        if not session['meets_label']:
-            session['meets_label'] = ui.label('Upcoming Championship Meets')
-        try:
-            session['upcoming_meets_table'].delete()
-        except:
-            pass
-        upcoming_meets_table = ui.table(rows=[])
-        upcoming_meets_table.visible = False
-        await update_upcoming_meets_table()
-    with session['season_rankings_column']: 
-        if not session['season_rankings_label']:
-            session['season_rankings_label'] = ui.label('Current Season Rankings')
-        try:
-            session['season_rankings_table'].delete()
-        except:
-            pass
-        session['season_rankings_table'] = ui.table(rows=[])
-        session['season_rankings_table'].visible = False
-        await update_season_rankings_table()
+    async with ui.context:
+        if not session.get('results_column'):
+            session['best_times_column'] = ui.column().classes('w-full items-center')
+            session['ncaa_comparison_column'] = ui.column().classes('w-full items-center')
+            session['upcoming_meets_column'] = ui.column().classes('w-full items-center')
+            session['season_rankings_column'] = ui.column().classes('w-full items-center')
+            session['results_column'] = ui.column().classes('w-full items-center')
+    
+    async with ui.context:
+        with session['best_times_column']:
+            if not session.get('best_times_label'):
+                session['best_times_label'] = ui.label('Best Times').style('font-size: 28px')
+            try:
+                session['best_rankings_table'].delete()
+            except:
+                pass
+            session['best_rankings_table'] = ui.table(rows=[])
+            session['best_rankings_table'].visible = False
+            await update_best_rankings_table()
+            
+        with session['ncaa_comparison_column']:
+            if not session.get('ncaa_comparison_label'):
+                session['ncaa_comparison_label'] = ui.label('NCAA Comparison')
+            try:
+                session['ncaa_comparison_table'].delete()
+            except:
+                pass
+            session['ncaa_comparison_table'] = ui.table(rows=[])
+            session['ncaa_comparison_table'].visible = False
+            await update_ncaa_comparison_table()
+            
+        with session['upcoming_meets_column']:
+            if not session.get('meets_label'):
+                session['meets_label'] = ui.label('Upcoming Championship Meets')
+            try:
+                session['upcoming_meets_table'].delete()
+            except:
+                pass
+            upcoming_meets_table = ui.table(rows=[])
+            upcoming_meets_table.visible = False
+            await update_upcoming_meets_table()
+            
+        with session['season_rankings_column']: 
+            if not session.get('season_rankings_label'):
+                session['season_rankings_label'] = ui.label('Current Season Rankings')
+            try:
+                session['season_rankings_table'].delete()
+            except:
+                pass
+            session['season_rankings_table'] = ui.table(rows=[])
+            session['season_rankings_table'].visible = False
+            await update_season_rankings_table()
     with session['results_column']:
         if not session['event_label']: 
             session['event_label'] = ui.label(e + " Progression") 
@@ -376,8 +392,9 @@ async def display_event_data(e, event_df):
 async def graph_page(person_key: str):
     await ui.context.client.connected()
     session = app.storage.tab
+    reset_session_vars()
     session['keyboard'] = ui.keyboard(on_key=handle_key)
-    pool = await get_global_pool(session['dbname'], session['port'], session['password'])
+    pool = await get_global_pool(session['dbname'], session['port'], session['password'], session['ip'])
     async with pool.acquire() as con:
         query = f"""SELECT "Name", "Age", "LSC", "Club", "Sex" FROM "ResultsSchema"."SwimmerIDs" WHERE "PersonKey" = {person_key}"""
         row = await con.fetchrow(query)
@@ -401,21 +418,21 @@ async def graph_page(person_key: str):
                 ui.label('Sex').classes('border p-3')
                 ui.label(sex).classes('border p-3')
     
-    if session['previous_personkey'] != person_key:
-        session['previous_personkey'] = person_key
-        all_event_data = await collect_all_event_data(person_key)
-        session['all_event_data_df'] = pd.DataFrame(all_event_data, columns=["event", "swimtime", "relay", 
-                                                                "age", "points", "timestandard",  
-                                                                "meet", "team", "swimdate"])
-        session['all_event_data_df'].sort_values(by='swimdate', inplace=True, ascending=False)
-        print(session['all_event_data_df'])
-        session['all_event_data_df']["swimtime"] = session['all_event_data_df'].apply(lambda row: convert_timedelta(row['swimtime']) + "r" if row['relay'] == 1 else convert_timedelta(row['swimtime']), axis=1)
-        session['all_event_data_df']["swimdate"] = session['all_event_data_df']["swimdate"].apply(lambda x: x.strftime('%m/%d/%Y'))
-        session['all_event_data_df'].drop('relay', axis=1, inplace=True)
-        reset_session_vars()
-        first_non_empty_event, first_non_empty_event_df = await make_event_buttons(session['all_event_data_df'])
-        session['scy_df'], session['lcm_df'] = await display_event_data(first_non_empty_event, first_non_empty_event_df)
-    else:
+    #if session['previous_personkey'] != person_key:
+    #    session['previous_personkey'] = person_key
+    all_event_data = await collect_all_event_data(person_key)
+    print("---------------here-----------")
+    session['all_event_data_df'] = pd.DataFrame(all_event_data, columns=["event", "swimtime", "relay", 
+                                                            "age", "points", "timestandard",  
+                                                            "meet", "team", "swimdate"])
+    session['all_event_data_df'].sort_values(by='swimdate', inplace=True, ascending=False)
+    print(session['all_event_data_df'])
+    session['all_event_data_df']["swimtime"] = session['all_event_data_df'].apply(lambda row: convert_timedelta(row['swimtime']) + "r" if row['relay'] == 1 else convert_timedelta(row['swimtime']), axis=1)
+    session['all_event_data_df']["swimdate"] = session['all_event_data_df']["swimdate"].apply(lambda x: x.strftime('%m/%d/%Y'))
+    session['all_event_data_df'].drop('relay', axis=1, inplace=True)
+    first_non_empty_event, first_non_empty_event_df = await make_event_buttons(session['all_event_data_df'])
+    session['scy_df'], session['lcm_df'] = await display_event_data(first_non_empty_event, first_non_empty_event_df)
+    """else:
         event = session['scy_df']['event'].iloc[0].split('SCY')[0].strip()
         e = session['all_event_data_df'][session['all_event_data_df']['event'].str.contains(event)]
         await make_event_buttons()
@@ -424,8 +441,7 @@ async def graph_page(person_key: str):
         session['upcoming_meets_column'].delete()
         session['season_rankings_column'].delete()
         session['ncaa_comparison_column'].delete()
-        reset_session_vars()
-        await display_event_data(event, e)
+        await display_event_data(event, e)"""
 
 @ui.page('/')
 async def main_page():
@@ -440,13 +456,12 @@ async def main_page():
     with session['main_page_column']:
         ui.label('SwimRank').style('font-size: 200%; font-weight: 300, font-family: "Times New Roman", Times, serif;')
         session['search_input'] = ui.input(label='Enter name...', placeholder='Type a name...')
-        session['search_input'].on('keypress.enter', lambda: fetch_people(session['search_input'].value, session['id_table'],
-                                                                          session['id_table_df']))
+        session['search_input'].on('keypress.enter', lambda: fetch_people(session['search_input'].value))
         
         session['id_table'] = ui.table(rows=[], columns=[])
         session['id_table'].visible = False
         if not session['id_table_df'].empty:
-            await update_id_table(session['id_table'], session['id_table_df'])
+            await update_id_table()
         
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(title='SwimRank')
