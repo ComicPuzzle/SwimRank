@@ -1,14 +1,13 @@
-import pandas as pd
+import asyncio
 
-timestamps = [
-    pd.Timestamp('1900-01-01 00:00:27.830000'),
-    pd.Timestamp('1900-01-01 00:01:27.830000'),
-    pd.Timestamp('1900-01-01 00:10:05.123456'),
-]
+async def async_task():
+    print("Async task starting...")
+    await asyncio.sleep(2)
+    print("Async task finished.")
 
-formatted_times = [
-    ts.strftime('%-M:%S.%f')[:-4] if ts.minute > 0 else ts.strftime('%S.%f')[:-4]
-    for ts in timestamps
-]
+async def main_async():
+    print("Main async starting...")
+    await async_task()
+    print("Main async continuing after task.")
 
-print(formatted_times)
+asyncio.run(main_async())

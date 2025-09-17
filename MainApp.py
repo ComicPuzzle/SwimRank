@@ -7,6 +7,41 @@ import asyncpg
 from nicegui.events import KeyEventArguments
 from datetime import datetime, timedelta
 
+# --- GLOBAL DB POOL ---
+global_pool = None
+
+async def get_global_pool(dbname, port, password):
+    """Return a shared asyncpg pool for all requests."""
+    global global_pool
+    if global_pool is None or global_pool.is_closing():
+        global_pool = await asyncpg.create_pool(
+            dsn=f'postgres://postgres:{password}@localhost:{port}/{dbname}',
+            max_inactive_connection_lifetime=20,
+            min_size=1,
+            max_size=10,  # adjust based on server capacity
+        )
+    return global_pool
+
+@app.on_shutdown
+async def shutdown():
+    """Close global pool on app shutdown."""
+    global global_pool
+    if global_pool and not global_pool.is_closing():
+        await global_pool.close()
+
+def reset_session_vars():
+    session = app.storage.tab
+    with open('credentials.txt', 'r') as file:
+        arr = []
+        for line in file:
+            arr.append(line.strip())
+        session['dbname'] = arr[0]
+        session['port'] = arr[1]
+        session['password'] = arr[2]
+    session['course_radio'], session['best_times_label'], session['meets_label'], session['season_rankings_label'], session['career_rankings_label'] = None, None, None, None, None
+    session['progress_label'], session['comparison_label'], session['results_column'], session['best_times_column'] = None, None, None, None
+    session['upcoming_meets_column'], session['season_rankings_column'], session['ncaa_comparison_column'] = None, None, None
+    session['best_times_label'], session['ncaa_comparison_label'], session['chart'], session['event_label'] = None, None, None, None
 
 async def make_event_buttons(all_event_data_df):
     events = ['50 FR', '100 FR', '200 FR', '400/500 FR', 
@@ -59,8 +94,6 @@ def str_to_timedelta(t_str):
     return timedelta(seconds=total_seconds)
 
 async def handle_key(e: KeyEventArguments):
-    #global pool, control_pressed, c_pressed, control_timer
-    #print(e)
     await ui.context.client.connected()
     session = app.storage.tab
     if e.modifiers.ctrl and e.action.keydown:
@@ -68,45 +101,41 @@ async def handle_key(e: KeyEventArguments):
         session['control_timer'] = time.time()
     elif e.key == 'c' and e.action.keyup:
         print("c pressed")
-        if time.time() - session.control_timer < 0.5:
-            await session['pool'].close()
+        if time.time() - session.get('control_timer', 0) < 0.5:
             app.shutdown()  # Stop the NiceGUI application
 
+
 async def create_pool(pool, dbname, port, password):
-    try:
+    if pool is not None:
         await pool.close()
-    except:
+    else:
         pass
+    #switch to personal ip
     return await asyncpg.create_pool(dsn=f'postgres://postgres:{password}@localhost:{port}/{dbname}', max_inactive_connection_lifetime=20)
 
 async def fetch_people(name, id_table, id_table_df):
     name = name.lower().strip().split()
-    split_name = ""
-    await ui.context.client.connected()
+    split_name = ''.join('%' + part for part in name) + '%'
     session = app.storage.tab
-    for part in name:
-        split_name += '%' + part
-    split_name += '%'
+
     query = f"""SELECT * FROM "ResultsSchema"."SwimmerIDs" WHERE LOWER("Name") LIKE '{split_name}'"""
-    
-    if session['pool'].is_closing():
-        session['pool'] = await create_pool(session['pool'], session['dbname'], session['port'], session['password'])
-    async with session['pool'].acquire() as con:
+
+    pool = await get_global_pool(session['dbname'], session['port'], session['password'])
+    async with pool.acquire() as con:
         rows = await con.fetch(query)
-    id_table_df = pd.DataFrame(rows, columns=['Name', 'Age', 'LSC', 'Club', 'PersonKey', 'Sex'])
-    #print(id_table_df.head())
-    await update_id_table(id_table, id_table_df)
+    session['id_table_df'] = pd.DataFrame(rows, columns=['Name', 'Age', 'LSC', 'Club', 'PersonKey', 'Sex'])
+    #await update_id_table(id_table, id_table_df)
+
 
 async def fetch_person_event_data(table, key):
-    #await ui.context.client.connected()
     session = app.storage.tab
-    #if session['pool'].is_closing():
-    #    await create_pool(session['pool'], session['dbname'], session['port'], session['password'])
-    async with session['pool'].acquire() as con:
+    pool = await get_global_pool(session['dbname'], session['port'], session['password'])
+    async with pool.acquire() as con:
         query = f"""SELECT "event", "swimtime", "relay", "age", "points", "timestandard",  
                             "meet", "team", "swimdate" FROM "ResultsSchema"."{table}" WHERE "personkey" = {key}"""
         rows = await con.fetch(query)
         return rows
+
 
 async def update_id_table(id_table, id_table_df):
     id_table.columns = [{'name': col, 'label': col, 'field': col} for col in id_table_df.columns]
@@ -126,7 +155,6 @@ async def update_id_table(id_table, id_table_df):
 async def update_results_table(course):
     await ui.context.client.connected()
     session = app.storage.tab
-    #global event_results_table, lcm_df, scy_df
     if course == "SCY":
         session['event_results_table'].columns = [{'name': col, 'label': col, 'field': col} for col in session.scy_df.columns]
         session['event_results_table'].rows = session.scy_df.to_dict('records')
@@ -152,7 +180,6 @@ async def update_season_rankings_table(season_rankings_table):
 async def update_best_rankings_table():
     await ui.context.client.connected()
     session = app.storage.tab
-    #global best_rankings_table, lcm_df, scy_df
     scy_copy = session['scy_df'].copy()
     lcm_copy = session['lcm_df'].copy()
     scy_copy['swimtime'] = scy_copy['swimtime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
@@ -165,7 +192,6 @@ async def update_best_rankings_table():
     session['best_rankings_table'].update()
 
 async def update_progression_chart():
-    #global chart, lcm_df, scy_df
     # 1) prepare SCY series
     await ui.context.client.connected()
     session = app.storage.tab
@@ -259,27 +285,19 @@ async def collect_all_event_data(person_key):
     semaphore = asyncio.Semaphore(5)  # Limit concurrent queries to 5
     tasks = []
 
-    async def fetch_with_semaphore(table):
-        async with semaphore:
-            return await fetch_person_event_data(table, person_key)
-
+    #async def fetch_with_semaphore(table):
+     #   async with semaphore:
+     #       return await fetch_person_event_data(table, person_key)
     for table in db_table_names:
-        tasks.append(fetch_with_semaphore(table))
-
+        tasks.append(fetch_person_event_data(table, person_key))
     # Use asyncio.gather to collect all results
     results = await asyncio.gather(*tasks)
-    
     # Flatten the list of lists
     all_event_data = [item for sublist in results for item in sublist]
-
+    print('here')
     return all_event_data
 
 async def display_event_data(e, event_df):
-    #global lcm_df, scy_df, event_results_table, event_label 
-    #global best_times_label, course_radio, meets_label
-    #global season_rankings_label, career_rankings_label, progress_label, ncaa_comparison_label
-    #global comparison_label, results_column, upcoming_meets_table, season_rankings_table, best_rankings_table, ncaa_comparison_table
-    #global best_times_column, upcoming_meets_column, season_rankings_column, ncaa_comparison_column, chart
     await ui.context.client.connected()
     session = app.storage.tab
     session['lcm_df'] = event_df.loc[event_df['event'].str.contains("LCM")]
@@ -358,18 +376,9 @@ async def display_event_data(e, event_df):
 async def graph_page(person_key: str):
     await ui.context.client.connected()
     session = app.storage.tab
-    #global all_event_data_df, scy_df, lcm_df, keyboard, event_label
-    #global best_times_label, course_radio, meets_label, season_rankings_label
-    #global career_rankings_label, progress_label, comparison_label, results_column
-    #global best_times_column, upcoming_meets_column, season_rankings_column
-    #global ncaa_comparison_column, ncaa_comparison_label, chart, previous_personkey
     session['keyboard'] = ui.keyboard(on_key=handle_key)
-    try:
-        if session['pool'].is_closing():
-            session['pool'] = await create_pool(session['pool'], session['dbname'], session['port'], session['password'])
-    except:
-        session['pool'] = await create_pool(session['pool'], session['dbname'], session['port'], session['password'])
-    async with session['pool'].acquire() as con:
+    pool = await get_global_pool(session['dbname'], session['port'], session['password'])
+    async with pool.acquire() as con:
         query = f"""SELECT "Name", "Age", "LSC", "Club", "Sex" FROM "ResultsSchema"."SwimmerIDs" WHERE "PersonKey" = {person_key}"""
         row = await con.fetchrow(query)
     name = row[0]
@@ -394,10 +403,6 @@ async def graph_page(person_key: str):
     
     if session['previous_personkey'] != person_key:
         session['previous_personkey'] = person_key
-        session['course_radio'], session['best_times_label'], session['meets_label'], session['season_rankings_label'], session['career_rankings_label'] = None, None, None, None, None
-        session['progress_label'], session['comparison_label'], session['results_column'], session['best_times_column'] = None, None, None, None
-        session['upcoming_meets_column'], session['season_rankings_column'], session['ncaa_comparison_column'] = None, None, None
-        session['ncaa_comparison_label'], session['chart'], session['event_label'] = None, None, None
         all_event_data = await collect_all_event_data(person_key)
         session['all_event_data_df'] = pd.DataFrame(all_event_data, columns=["event", "swimtime", "relay", 
                                                                 "age", "points", "timestandard",  
@@ -407,7 +412,7 @@ async def graph_page(person_key: str):
         session['all_event_data_df']["swimtime"] = session['all_event_data_df'].apply(lambda row: convert_timedelta(row['swimtime']) + "r" if row['relay'] == 1 else convert_timedelta(row['swimtime']), axis=1)
         session['all_event_data_df']["swimdate"] = session['all_event_data_df']["swimdate"].apply(lambda x: x.strftime('%m/%d/%Y'))
         session['all_event_data_df'].drop('relay', axis=1, inplace=True)
-
+        reset_session_vars()
         first_non_empty_event, first_non_empty_event_df = await make_event_buttons(session['all_event_data_df'])
         session['scy_df'], session['lcm_df'] = await display_event_data(first_non_empty_event, first_non_empty_event_df)
     else:
@@ -419,10 +424,7 @@ async def graph_page(person_key: str):
         session['upcoming_meets_column'].delete()
         session['season_rankings_column'].delete()
         session['ncaa_comparison_column'].delete()
-        session['course_radio'], session['meets_label'], session['season_rankings_label'], session['career_rankings_label'] = None, None, None, None
-        session['progress_label'], session['comparison_label'], session['results_column'], session['best_times_column'] = None, None, None, None
-        session['upcoming_meets_column'], session['season_rankings_column'], session['ncaa_comparison_column'] = None, None, None
-        session['best_times_label'], session['ncaa_comparison_label'], session['chart'], session['event_label'] = None, None, None, None
+        reset_session_vars()
         await display_event_data(event, e)
 
 @ui.page('/')
@@ -431,19 +433,10 @@ async def main_page():
     session = app.storage.tab
     session['id_table_df'] = pd.DataFrame()
     session['id_table'] = None
-    session['pool'] = None
     session['previous_personkey'] = None
-
-    with open('credentials.txt', 'r') as file:
-        arr = []
-        for line in file:
-            arr.append(line.strip())
-        session['dbname'] = arr[0]
-        session['port'] = arr[1]
-        session['password'] = arr[2]
-    session['pool'] = await create_pool(session['pool'], session['dbname'], session['port'], session['password'])
     session['keyboard'] = ui.keyboard(on_key=handle_key)
     session['main_page_column'] = ui.column().classes('w-full items-center')
+    reset_session_vars()
     with session['main_page_column']:
         ui.label('SwimRank').style('font-size: 200%; font-weight: 300, font-family: "Times New Roman", Times, serif;')
         session['search_input'] = ui.input(label='Enter name...', placeholder='Type a name...')
