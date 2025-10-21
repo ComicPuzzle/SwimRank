@@ -15,13 +15,22 @@ async def get_global_pool(dbname, port, password):
     global global_pool
     if global_pool is None or global_pool.is_closing():
         global_pool = await asyncpg.create_pool(
-            dsn=f'postgres://postgres:{password}@localhost:{port}/{dbname}',
+            dsn=f'postgres://postgres:{password}@192.168.254.80:{port}/{dbname}', #change to remote address
             max_inactive_connection_lifetime=20,
             min_size=1,
             max_size=10,  # adjust based on server capacity
         )
     return global_pool
 
+def get_current_season():
+    session = app.storage.tab
+    session['current_month'] = datetime.now().month
+    session['current_year'] = datetime.now().year
+    if session['current_month'] >= 9:
+        session['current_season'] = f"{'9/' + str(session['current_year']) + ' - 8/' + str(session['current_year'] + 1)}"
+    else:
+        session['current_season'] = f"{'9/' + str(session['current_year'] - 1) + ' - 8/' + str(session['current_year'])}"\
+        
 @app.on_shutdown
 async def shutdown():
     """Close global pool on app shutdown."""
@@ -40,31 +49,8 @@ def reset_session_vars():
         session['password'] = arr[2]
     session['course_radio'], session['best_times_label'], session['meets_label'], session['season_rankings_label'], session['career_rankings_label'] = None, None, None, None, None
     session['progress_label'], session['comparison_label'], session['results_column'], session['best_times_column'] = None, None, None, None
-    session['upcoming_meets_column'], session['season_rankings_column'], session['ncaa_comparison_column'] = None, None, None
+    session['upcoming_meets_column'], session['season_rankings_column'], session['ncaa_comparison_column'], session['best_rankings_table'] = None, None, None, None
     session['best_times_label'], session['ncaa_comparison_label'], session['chart'], session['event_label'] = None, None, None, None
-
-async def make_event_buttons(all_event_data_df):
-    events = ['50 FR', '100 FR', '200 FR', '400/500 FR', 
-              '800/1000 FR', '1500/1650 FR', '50 FL', 
-              '100 FL', '200 FL', '50 BK', '100 BK', 
-              '200 BK', '50 BR', '100 BR', '200 BR',
-              '100 IM', '200 IM', '400 IM']
-    
-    first_non_empty_event = None
-    first_non_empty_event_df = None
-    first = True
-    with ui.column().classes('w-full items-center'):
-        with ui.row():
-            for event in events:
-                event_df = all_event_data_df.loc[all_event_data_df['event'].str.contains(event)]
-                if not event_df.empty:
-                    if first:
-                        first_non_empty_event = event
-                        first_non_empty_event_df = event_df
-                        first = False
-                    ui.button(event, on_click=lambda e=event, df=event_df: display_event_data(e))
-
-    return (first_non_empty_event, first_non_empty_event_df)
 
 def convert_timedelta(val):
     minutes = int(val.total_seconds() // 60)
@@ -160,6 +146,29 @@ async def update_id_table():
     session['id_table'].visible = True
     session['id_table'].on('person_selected', lambda msg: ui.navigate.to(f'/swimmer/{msg.args["PersonKey"]}'))
 
+async def make_event_buttons(all_event_data_df):
+    events = ['50 FR', '100 FR', '200 FR', '400/500 FR', 
+              '800/1000 FR', '1500/1650 FR', '50 FL', 
+              '100 FL', '200 FL', '50 BK', '100 BK', 
+              '200 BK', '50 BR', '100 BR', '200 BR',
+              '100 IM', '200 IM', '400 IM']
+    
+    first_non_empty_event = None
+    first_non_empty_event_df = None
+    first = True
+    with ui.column().classes('w-full items-center'):
+        with ui.row():
+            for event in events:
+                event_df = all_event_data_df.loc[all_event_data_df['event'].str.contains(event)]
+                if not event_df.empty:
+                    if first:
+                        first_non_empty_event = event
+                        first_non_empty_event_df = event_df
+                        first = False
+                    ui.button(event, on_click=lambda e=event, df=event_df: display_event_data(e, df))
+
+    return (first_non_empty_event, first_non_empty_event_df)
+
 async def update_results_table(course):
     await ui.context.client.connected()
     session = app.storage.tab
@@ -191,15 +200,17 @@ async def update_season_rankings_table():
 async def update_best_rankings_table():
     await ui.context.client.connected()
     session = app.storage.tab
-    scy_copy = session['scy_df'].copy()
-    print(scy_copy)
-    lcm_copy = session['lcm_df'].copy()
-    scy_copy['swimtime'] = scy_copy['swimtime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
-    lcm_copy['swimtime'] = lcm_copy['swimtime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
-    scy_min_row = session['scy_df'].loc[scy_copy['swimtime'].idxmin()].to_dict()
-    lcm_min_row = session['lcm_df'].loc[lcm_copy['swimtime'].idxmin()].to_dict()
     session['best_rankings_table'].columns = [{'name': col, 'label': col, 'field': col} for col in ["event", "swimtime","age", "points", "timestandard", "meet", "team", "swimdate"]]
-    session['best_rankings_table'].rows = [scy_min_row, lcm_min_row]
+    if not session['scy_df'].empty:
+        scy_copy = session['scy_df'].copy()
+        scy_copy['swimtime'] = scy_copy['swimtime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
+        scy_min_row = session['scy_df'].loc[scy_copy['swimtime'].idxmin()].to_dict()    
+        session['best_rankings_table'].rows.append(scy_min_row)
+    if not session['lcm_df'].empty:
+        lcm_copy = session['lcm_df'].copy()
+        lcm_copy['swimtime'] = lcm_copy['swimtime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
+        lcm_min_row = session['lcm_df'].loc[lcm_copy['swimtime'].idxmin()].to_dict()
+        session['best_rankings_table'].rows.append(lcm_min_row)
     session['best_rankings_table'].visible = True
     session['best_rankings_table'].update()
 
@@ -284,9 +295,12 @@ async def update_progression_chart():
     session['chart'] = ui.echart(options=option).style('height: 600px; width: 100%; min-height: 600px;')
     session['chart'].visible = True
 
-async def display_event_data(e):
+async def display_event_data(e, df):
     await ui.context.client.connected()
     session = app.storage.tab
+    session['lcm_df'] = df.loc[df['event'].str.contains("LCM")]
+    session['scy_df'] = df.loc[df['event'].str.contains("SCY")]
+
     if not session['results_column']:
         session['best_times_column'] = ui.column().classes('w-full items-center')
         session['ncaa_comparison_column'] = ui.column().classes('w-full items-center')
@@ -326,7 +340,7 @@ async def display_event_data(e):
         await update_upcoming_meets_table()
     with session['season_rankings_column']: 
         if not session['season_rankings_label']:
-            session['season_rankings_label'] = ui.label('Current Season Rankings')
+            session['season_rankings_label'] = ui.label('Current Season Rankings (' + session['current_season'] + ')')
         try:
             session['season_rankings_table'].delete()
         except:
@@ -354,7 +368,6 @@ async def display_event_data(e):
         session['chart'] = ui.echart([])
         session['chart'].visible = False
         await update_progression_chart()
-    return session['scy_df'], session['lcm_df']
         
 
 @ui.page('/swimmer/{person_key}')
@@ -399,20 +412,20 @@ async def graph_page(person_key: str):
         first_non_empty_event, first_non_empty_event_df = await make_event_buttons(session['all_event_data_df'])
         session['lcm_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['event'].str.contains("LCM")]
         session['scy_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['event'].str.contains("SCY")]
-        await display_event_data(first_non_empty_event)
+        await display_event_data(first_non_empty_event, first_non_empty_event_df)
     else:
         event = session['scy_df']['event'].iloc[0].split('SCY')[0].strip()
         e = session['all_event_data_df'][session['all_event_data_df']['event'].str.contains(event)]
-        session['lcm_df'] = e.loc[e['event'].str.contains("LCM")]
-        session['scy_df'] = e.loc[e['event'].str.contains("SCY")]
-        await make_event_buttons()
+        #session['lcm_df'] = e.loc[e['event'].str.contains("LCM")]
+        #session['scy_df'] = e.loc[e['event'].str.contains("SCY")]
+        await make_event_buttons(session['all_event_data_df'])
         session['results_column'].delete()
         session['best_times_column'].delete() 
         session['upcoming_meets_column'].delete()
         session['season_rankings_column'].delete()
         session['ncaa_comparison_column'].delete()
         reset_session_vars()
-        await display_event_data(event)
+        await display_event_data(event, e)
 
 @ui.page('/')
 async def main_page():
@@ -423,6 +436,7 @@ async def main_page():
     session['previous_personkey'] = None
     session['keyboard'] = ui.keyboard(on_key=handle_key)
     session['main_page_column'] = ui.column().classes('w-full items-center')
+    get_current_season()
     reset_session_vars()
     with session['main_page_column']:
         ui.label('SwimRank').style('font-size: 200%; font-weight: 300, font-family: "Times New Roman", Times, serif;')
