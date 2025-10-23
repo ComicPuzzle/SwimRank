@@ -6,6 +6,7 @@ import asyncio
 import asyncpg
 from nicegui.events import KeyEventArguments
 from datetime import datetime, timedelta
+from get_credentials import get_credentials
 
 # --- GLOBAL DB POOL ---
 global_pool = None
@@ -40,13 +41,7 @@ async def shutdown():
 
 def reset_session_vars():
     session = app.storage.tab
-    with open('credentials.txt', 'r') as file:
-        arr = []
-        for line in file:
-            arr.append(line.strip())
-        session['dbname'] = arr[0]
-        session['port'] = arr[1]
-        session['password'] = arr[2]
+    session['dbname'], session['port'], session['password'] = get_credentials()
     session['course_radio'], session['best_times_label'], session['meets_label'], session['season_rankings_label'], session['career_rankings_label'] = None, None, None, None, None
     session['progress_label'], session['comparison_label'], session['results_column'], session['best_times_column'] = None, None, None, None
     session['upcoming_meets_column'], session['season_rankings_column'], session['ncaa_comparison_column'], session['best_rankings_table'] = None, None, None, None

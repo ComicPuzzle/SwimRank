@@ -4,7 +4,6 @@ from MakeIDRequest import make_id_request
 from GetProxies import get_proxies
 from GetToken import get_token
 from seleniumwire import webdriver
-from fp.fp import FreeProxy
 import pandas as pd
 
 options = webdriver.ChromeOptions()

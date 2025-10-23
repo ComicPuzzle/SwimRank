@@ -4,7 +4,6 @@ from MakeMeetRequest import make_meet_request
 from GetProxies import get_proxies
 from GetToken import get_token
 from seleniumwire import webdriver
-from fp.fp import FreeProxy
 import pandas as pd
 
 #Once complete only do one in a final overall script

@@ -1,6 +1,9 @@
 import psycopg 
 from psycopg import sql
-with psycopg.connect("dbname=SwimRank port=5462 user=postgres host='localhost' password='Annoyer9Ores!2345'") as conn:
+from get_credentials import get_credentials
+
+dbname, port, password = get_credentials()
+with psycopg.connect(f"dbname={dbname} port={port} user=postgres host='localhost' password='{password}'") as conn:
         # Open a cursor to perform database operations
         with conn.cursor() as cur:
             db_table_names = ['50_FR_SCY_results', '50_FR_LCM_results', '100_FR_SCY_results', '100_FR_LCM_results',
