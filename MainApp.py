@@ -16,7 +16,7 @@ async def get_global_pool(dbname, port, password):
     global global_pool
     if global_pool is None or global_pool.is_closing():
         global_pool = await asyncpg.create_pool(
-            dsn=f'postgres://postgres:{password}@192.168.254.80:{port}/{dbname}', #change to remote address
+            dsn=f'postgres://postgres:{password}@localhost:{port}/{dbname}', #change to remote address
             max_inactive_connection_lifetime=20,
             min_size=1,
             max_size=10,  # adjust based on server capacity
@@ -91,7 +91,9 @@ async def fetch_people(name):
     session = app.storage.tab
 
     query = f"""SELECT * FROM "ResultsSchema"."SwimmerIDs" WHERE LOWER("Name") LIKE '{split_name}'"""
+    print('a')
     pool = await get_global_pool(session['dbname'], session['port'], session['password'])
+    print('b')
     async with pool.acquire() as con:
         rows = await con.fetch(query)
     session['id_table_df'] = pd.DataFrame(rows, columns=['Name', 'Age', 'LSC', 'Club', 'PersonKey', 'Sex'])
@@ -106,7 +108,52 @@ async def fetch_person_event_data(table, key, dbname, port, password):
         rows = await con.fetch(query)
     return rows
 
-async def collect_all_event_data(person_key):
+async def fetch_person_season_rank(table, dbname, port, password, s, age):
+    sex = 1 if s == "Female" else 0
+    if datetime.now().month >= 9:
+        season_start_year = datetime.now().year
+    else:
+        season_start_year = datetime.now().year - 1 
+    a1 = 0
+    a2 = 10
+    if age <= 10:
+        pass
+    elif age <= 12:
+        a1, a2 = 11, 12
+    elif age <= 14:
+        a1, a2 = 13, 14
+    elif age <= 16:
+        a1, a2 = 15, 16
+    elif age <= 18:
+        a1, a2 = 17, 18
+    else:
+        a1, a2 = 19, 99
+    query = f"""SELECT 
+                    ANY_VALUE(event) AS event, 
+                    personkey,
+                    sex, 
+                    age, 
+                    ANY_VALUE(team) AS team,
+                    ANY_VALUE(usasswimtimekey) AS usasswimtimekey,
+                    ANY_VALUE(meet) AS meet, 
+	                ANY_VALUE(swimdate) AS swimdate,
+                    MIN(swimtime) AS best_time,
+                RANK() OVER (ORDER BY MIN(swimtime)) AS rank
+                FROM
+                    "ResultsSchema"."{table}"
+                WHERE
+                    sex = {sex}
+                    AND age BETWEEN {a1} AND {a2}
+                    AND swimdate >= DATE '{season_start_year-1}-09-01'
+                    AND swimdate <  DATE '{season_start_year}-09-01'
+                GROUP BY personkey, sex, age
+                ORDER BY best_time"""
+    pool = await get_global_pool(dbname, port, password)
+    async with pool.acquire() as con:
+        rows = await con.fetch(query)
+    return rows
+
+async def collect_all_event_data(person_key, sex, age, club, lsc):
     session = app.storage.tab
     db_table_names = ['50_FR_SCY_results', '50_FR_LCM_results', '100_FR_SCY_results', '100_FR_LCM_results',
                         '200_FR_SCY_results', '200_FR_LCM_results', '400_FR_LCM_results', '500_FR_SCY_results', 
@@ -122,7 +169,14 @@ async def collect_all_event_data(person_key):
     # Use asyncio.gather to collect all results
     results = await asyncio.gather(*tasks)
     all_event_data = [item for sublist in results if sublist for item in sublist]
-    return all_event_data
+
+    tasks = []
+    for table in db_table_names:
+        tasks.append(fetch_person_season_rank(table, session['dbname'], session['port'], session['password'], sex, age))
+    # Use asyncio.gather to collect all results
+    results = await asyncio.gather(*tasks)
+    season_ranking_data = [item for sublist in results if sublist for item in sublist]
+    return all_event_data, season_ranking_data
 
 async def update_id_table():
     await ui.context.client.connected()
@@ -187,10 +241,16 @@ async def update_ncaa_comparison_table():
     session['ncaa_comparison_table'].visible = True
     session['ncaa_comparison_table'].update()
 
-async def update_season_rankings_table():
+async def update_season_rankings_table(e):
     session = app.storage.tab
+    print(session['season_rank_data_df'].head(-10))
+    session['season_rankings_table'].columns = [{'name': col, 'label': col, 'field': col} for col in ["event", "age group", "meet", "team", "swimtime", "swimdate", "national rank"]]
+    rows = session['season_rank_data_df'].loc[(e in session['season_rank_data_df']['event']) & (session['season_rank_data_df']['personkey'] == session['previous_personkey'])]
+    print(rows)
+    #session['best_rankings_table'].rows.append(rows)
     session['season_rankings_table'].visible = True
     session['season_rankings_table'].update()
+    return
 
 async def update_best_rankings_table():
     await ui.context.client.connected()
@@ -342,13 +402,12 @@ async def display_event_data(e, df):
             pass
         session['season_rankings_table'] = ui.table(rows=[])
         session['season_rankings_table'].visible = False
-        await update_season_rankings_table()
+        await update_season_rankings_table(e)
     with session['results_column']:
         if not session['event_label']: 
             session['event_label'] = ui.label(e + " Progression") 
         if not session['course_radio']:
             session['course_radio'] = ui.radio(["SCY", "LCM"], value="SCY", on_change=lambda: update_results_table(session['course_radio'].value)).props('inline')
-            print('set radio')
         try:
             session['event_results_table'].delete()
         except:
@@ -396,7 +455,7 @@ async def graph_page(person_key: str):
     
     if session['previous_personkey'] != person_key:
         session['previous_personkey'] = person_key
-        all_event_data = await collect_all_event_data(person_key)
+        all_event_data, season_rank_data = await collect_all_event_data(person_key, sex, age, club, lsc)
         session['all_event_data_df'] = pd.DataFrame(all_event_data, columns=["event", "swimtime", "relay", 
                                                                 "age", "points", "timestandard",  
                                                                 "meet", "team", "swimdate"])
@@ -404,6 +463,8 @@ async def graph_page(person_key: str):
         session['all_event_data_df']["swimtime"] = session['all_event_data_df'].apply(lambda row: convert_timedelta(row['swimtime']) + "r" if row['relay'] == 1 else convert_timedelta(row['swimtime']), axis=1)
         session['all_event_data_df']["swimdate"] = session['all_event_data_df']["swimdate"].apply(lambda x: x.strftime('%m/%d/%Y'))
         session['all_event_data_df'].drop('relay', axis=1, inplace=True)
+
+        session['season_rank_data_df'] = pd.DataFrame(season_rank_data, columns=["event", "personkey", "sex", "age", "team", "usasswimtimekey", "best_time", "rank"])
         first_non_empty_event, first_non_empty_event_df = await make_event_buttons(session['all_event_data_df'])
         session['lcm_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['event'].str.contains("LCM")]
         session['scy_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['event'].str.contains("SCY")]
