@@ -1,4 +1,3 @@
-#from selenium import webdriver
 import json
 from MakeIDResultRequests import make_id_results_request
 from GetToken import get_token
@@ -10,11 +9,9 @@ import psycopg
 from psycopg import sql
 import asyncio
 from curl_cffi.requests import AsyncSession
-from get_credentials import get_credentials
 
 def send_data(data):
-    dbname, port, password = get_credentials()
-    with psycopg.connect(f"dbname={dbname} port={port} user=postgres host='localhost' password='{password}'") as conn:
+    with psycopg.connect("dbname=SwimRank port=5462 user=postgres host='localhost' password='Annoyer9Ores!2345'") as conn:
         # Open a cursor to perform database operations
         with conn.cursor() as cur:
             event_columns = ['50 FR SCY', '50 FR LCM', '100 FR SCY', '100 FR LCM',
