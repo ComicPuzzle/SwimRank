@@ -1,1 +1,2 @@
-print('50 FR' in '100 FR SCY')
+import time
+print(time.time())
