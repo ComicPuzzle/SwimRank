@@ -11,12 +11,12 @@ from get_credentials import get_credentials
 # --- GLOBAL DB POOL ---
 global_pool = None
 pd.set_option('display.max_columns', None)
-async def get_global_pool(dbname, port, password):
+async def get_global_pool(dbname, ip, port, password):
     """Return a shared asyncpg pool for all requests."""
     global global_pool
     if global_pool is None or global_pool.is_closing():
         global_pool = await asyncpg.create_pool(
-            dsn=f'postgres://postgres:{password}@192.168.254.89:{port}/{dbname}', #change to remote address
+            dsn=f'postgres://postgres:{password}@{ip}:{port}/{dbname}', #change to remote address
             max_inactive_connection_lifetime=20,
             min_size=1,
             max_size=10,  # adjust based on server capacity
@@ -41,7 +41,7 @@ async def shutdown():
 
 def reset_session_vars():
     session = app.storage.tab
-    session['dbname'], session['port'], session['password'] = get_credentials()
+    session['dbname'], session['port'], session['password'], session['ip'] = get_credentials()
     session['course_radio'], session['best_times_label'], session['meets_label'], session['season_rankings_label'], session['career_rankings_label'] = None, None, None, None, None
     session['progress_label'], session['comparison_label'], session['results_column'], session['best_times_column'] = None, None, None, None
     session['upcoming_meets_column'], session['season_rankings_column'], session['ncaa_comparison_column'], session['best_rankings_table'] = None, None, None, None
@@ -112,22 +112,22 @@ async def fetch_people(name):
     session = app.storage.tab
 
     query = f"""SELECT * FROM "ResultsSchema"."SwimmerIDs" WHERE LOWER("Name") LIKE '{split_name}'"""
-    pool = await get_global_pool(session['dbname'], session['port'], session['password'])
+    pool = await get_global_pool(session['dbname'], session['ip'], session['port'], session['password'])
     async with pool.acquire() as con:
         rows = await con.fetch(query)
     session['id_table_df'] = pd.DataFrame(rows, columns=['Name', 'Age', 'LSC', 'Club', 'PersonKey', 'Sex'])
     await update_id_table()
 
 
-async def fetch_person_event_data(table, key, dbname, port, password):
+async def fetch_person_event_data(table, key, dbname, ip, port, password):
     query = f"""SELECT "event", "swimtime", "relay", "age", "points", "timestandard",  
                             "meet", "team", "swimdate" FROM "ResultsSchema"."{table}" WHERE "personkey" = {key}"""
-    pool = await get_global_pool(dbname, port, password)
+    pool = await get_global_pool(dbname, ip, port, password)
     async with pool.acquire() as con:
         rows = await con.fetch(query)
     return rows
 
-async def fetch_person_season_rank(table, dbname, port, password, sex, age):
+async def fetch_person_season_rank(table, dbname, ip, port, password, sex, age):
     if datetime.now().month >= 9:
         season_start_year = datetime.now().year
     else:
@@ -156,7 +156,7 @@ async def fetch_person_season_rank(table, dbname, port, password, sex, age):
                 GROUP BY personkey, sex, age
                 ORDER BY swimtime
                 LIMIT 1000"""
-    pool = await get_global_pool(dbname, port, password)
+    pool = await get_global_pool(dbname, ip, port, password)
     async with pool.acquire() as con:
         rows = await con.fetch(query)
     return rows
@@ -174,7 +174,7 @@ async def collect_all_event_data(person_key):
     #Person event data
     tasks = []
     for table in db_table_names:
-        tasks.append(fetch_person_event_data(table, person_key, session['dbname'], session['port'], session['password']))
+        tasks.append(fetch_person_event_data(table, person_key, session['dbname'],  session['ip'], session['port'], session['password']))
     results = await asyncio.gather(*tasks)
     all_event_data = [item for sublist in results if sublist for item in sublist]
 
@@ -191,12 +191,11 @@ async def collect_all_ranking_data(sex=0, age=18):
                         '50_BR_SCY_results', '100_BR_SCY_results', '200_BR_SCY_results', '50_BR_LCM_results', '100_BR_LCM_results', '200_BR_LCM_results',
                         '100_IM_SCY_results', '200_IM_SCY_results', '400_IM_SCY_results', '200_IM_LCM_results', '400_IM_LCM_results'
                         ]
-    #Ranking data]
     tasks = []
     for s in [0, 1]:
         for a in [10, 12, 14, 16, 18]:
             for table in db_table_names:
-                tasks.append(fetch_person_season_rank(table, session['dbname'], session['port'], session['password'], s, a))
+                tasks.append(fetch_person_season_rank(table, session['dbname'],  session['ip'], session['port'], session['password'], s, a))
     results = await asyncio.gather(*tasks)
     season_ranking_data = [item for sublist in results if sublist for item in sublist]
     return season_ranking_data
@@ -567,13 +566,13 @@ async def main_page():
     get_current_season()
     reset_session_vars()
     
-    await get_global_pool(session['dbname'], session['port'], session['password'])
+    await get_global_pool(session['dbname'],  session['ip'], session['port'], session['password'])
     season_rank_data = await collect_all_ranking_data()
     session['national_rank_data_df'] = pd.DataFrame(season_rank_data, columns=["event", "personkey", "sex", "age", "team", "lsc", "usasswimtimekey", "meet", "swimdate", "relay", "swimtime", "rank"])
     session['national_rank_data_df']["swimtime"] = session['national_rank_data_df'].apply(lambda row: convert_timedelta(row['swimtime']) + "r" if row['relay'] == 1 else convert_timedelta(row['swimtime']), axis=1)
     session['national_rank_data_df']["swimdate"] = session['national_rank_data_df']["swimdate"].apply(lambda x: x.strftime('%m/%d/%Y'))
-    session['national_rank_data_df']['age'] = session['national_rank_data_df']['age'].apply(lambda x: get_age_group(x))
-    session['national_rank_data_df']['age group'] = session['national_rank_data_df']['age'].apply(lambda x: age_group_str(x))
+    #session['national_rank_data_df']['age'] = session['national_rank_data_df']['age'].apply(lambda x: get_age_group(x))
+    session['national_rank_data_df']['age group'] = session['national_rank_data_df']['age'].apply(lambda x: age_group_str(get_age_group(x)))
     session['national_rank_data_df'].rename(columns={'rank': 'national rank'}, inplace=True)
     session['national_rank_data_df'].drop('relay', axis=1, inplace=True)
     session['national_rank_data_df']['lsc rank'] = session['national_rank_data_df'].groupby(['sex', 'age group', 'event', 'lsc'])['swimtime'].rank(method='dense', ascending=True)
