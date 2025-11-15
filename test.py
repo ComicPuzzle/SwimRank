@@ -19,7 +19,11 @@ def get_previous_week_dates(today_date=None):
 
     return previous_week_dates
 
+# Example usage:
+previous_week = get_previous_week_dates()
+print(f"Dates of the previous week: {previous_week}")
+
 # Example with a specific date
-specific_date = date(2025, 11, 5) # A Monday
+specific_date = date(2025, 11, 10) # A Monday
 previous_week_from_specific_date = get_previous_week_dates(specific_date)
 print(f"Dates of the week before {specific_date}: {previous_week_from_specific_date}")

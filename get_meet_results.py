@@ -69,8 +69,8 @@ def send_data(data):
                 cur.executemany(query, temp)
                 conn.commit()
 
-async def fetch_meet_keys(session, bearer_token, temp_keys, index):
-    return await make_meet_keys_request(session, bearer_token, temp_keys, index)
+async def fetch_meet_keys(session, bearer_token, start_date):
+    return await make_meet_keys_request(session, bearer_token, start_date)
 
 async def fetch_meet_results(session, bearer_token, temp_keys, index):
     return await make_meet_results_request(session, bearer_token, temp_keys, index)
@@ -168,7 +168,10 @@ if __name__ == "__main__":
     all_formatted_responses = []
     today = datetime.today()
     previous_week_dates = get_previous_week_dates(today)
+    loop = asyncio.get_event_loop()
     for day in previous_week_dates:
         bearer_token = get_token()
         print("bearer token retrieved")
         all_formatted_responses = []
+        loop.run_until_complete(fetch_meet_keys())
+        

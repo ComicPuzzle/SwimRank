@@ -191,14 +191,14 @@ if __name__ == "__main__":
                 k = keys[i:] 
             else:
                 k = keys[i:i+500]
-            if i % 500 == 0 and i != 0:
+            if i % 15000 == 0 and i != 0:
                 payload = pd.DataFrame.from_dict(all_formatted_responses)
                 send_data(payload)
                 print("Data Sent")
                 all_formatted_responses = []
                 bearer_token = get_token()
                 print("bearer token retrieved")
-                remove_first_n_lines('ids.txt', 500)
+                remove_first_n_lines('ids.txt', 15000)
             all_swimmers = loop.run_until_complete(main_func(k, bearer_token))
             all_formatted_responses.extend(all_swimmers)
             i += 500
