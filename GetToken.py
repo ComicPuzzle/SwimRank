@@ -23,3 +23,6 @@ def get_token():
                 if "undefined" not in bearer_token:
                     break
     return bearer_token
+
+if __name__ == "__main__":
+    print(get_token())

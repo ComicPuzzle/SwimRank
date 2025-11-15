@@ -567,7 +567,7 @@ async def main_page():
     reset_session_vars()
     
     await get_global_pool(session['dbname'],  session['ip'], session['port'], session['password'])
-    season_rank_data = await collect_all_ranking_data()
+    """season_rank_data = await collect_all_ranking_data()
     session['national_rank_data_df'] = pd.DataFrame(season_rank_data, columns=["event", "personkey", "sex", "age", "team", "lsc", "usasswimtimekey", "meet", "swimdate", "relay", "swimtime", "rank"])
     session['national_rank_data_df']["swimtime"] = session['national_rank_data_df'].apply(lambda row: convert_timedelta(row['swimtime']) + "r" if row['relay'] == 1 else convert_timedelta(row['swimtime']), axis=1)
     session['national_rank_data_df']["swimdate"] = session['national_rank_data_df']["swimdate"].apply(lambda x: x.strftime('%m/%d/%Y'))
@@ -577,7 +577,7 @@ async def main_page():
     session['national_rank_data_df'].drop('relay', axis=1, inplace=True)
     session['national_rank_data_df']['lsc rank'] = session['national_rank_data_df'].groupby(['sex', 'age group', 'event', 'lsc'])['swimtime'].rank(method='dense', ascending=True)
     session['national_rank_data_df']['club rank'] = session['national_rank_data_df'].groupby(['sex', 'age group', 'event', 'team'])['swimtime'].rank(method='dense', ascending=True)
-
+    """
     with session['main_page_column']:
         ui.label('SwimRank').style('font-size: 200%; font-weight: 300, font-family: "Times New Roman", Times, serif;')
         session['search_input'] = ui.input(label='Enter name...', placeholder='Type a name...')

@@ -25,13 +25,7 @@ def send_data(data, ):
     conn.commit()
 
 if __name__ == "__main__":
-    options = webdriver.ChromeOptions()
-    options.page_load_strategy = 'eager'
-    options.add_argument("--headless=new")
-    options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
-    driver = webdriver.Chrome(options=options)
-    driver.get("https://data.usaswimming.org/datahub/usas/individualsearch")
-    bearer_token = get_token(driver)
+    bearer_token = get_token()
     print(bearer_token)
 
     offset = 0
