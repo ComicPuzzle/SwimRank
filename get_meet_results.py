@@ -14,6 +14,7 @@ from curl_cffi.requests import AsyncSession
 from get_credentials import get_credentials
 from collections import defaultdict
 import random
+from update_rankings import send_season_ranking_query
 
 def get_previous_week_dates(today_date):
     current_week_start = today_date - timedelta(days=today_date.isoweekday() - 1)
@@ -283,43 +284,55 @@ if __name__ == "__main__":
     age_updates = []
     print(len(grouped_dict))
     
-    # all_ids is set of tuples: {(PersonKey, Age), ...}
-existing_keys = {pk for pk, age in all_ids}
-existing_age_pairs = all_ids  # already tuples
+        # all_ids is set of tuples: {(PersonKey, Age), ...}
+    existing_keys = {pk for pk, age in all_ids}
+    existing_age_pairs = all_ids  # already tuples
 
-new_id_rows = []
-age_updates = []
+    new_id_rows = []
+    age_updates = []
 
-for personkey, rows in grouped_dict.items():
-    first = rows[0]
-    name = first["Name"]
-    age = first["Age"]
-    team = first["Team"]
-    sex = first["Sex"]
-    lsc = first["LSC"]
-    if personkey not in existing_keys:
-        print("adding id")
-        new_id_rows.append({
-            'Name': name,
-            'Team': team,
-            'LSC': lsc,
-            'Age': age,
-            'PersonKey': personkey,
-            'Sex': sex
-        })
+    for personkey, rows in grouped_dict.items():
+        first = rows[0]
+        name = first["Name"]
+        age = first["Age"]
+        team = first["Team"]
+        sex = first["Sex"]
+        lsc = first["LSC"]
+        if personkey not in existing_keys:
+            print("adding id")
+            new_id_rows.append({
+                'Name': name,
+                'Team': team,
+                'LSC': lsc,
+                'Age': age,
+                'PersonKey': personkey,
+                'Sex': sex
+            })
 
-    if (personkey, age) not in existing_age_pairs:
-        print("adding age")
-        age_updates.append({'PersonKey': personkey, 'Age': age})
+        if (personkey, age) not in existing_age_pairs:
+            print("adding age")
+            age_updates.append({'PersonKey': personkey, 'Age': age})
 
-    if new_id_rows:
-        print("Inserting", len(new_id_rows), "new swimmers…")
-        send_id_data_batch(new_id_rows)
-    if age_updates:
-        send_age_data_batch(age_updates)
+        if new_id_rows:
+            print("Inserting", len(new_id_rows), "new swimmers…")
+            send_id_data_batch(new_id_rows)
+        if age_updates:
+            send_age_data_batch(age_updates)
 
-    df = pd.DataFrame.from_dict(formatted)
-    send_data(df)
+        df = pd.DataFrame.from_dict(formatted)
+        send_data(df)
+
+    month = datetime.now().month
+    year = datetime.now().year
+    if month  >= 9:
+        season_start = str(year) + "-09-01"
+        season_end = str(year + 1) + "-09-01"
+        season = f"{year}-{year + 1}"
+    else:
+        season_start = str(year - 1) + "-09-01"
+        season_end = str(year) + "-09-01"
+        season = f"{year - 1}-{year}"
+    send_season_ranking_query(season_start, season_end, season)
 
 
-        
+            

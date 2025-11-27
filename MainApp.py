@@ -11,6 +11,8 @@ from get_credentials import get_credentials
 # --- GLOBAL DB POOL ---
 global_pool = None
 pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+
 async def get_global_pool(dbname, ip, port, password):
     """Return a shared asyncpg pool for all requests."""
     global global_pool
@@ -30,7 +32,7 @@ def get_current_season():
     if session['current_month'] >= 9:
         session['current_season'] = f"{'9/' + str(session['current_year']) + ' - 8/' + str(session['current_year'] + 1)}"
     else:
-        session['current_season'] = f"{'9/' + str(session['current_year'] - 1) + ' - 8/' + str(session['current_year'])}"\
+        session['current_season'] = f"{'9/' + str(session['current_year'] - 1) + ' - 8/' + str(session['current_year'])}"
         
 @app.on_shutdown
 async def shutdown():

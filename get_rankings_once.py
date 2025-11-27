@@ -36,11 +36,16 @@ def send_rankings_query():
                         r."SwimDate",
                         r."SwimTime",
                         CASE
+                            WHEN r."SwimDate" >= '2025-09-01' AND r."SwimDate" < '2026-09-01' THEN '2025-2026'
                             WHEN r."SwimDate" >= '2024-09-01' AND r."SwimDate" < '2025-09-01' THEN '2024-2025'
                             WHEN r."SwimDate" >= '2023-09-01' AND r."SwimDate" < '2024-09-01' THEN '2023-2024'
                             WHEN r."SwimDate" >= '2022-09-01' AND r."SwimDate" < '2023-09-01' THEN '2022-2023'
                             WHEN r."SwimDate" >= '2021-09-01' AND r."SwimDate" < '2022-09-01' THEN '2021-2022'
                             WHEN r."SwimDate" >= '2020-09-01' AND r."SwimDate" < '2021-09-01' THEN '2020-2021'
+                            WHEN r."SwimDate" >= '2019-09-01' AND r."SwimDate" < '2020-09-01' THEN '2019-2020'
+                            WHEN r."SwimDate" >= '2018-09-01' AND r."SwimDate" < '2019-09-01' THEN '2018-2019'
+                            WHEN r."SwimDate" >= '2017-09-01' AND r."SwimDate" < '2018-09-01' THEN '2017-2018'
+                            WHEN r."SwimDate" >= '2016-09-01' AND r."SwimDate" < '2017-09-01' THEN '2016-2017'
                         END AS season
                     FROM "ResultsSchema"."{table}" r
                 ),
