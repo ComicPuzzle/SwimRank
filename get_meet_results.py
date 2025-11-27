@@ -35,48 +35,53 @@ def get_personkeys():
     return {row[0:2] for row in rows}
 
 def send_id_data_batch(rows):
-    values_sql = ", ".join(
-        cur.mogrify("(%s, %s, %s, %s, %s, %s)", (
-            r['Name'], r['Team'], r['LSC'], r['Age'], r['PersonKey'], r['Sex']
-        )).decode("utf-8")
-        for r in rows
-    )
-
-    query = f"""
-        INSERT INTO "ResultsSchema"."SwimmerIDs"
-        ("Name", "Club", "LSC", "Age", "PersonKey", "Sex")
-        VALUES {values_sql}
-        ON CONFLICT ("PersonKey") DO NOTHING
-    """
-
     db, port, password, host = get_credentials()
 
     with psycopg.connect(f"dbname={db} port={port} user=postgres host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
+            values = sql.SQL(", ").join(
+                sql.SQL("({name}, {team}, {lsc}, {age}, {pkey}, {sex})").format(
+                    name=sql.Literal(r["Name"]),
+                    team=sql.Literal(r["Team"]),
+                    lsc=sql.Literal(r["LSC"]),
+                    age=sql.Literal(r["Age"]),
+                    pkey=sql.Literal(r["PersonKey"]),
+                    sex=sql.Literal(r["Sex"])
+                )
+                for r in rows
+            )
+            query = sql.SQL("""
+                INSERT INTO "ResultsSchema"."SwimmerIDs"
+                ("Name", "Club", "LSC", "Age", "PersonKey", "Sex")
+                VALUES {values}""").format(values=values)
+
             cur.execute(query)
         conn.commit()
 
 
 def send_age_data_batch(rows):
-    query = """
-        UPDATE "ResultsSchema"."SwimmerIDs" AS s
-        SET "Age" = v.age
-        FROM (
-            VALUES %s
-        ) AS v(personkey, age)
-        WHERE s."PersonKey" = v.personkey;
-    """
-    # Convert list of dicts to list of tuples
-    values = [(r['PersonKey'], r['Age']) for r in rows]
-
     db, port, password, host = get_credentials()
 
     with psycopg.connect(f"dbname={db} port={port} user=postgres host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
-            psycopg.extras.execute_values(
-                cur, query, values, template="(%s, %s)"
-            )
+            # Build VALUES block safely
+            values = sql.SQL(", ").join(
+                sql.SQL("({personkey}, {age})").format(
+                    personkey=sql.Literal(r["PersonKey"]),
+                    age=sql.Literal(r["Age"])
+                )
+                for r in rows)
+
+            query = sql.SQL("""
+                UPDATE "ResultsSchema"."SwimmerIDs" AS s
+                SET "Age" = v.age
+                FROM (VALUES {values}) AS v(personkey, age)
+                WHERE s."PersonKey" = v.personkey;
+            """).format(values=values)
+
+            cur.execute(query)
         conn.commit()
+
 
 def send_data(df):
     db, port, password, host = get_credentials()
@@ -133,7 +138,6 @@ def send_data(df):
                 if temp_df.empty:
                     continue
 
-                #records = temp_df.to_dict(orient="records")
                 records = list(temp_df.itertuples(index=False))
                 placeholders = sql.SQL(', ').join(sql.SQL('%s') for _ in db_columns)
                 query = sql.SQL("""
@@ -313,14 +317,14 @@ if __name__ == "__main__":
             print("adding age")
             age_updates.append({'PersonKey': personkey, 'Age': age})
 
-        if new_id_rows:
+    if new_id_rows:
             print("Inserting", len(new_id_rows), "new swimmers…")
             send_id_data_batch(new_id_rows)
-        if age_updates:
+    if age_updates:
             send_age_data_batch(age_updates)
 
-        df = pd.DataFrame.from_dict(formatted)
-        send_data(df)
+    df = pd.DataFrame.from_dict(formatted)
+    send_data(df)
 
     month = datetime.now().month
     year = datetime.now().year
