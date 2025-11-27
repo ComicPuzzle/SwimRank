@@ -145,7 +145,6 @@ async def collect_all_event_data(person_key):
         tasks.append(fetch_person_event_data(table, person_key, session['dbname'],  session['ip'], session['port'], session['password']))
     results = await asyncio.gather(*tasks)
     all_event_data = [item for sublist in results if sublist for item in sublist]
-
     return all_event_data
 
 async def update_id_table():
@@ -443,21 +442,16 @@ async def update_season_rankings_table(e):
     start_str, end_str = [s.strip() for s in session['current_season'].split("-")]
     season_start = pd.to_datetime(start_str)
     season_end   = pd.to_datetime(end_str)
-    print(season_start, season_end)
     if not session['scy_df'].empty:
         scy_copy = session['scy_df'].copy()
         scy_copy['SwimTime'] = scy_copy['SwimTime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
-        scy_copy["SwimDate"] = pd.to_datetime(scy_copy["SwimDate"], format="%m/%d/%Y")
-        print(scy_copy.head(10))
-        scy_min_season_row = scy_copy[(scy_copy["SwimDate"] >= season_start) & (scy_copy["SwimDate"] < season_end) & (scy_copy["national_rank"] != -1)].to_dict()
-        print(scy_min_season_row)
+        scy_min_season_row = scy_copy[(pd.to_datetime(scy_copy["SwimDate"], format="%m/%d/%Y") >= season_start) & (pd.to_datetime(scy_copy["SwimDate"], format="%m/%d/%Y") < season_end) & (scy_copy["national_rank"] != -1)].to_dict()
         if scy_min_season_row:
             session['season_rankings_table'].rows.append(scy_min_season_row)
     if not session['lcm_df'].empty:
         lcm_copy = session['lcm_df'].copy()
         lcm_copy['SwimTime'] = lcm_copy['SwimTime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
-        lcm_copy["SwimDate"] = pd.to_datetime(lcm_copy["SwimDate"], format="%m/%d/%Y")
-        lcm_min_season_row = lcm_copy[(lcm_copy["SwimDate"] >= season_start) & (lcm_copy["SwimDate"] < season_end) & (lcm_copy["national_rank"] != -1)].to_dict()
+        lcm_min_season_row = lcm_copy[(pd.to_datetime(lcm_copy["SwimDate"], format="%m/%d/%Y") >= season_start) & (pd.to_datetime(lcm_copy["SwimDate"], format="%m/%d/%Y") < season_end) & (lcm_copy["national_rank"] != -1)].to_dict()
         if lcm_min_season_row:
             session['season_rankings_table'].rows.append(lcm_min_season_row)
 
