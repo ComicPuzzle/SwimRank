@@ -120,42 +120,8 @@ async def fetch_people(name):
 
 
 async def fetch_person_event_data(table, key, dbname, ip, port, password):
-    query = f"""SELECT "event", "swimtime", "relay", "age", "points", "timestandard",  
-                            "meet", "team", "swimdate" FROM "ResultsSchema"."{table}" WHERE "personkey" = {key}"""
-    pool = await get_global_pool(dbname, ip, port, password)
-    async with pool.acquire() as con:
-        rows = await con.fetch(query)
-    return rows
-
-async def fetch_person_season_rank(table, dbname, ip, port, password, sex, age):
-    if datetime.now().month >= 9:
-        season_start_year = datetime.now().year
-    else:
-        season_start_year = datetime.now().year - 1 
-    a = get_age_group(age)
-    query = f"""SELECT 
-                    ANY_VALUE(event) AS event, 
-                    personkey,
-                    sex, 
-                    age, 
-                    ANY_VALUE(team) AS team,
-                    ANY_VALUE(lsc) AS lsc,
-                    ANY_VALUE(usasswimtimekey) AS usasswimtimekey,
-                    ANY_VALUE(meet) AS meet, 
-	                ANY_VALUE(swimdate) AS swimdate,
-                    ANY_VALUE(relay) AS relay,
-                    MIN(swimtime) AS swimtime,
-                RANK() OVER (ORDER BY MIN(swimtime)) AS rank
-                FROM
-                    "ResultsSchema"."{table}"
-                WHERE
-                    sex = {sex}
-                    AND age BETWEEN {a[0]} AND {a[1]}
-                    AND swimdate >= DATE '{season_start_year-1}-09-01'
-                    AND swimdate <  DATE '{season_start_year}-09-01'
-                GROUP BY personkey, sex, age
-                ORDER BY swimtime
-                LIMIT 1000"""
+    query = f"""SELECT "Event", "SwimTime", "Relay", "Age", "Points", "TimeStandard",  
+                            "Meet", "Team", "SwimDate", "national_rank", "lsc_rank", "club_rank" FROM "ResultsSchema"."{table}" WHERE "PersonKey" = {key}"""
     pool = await get_global_pool(dbname, ip, port, password)
     async with pool.acquire() as con:
         rows = await con.fetch(query)
@@ -179,26 +145,6 @@ async def collect_all_event_data(person_key):
     all_event_data = [item for sublist in results if sublist for item in sublist]
 
     return all_event_data
-
-async def collect_all_ranking_data(sex=0, age=18):
-    await ui.context.client.connected()
-    session = app.storage.tab
-    db_table_names = ['50_FR_SCY_results', '50_FR_LCM_results', '100_FR_SCY_results', '100_FR_LCM_results',
-                        '200_FR_SCY_results', '200_FR_LCM_results', '400_FR_LCM_results', '500_FR_SCY_results', 
-                        '800_FR_LCM_results', '1000_FR_SCY_results', '1500_FR_LCM_results', '1650_FR_SCY_results',
-                        '50_BK_SCY_results', '100_BK_SCY_results', '200_BK_SCY_results', '50_BK_LCM_results', '100_BK_LCM_results', '200_BK_LCM_results',
-                        '50_FL_SCY_results', '100_FL_SCY_results', '200_FL_SCY_results', '50_FL_LCM_results', '100_FL_LCM_results', '200_FL_LCM_results',
-                        '50_BR_SCY_results', '100_BR_SCY_results', '200_BR_SCY_results', '50_BR_LCM_results', '100_BR_LCM_results', '200_BR_LCM_results',
-                        '100_IM_SCY_results', '200_IM_SCY_results', '400_IM_SCY_results', '200_IM_LCM_results', '400_IM_LCM_results'
-                        ]
-    tasks = []
-    for s in [0, 1]:
-        for a in [10, 12, 14, 16, 18]:
-            for table in db_table_names:
-                tasks.append(fetch_person_season_rank(table, session['dbname'],  session['ip'], session['port'], session['password'], s, a))
-    results = await asyncio.gather(*tasks)
-    season_ranking_data = [item for sublist in results if sublist for item in sublist]
-    return season_ranking_data
 
 async def update_id_table():
     await ui.context.client.connected()
@@ -225,129 +171,14 @@ async def update_id_table():
 
     session['id_table'].on('person_selected', on_person_selected)
 
-async def make_event_buttons(all_event_data_df):
-    events = ['50 FR', '100 FR', '200 FR', '400/500 FR', 
-              '800/1000 FR', '1500/1650 FR', '50 FL', 
-              '100 FL', '200 FL', '50 BK', '100 BK', 
-              '200 BK', '50 BR', '100 BR', '200 BR',
-              '100 IM', '200 IM', '400 IM']
-    
-    first_non_empty_event = None
-    first_non_empty_event_df = None
-    first = True
-    with ui.column().classes('w-full items-center'):
-        with ui.row():
-            for event in events:
-                event_df = all_event_data_df.loc[all_event_data_df['event'].str.contains(event)]
-                if not event_df.empty:
-                    if first:
-                        first_non_empty_event = event
-                        first_non_empty_event_df = event_df
-                        first = False
-                    ui.button(event, on_click=lambda e=event, df=event_df: display_event_data(e, df))
-
-    return (first_non_empty_event, first_non_empty_event_df)
-
-async def update_results_table(course):
-    await ui.context.client.connected()
-    session = app.storage.tab
-    if course == "SCY":
-        session['event_results_table'].columns = [{'name': col, 'label': col, 'field': col} for col in session['scy_df'].columns]
-        session['event_results_table'].rows = session['scy_df'].to_dict('records')
-    else:
-        session['event_results_table'].columns = [{'name': col, 'label': col, 'field': col} for col in session['lcm_df'].columns]
-        session['event_results_table'].rows = session['lcm_df'].to_dict('records')
-    session['event_results_table'].visible = True
-    session['event_results_table'].update()
-    #add graph
-
-async def update_upcoming_meets_table():
-    session = app.storage.tab
-    session['upcoming_meets_table'].visible = True
-    session['upcoming_meets_table'].update()
-
-async def update_ncaa_comparison_table():
-    session = app.storage.tab
-    session['ncaa_comparison_table'].visible = True
-    session['ncaa_comparison_table'].update()
-
-async def update_season_rankings_table(e):
-    session = app.storage.tab
-    #session['season_rankings_table'].columns = [{'name': col, 'label': col, 'field': col} for col in ["event", "age group", "team", "meet", "swimdate", "swimtime", "national rank", "lsc rank", "club rank"]]
-    session['season_rankings_table'].columns = [
-        {'name': 'event', 'label': 'Event', 'field': 'event'},
-        {'name': 'age group', 'label': 'Age Group', 'field': 'age group'},
-        {'name': 'team', 'label': 'Team', 'field': 'team'},
-        {'name': 'meet', 'label': 'Meet', 'field': 'meet'},
-        {'name': 'swimdate', 'label': 'Swim Date', 'field': 'swimdate'},
-        {'name': 'swimtime', 'label': 'Swim Time', 'field': 'swimtime'},
-        {'name': 'national rank', 'label': 'National Rank', 'field': 'national rank'},
-        {'name': 'lsc rank', 'label': 'LSC Rank', 'field': 'lsc rank'},
-        {'name': 'club rank', 'label': 'Club Rank', 'field': 'club rank'}
-    ]
-
-    session['season_rankings_table'].add_slot('body-cell-national rank', """
-        <q-td :props="props">
-            <q-btn flat dense color="primary"
-                :label="props.row['national rank']"
-                @click="() => $parent.$emit('open_rank_page', {type: 'national', row: props.row})"/>
-        </q-td>
-    """)
-
-    session['season_rankings_table'].add_slot('body-cell-lsc rank', """
-        <q-td :props="props">
-            <q-btn flat dense color="secondary"
-                :label="props.row['lsc rank']"
-                @click="() => $parent.$emit('open_rank_page', {type: 'lsc', row: props.row})"/>
-        </q-td>
-    """)
-
-    session['season_rankings_table'].add_slot('body-cell-club rank', """
-        <q-td :props="props">
-            <q-btn flat dense color="accent"
-                :label="props.row['club rank']"
-                @click="() => $parent.$emit('open_rank_page', {type: 'club', row: props.row})"/>
-        </q-td>
-    """)
-
-    def open_rank_page(msg):
-        rank_type = msg.args['type']
-        row = msg.args['row']
-        ui.navigate.to(f"/rankings?rank_type={rank_type}&event={row['event']}&age_group={row['age group']}&lsc={row['lsc']}&club={row['team']}&sex={int(row['sex'])}")
-    session['season_rankings_table'].on('open_rank_page', open_rank_page)
-
-    rows = session['national_rank_data_df'].loc[(session['national_rank_data_df']['event'].astype(str).str.contains(str(e), case=False, na=False)) & (session['national_rank_data_df']['personkey'] == int(session['person']['PersonKey']))]
-    rows = rows.to_dict('records')
-    session['season_rankings_table'].rows.extend(rows)
-    session['season_rankings_table'].visible = True
-    session['season_rankings_table'].update()
-    return
-
-async def update_best_rankings_table():
-    await ui.context.client.connected()
-    session = app.storage.tab
-    session['best_rankings_table'].columns = [{'name': col, 'label': col, 'field': col} for col in ["event", "swimtime","age", "points", "timestandard", "meet", "team", "swimdate"]]
-    if not session['scy_df'].empty:
-        scy_copy = session['scy_df'].copy()
-        scy_copy['swimtime'] = scy_copy['swimtime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
-        scy_min_row = session['scy_df'].loc[scy_copy['swimtime'].idxmin()].to_dict()  
-        session['best_rankings_table'].rows.append(scy_min_row)
-    if not session['lcm_df'].empty:
-        lcm_copy = session['lcm_df'].copy()
-        lcm_copy['swimtime'] = lcm_copy['swimtime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
-        lcm_min_row = session['lcm_df'].loc[lcm_copy['swimtime'].idxmin()].to_dict()
-        session['best_rankings_table'].rows.append(lcm_min_row)
-    session['best_rankings_table'].visible = True
-    session['best_rankings_table'].update()
-
 async def update_progression_chart():
     # 1) prepare SCY series
     await ui.context.client.connected()
     session = app.storage.tab
     def get_series(df):
         df_copy = df.copy()
-        df_copy['parsed_time'] = df_copy['swimtime'].apply(lambda x: str_to_timedelta(x.replace("r", "")))
-        df_copy['parsed_date'] = pd.to_datetime(df_copy['swimdate'], format='%m/%d/%Y')
+        df_copy['parsed_time'] = df_copy['SwimTime'].apply(lambda x: str_to_timedelta(x.replace("r", "")))
+        df_copy['parsed_date'] = pd.to_datetime(df_copy['SwimDate'], format='%m/%d/%Y')
         df_copy.sort_values('parsed_date', inplace=True)
         return df_copy.apply(
             lambda row: [row['parsed_date'].strftime('%Y-%m-%d'),
@@ -430,8 +261,8 @@ async def update_progression_chart():
 async def display_event_data(e, df):
     await ui.context.client.connected()
     session = app.storage.tab
-    session['lcm_df'] = df.loc[df['event'].str.contains("LCM")]
-    session['scy_df'] = df.loc[df['event'].str.contains("SCY")]
+    session['lcm_df'] = df.loc[df['Event'].str.contains("LCM")]
+    session['scy_df'] = df.loc[df['Event'].str.contains("SCY")]
 
     if not session['results_column']:
         session['best_times_column'] = ui.column().classes('w-full items-center')
@@ -499,7 +330,138 @@ async def display_event_data(e, df):
         session['chart'] = ui.echart([])
         session['chart'].visible = False
         await update_progression_chart()
-        
+
+async def make_event_buttons(all_event_data_df):
+    events = ['50 FR', '100 FR', '200 FR', '400/500 FR', 
+              '800/1000 FR', '1500/1650 FR', '50 FL', 
+              '100 FL', '200 FL', '50 BK', '100 BK', 
+              '200 BK', '50 BR', '100 BR', '200 BR',
+              '100 IM', '200 IM', '400 IM']
+    
+    first_non_empty_event = None
+    first_non_empty_event_df = None
+    first = True
+    with ui.column().classes('w-full items-center'):
+        with ui.row():
+            for event in events:
+                event_df = all_event_data_df.loc[all_event_data_df['Event'].str.contains(event)]
+                if not event_df.empty:
+                    if first:
+                        first_non_empty_event = event
+                        first_non_empty_event_df = event_df
+                        first = False
+                    ui.button(event, on_click=lambda e=event, df=event_df: display_event_data(e, df))
+
+    return (first_non_empty_event, first_non_empty_event_df)
+
+async def update_results_table(course):
+    await ui.context.client.connected()
+    session = app.storage.tab
+    cols = ["Event", "SwimTime", "Age", "Points", "TimeStandard", "Meet", "Team", "SwimDate"]
+    if course == "SCY":
+        session['event_results_table'].columns = [{'name': col, 'label': col, 'field': col} for col in cols]
+        session['event_results_table'].rows = session['scy_df'].to_dict('records')
+    else:
+        session['event_results_table'].columns = [{'name': col, 'label': col, 'field': col} for col in cols]
+        session['event_results_table'].rows = session['lcm_df'].to_dict('records')
+    session['event_results_table'].visible = True
+    session['event_results_table'].update()
+
+async def update_upcoming_meets_table():
+    session = app.storage.tab
+    session['upcoming_meets_table'].visible = True
+    session['upcoming_meets_table'].update()
+
+async def update_ncaa_comparison_table():
+    session = app.storage.tab
+    session['ncaa_comparison_table'].visible = True
+    session['ncaa_comparison_table'].update()
+
+async def update_best_rankings_table():
+    await ui.context.client.connected()
+    session = app.storage.tab
+    session['best_rankings_table'].columns = [{'name': col, 'label': col, 'field': col} for col in ["Event", "SwimTime","Age", "Points", "TimeStandard", "Meet", "Team", "SwimDate"]]
+    if not session['scy_df'].empty:
+        scy_copy = session['scy_df'].copy()
+        scy_copy['SwimTime'] = scy_copy['SwimTime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
+        scy_min_row = session['scy_df'].loc[scy_copy['SwimTime'].idxmin()].to_dict()  
+        session['best_rankings_table'].rows.append(scy_min_row)
+    if not session['lcm_df'].empty:
+        lcm_copy = session['lcm_df'].copy()
+        lcm_copy['SwimTime'] = lcm_copy['SwimTime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
+        lcm_min_row = session['lcm_df'].loc[lcm_copy['SwimTime'].idxmin()].to_dict()
+        session['best_rankings_table'].rows.append(lcm_min_row)
+    session['best_rankings_table'].visible = True
+    session['best_rankings_table'].update()
+
+async def update_season_rankings_table(e):
+    session = app.storage.tab
+    session['season_rankings_table'].columns = [
+        {'name': 'event', 'label': 'Event', 'field': 'event'},
+        {'name': 'age group', 'label': 'Age Group', 'field': 'age group'},
+        {'name': 'team', 'label': 'Team', 'field': 'team'},
+        {'name': 'meet', 'label': 'Meet', 'field': 'meet'},
+        {'name': 'swimdate', 'label': 'Swim Date', 'field': 'swimdate'},
+        {'name': 'swimtime', 'label': 'Swim Time', 'field': 'swimtime'},
+        {'name': 'national rank', 'label': 'National Rank', 'field': 'national rank'},
+        {'name': 'lsc rank', 'label': 'LSC Rank', 'field': 'lsc rank'},
+        {'name': 'club rank', 'label': 'Club Rank', 'field': 'club rank'}
+    ]
+
+    session['season_rankings_table'].add_slot('body-cell-national rank', """
+        <q-td :props="props">
+            <q-btn flat dense color="primary"
+                :label="props.row['national rank']"
+                @click="() => $parent.$emit('open_rank_page', {type: 'national', row: props.row})"/>
+        </q-td>
+    """)
+
+    session['season_rankings_table'].add_slot('body-cell-lsc rank', """
+        <q-td :props="props">
+            <q-btn flat dense color="secondary"
+                :label="props.row['lsc rank']"
+                @click="() => $parent.$emit('open_rank_page', {type: 'lsc', row: props.row})"/>
+        </q-td>
+    """)
+
+    session['season_rankings_table'].add_slot('body-cell-club rank', """
+        <q-td :props="props">
+            <q-btn flat dense color="accent"
+                :label="props.row['club rank']"
+                @click="() => $parent.$emit('open_rank_page', {type: 'club', row: props.row})"/>
+        </q-td>
+    """)
+
+    def open_rank_page(msg):
+        rank_type = msg.args['type']
+        row = msg.args['row']
+        ui.navigate.to(f"/rankings?rank_type={rank_type}&event={row['event']}&age_group={row['age group']}&lsc={row['lsc']}&club={row['team']}&sex={int(row['sex'])}")
+    session['season_rankings_table'].on('open_rank_page', open_rank_page)
+
+    start_str, end_str = [s.strip() for s in session['current_season'].split("-")]
+    season_start = pd.to_datetime(start_str)
+    season_end   = pd.to_datetime(end_str)
+    print(season_start, season_end)
+    if not session['scy_df'].empty:
+        scy_copy = session['scy_df'].copy()
+        scy_copy['SwimTime'] = scy_copy['SwimTime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
+        scy_copy["SwimDate"] = pd.to_datetime(scy_copy["SwimDate"], format="%m/%d/%Y")
+        print(scy_copy.head(10))
+        scy_min_season_row = scy_copy[(scy_copy["SwimDate"] >= season_start) & (scy_copy["SwimDate"] < season_end) & (scy_copy["national_rank"] != -1)].to_dict()
+        print(scy_min_season_row)
+        if scy_min_season_row:
+            session['season_rankings_table'].rows.append(scy_min_season_row)
+    if not session['lcm_df'].empty:
+        lcm_copy = session['lcm_df'].copy()
+        lcm_copy['SwimTime'] = lcm_copy['SwimTime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
+        lcm_copy["SwimDate"] = pd.to_datetime(lcm_copy["SwimDate"], format="%m/%d/%Y")
+        lcm_min_season_row = lcm_copy[(lcm_copy["SwimDate"] >= season_start) & (lcm_copy["SwimDate"] < season_end) & (lcm_copy["national_rank"] != -1)].to_dict()
+        if lcm_min_season_row:
+            session['season_rankings_table'].rows.append(lcm_min_season_row)
+
+    session['season_rankings_table'].visible = True
+    session['season_rankings_table'].update()
+    return 
 
 @ui.page('/swimmer/{person_key}')
 async def graph_page(person_key: str):
@@ -528,23 +490,21 @@ async def graph_page(person_key: str):
     if session['previous_personkey'] != person_key:
         session['previous_personkey'] = person_key
         all_event_data = await collect_all_event_data(person_key)
-        session['all_event_data_df'] = pd.DataFrame(all_event_data, columns=["event", "swimtime", "relay", 
-                                                                "age", "points", "timestandard",  
-                                                                "meet", "team", "swimdate"])
-        session['all_event_data_df'].sort_values(by='swimdate', inplace=True, ascending=False)
-        session['all_event_data_df']["swimtime"] = session['all_event_data_df'].apply(lambda row: convert_timedelta(row['swimtime']) + "r" if row['relay'] == 1 else convert_timedelta(row['swimtime']), axis=1)
-        session['all_event_data_df']["swimdate"] = session['all_event_data_df']["swimdate"].apply(lambda x: x.strftime('%m/%d/%Y'))
-        session['all_event_data_df'].drop('relay', axis=1, inplace=True)
+        session['all_event_data_df'] = pd.DataFrame(all_event_data, columns=["Event", "SwimTime", "Relay", 
+                                                                "Age", "Points", "TimeStandard",  
+                                                                "Meet", "Team", "SwimDate", "national_rank", "lsc_rank", "club_rank"])
+        session['all_event_data_df'].sort_values(by='SwimDate', inplace=True, ascending=False)
+        session['all_event_data_df']["SwimTime"] = session['all_event_data_df'].apply(lambda row: convert_timedelta(row['SwimTime']) + "r" if row['Relay'] == 1 else convert_timedelta(row['SwimTime']), axis=1)
+        session['all_event_data_df']["SwimDate"] = session['all_event_data_df']["SwimDate"].apply(lambda x: x.strftime('%m/%d/%Y'))
+        session['all_event_data_df'].drop('Relay', axis=1, inplace=True)
 
         first_non_empty_event, first_non_empty_event_df = await make_event_buttons(session['all_event_data_df'])
-        session['lcm_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['event'].str.contains("LCM")]
-        session['scy_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['event'].str.contains("SCY")]
+        session['lcm_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['Event'].str.contains("LCM")]
+        session['scy_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['Event'].str.contains("SCY")]
         await display_event_data(first_non_empty_event, first_non_empty_event_df)
     else:
-        event = session['scy_df']['event'].iloc[0].split('SCY')[0].strip()
-        e = session['all_event_data_df'][session['all_event_data_df']['event'].str.contains(event)]
-        #session['lcm_df'] = e.loc[e['event'].str.contains("LCM")]
-        #session['scy_df'] = e.loc[e['event'].str.contains("SCY")]
+        event = session['scy_df']['Event'].iloc[0].split('SCY')[0].strip()
+        e = session['all_event_data_df'][session['all_event_data_df']['Event'].str.contains(event)]
         await make_event_buttons(session['all_event_data_df'])
         session['results_column'].delete()
         session['best_times_column'].delete() 
@@ -587,8 +547,6 @@ async def main_page():
         session['id_table'].visible = False
         if not session['id_table_df'].empty:
             await update_id_table()
-        
-
 
 # Function to update visible table
 async def show_page(PAGE_SIZE=20):
