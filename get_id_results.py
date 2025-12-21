@@ -11,6 +11,7 @@ import asyncio
 from curl_cffi.requests import AsyncSession
 from get_credentials import get_credentials
 import random
+from get_rankings_once import send_rankings_query
 
 SEM = asyncio.Semaphore(10)
 
@@ -158,7 +159,13 @@ def build_records(responses, db_columns):
             row[0] = ev[0]["data"]
             row[1] = 0 if ev[1]["data"]=="Male" else 1
             row[2] = int(ev[2]["data"])
-            row[3] = ev[3]["data"]
+            if row[2] == 15 or row[2] == 16:
+                row[3] = "15-16"
+            elif row[2] == 17 or row[2] == 18:
+                row[3] = "17-18"
+            else:
+                row[3] = ev[3]["data"]
+
             row[4] = ev[4]["data"]
             row[5] = int(ev[5]["data"]) if type(ev[5]["data"]) == int else -1
             row[6] = ev[6]["data"]
@@ -240,7 +247,7 @@ async def run_all_requests(keys):
     return all_responses
 
 
-if __name__ == "__main__":
+def get_id_results():
     keys = get_personkeys()
     keys = keys[0:20000]
     loop = asyncio.get_event_loop()
@@ -254,6 +261,5 @@ if __name__ == "__main__":
 
     df = pd.DataFrame.from_dict(formatted)
     send_data(df)
-
     print("Final Data Sent")
     loop.close()

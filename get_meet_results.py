@@ -14,7 +14,6 @@ from curl_cffi.requests import AsyncSession
 from get_credentials import get_credentials
 from collections import defaultdict
 import random
-from update_rankings import send_season_ranking_query
 
 def get_previous_week_dates(today_date):
     current_week_start = today_date - timedelta(days=today_date.isoweekday() - 1)
@@ -39,23 +38,12 @@ def send_id_data_batch(rows):
 
     with psycopg.connect(f"dbname={db} port={port} user=postgres host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
-            values = sql.SQL(", ").join(
-                sql.SQL("({name}, {team}, {lsc}, {age}, {pkey}, {sex})").format(
-                    name=sql.Literal(r["Name"]),
-                    team=sql.Literal(r["Team"]),
-                    lsc=sql.Literal(r["LSC"]),
-                    age=sql.Literal(r["Age"]),
-                    pkey=sql.Literal(r["PersonKey"]),
-                    sex=sql.Literal(r["Sex"])
-                )
-                for r in rows
-            )
-            query = sql.SQL("""
-                INSERT INTO "ResultsSchema"."SwimmerIDs"
-                ("Name", "Club", "LSC", "Age", "PersonKey", "Sex")
-                VALUES {values}""").format(values=values)
-
-            cur.execute(query)
+            cur.executemany("""INSERT INTO "ResultsSchema"."SwimmerIDs"
+                    ("FirstName","MiddleName","LastName","Team","LSC","Age","PersonKey","Sex")
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                    ON CONFLICT ("PersonKey") DO NOTHING""", [(r["FirstName"], r["MiddleName"], r["LastName"],
+                                                               r["Team"], r["LSC"], r["Age"], r["PersonKey"], r["Sex"])
+            for r in rows])
         conn.commit()
 
 
@@ -150,7 +138,7 @@ def send_data(df):
                     placeholders
                 )
                 cur.executemany(query, records)
-                conn.commit()
+            conn.commit()
 
 async def fetch_meet_keys(bearer_token, start_dates):
     async with AsyncSession() as session:
@@ -208,7 +196,12 @@ def build_records(responses, db_columns):
             row[0] = ev[0]["data"]
             row[1] = 0 if ev[1]["data"]=="Male" else 1
             row[2] = int(ev[2]["data"])
-            row[3] = ev[3]["data"]
+            if row[2] == 15 or row[2] == 16:
+                row[3] = "15-16"
+            elif row[2] == 17 or row[2] == 18:
+                row[3] = "17-18"
+            else:
+                row[3] = ev[3]["data"]
             row[4] = ev[4]["data"]
             row[5] = int(ev[5]["data"]) if type(ev[5]["data"]) == int else -1
             row[6] = ev[6]["data"]
@@ -241,8 +234,19 @@ def build_records(responses, db_columns):
 
     return out
 
+def split_name(full_name):
+    parts = full_name.split()
+    
+    if len(parts) == 1:                   # Only one name
+        return parts[0], None, None
+    
+    if len(parts) == 2:                   # First + Last
+        return parts[0], None, parts[1]
+    
+    # 3+ parts → First, Middle..., Last
+    return parts[0], ' '.join(parts[1:-1]), parts[-1]
 
-if __name__ == "__main__":
+def get_meet_results():
     loop = asyncio.get_event_loop()
     all_ids = get_personkeys()
     all_formatted_responses = []
@@ -252,7 +256,6 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     meet_keys = []
     bearer_token = get_token()
-    #print(bearer_token)
     meets = loop.run_until_complete(fetch_meet_keys(bearer_token, previous_week_dates))
     for meet in meets['values']:
         meet_key = meet[6]['data']
@@ -298,6 +301,7 @@ if __name__ == "__main__":
     for personkey, rows in grouped_dict.items():
         first = rows[0]
         name = first["Name"]
+        firstname, middlename, lastname = split_name(name)
         age = first["Age"]
         team = first["Team"]
         sex = first["Sex"]
@@ -305,7 +309,9 @@ if __name__ == "__main__":
         if personkey not in existing_keys:
             print("adding id")
             new_id_rows.append({
-                'Name': name,
+                'FirstName': firstname,
+                'MiddleName': middlename,
+                'LastName': lastname,
                 'Team': team,
                 'LSC': lsc,
                 'Age': age,
@@ -325,18 +331,5 @@ if __name__ == "__main__":
 
     df = pd.DataFrame.from_dict(formatted)
     send_data(df)
-
-    month = datetime.now().month
-    year = datetime.now().year
-    if month  >= 9:
-        season_start = str(year) + "-09-01"
-        season_end = str(year + 1) + "-09-01"
-        season = f"{year}-{year + 1}"
-    else:
-        season_start = str(year - 1) + "-09-01"
-        season_end = str(year) + "-09-01"
-        season = f"{year - 1}-{year}"
-    send_season_ranking_query(season_start, season_end, season)
-
 
             

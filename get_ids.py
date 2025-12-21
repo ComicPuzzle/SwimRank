@@ -8,10 +8,10 @@ import pandas as pd
 import psycopg
 from psycopg import sql 
 from get_credentials import get_credentials
-
+from io import StringIO
 
 def send_data(data, cur, conn):
-    columns = ['Name', 'Club', 'LSC', 'Age', 'PersonKey']
+    columns = ['FirstName', 'MiddleName', 'LastName', 'Team', 'LSC', 'Age', 'PersonKey']
 
     placeholders = sql.SQL(', ').join(sql.SQL('%s') for _ in columns)
 
@@ -28,7 +28,19 @@ def send_data(data, cur, conn):
     cur.executemany(query, rows)
     conn.commit()
 
-if __name__ == "__main__":
+def split_name(full_name):
+    parts = full_name.split()
+    
+    if len(parts) == 1:                   # Only one name
+        return parts[0], None, None
+    
+    if len(parts) == 2:                   # First + Last
+        return parts[0], None, parts[1]
+    
+    # 3+ parts → First, Middle..., Last
+    return parts[0], ' '.join(parts[1:-1]), parts[-1]
+
+def get_ids():
     bearer_token = get_token()
     print(bearer_token)
 
@@ -45,13 +57,16 @@ if __name__ == "__main__":
         count += 1
         print(count)
 
+    print('done')
     headers = ['Name', 'Club', 'LSC', 'Age', 'PersonKey']
     df = pd.DataFrame(row_list, columns=headers)
-    #print(df.head(5))
-    #df.to_json('ids.json', orient='records', lines=True)
+    df = df.rename(columns={'Club':'Team'})
+    df[['FirstName', 'MiddleName', 'LastName']] = df['Name'].apply(lambda x: pd.Series(split_name(x)))
+    df.drop(columns=['Name'], inplace=True)
+    df = df[['FirstName', 'MiddleName', 'LastName', 'Team', 'LSC', 'Age', 'PersonKey']]
+    df = df.drop_duplicates(subset=['PersonKey'])
     dbname, port, password, host = get_credentials()
     with psycopg.connect(f"dbname={dbname} port={port} user=postgres host='{host}' password='{password}'") as conn:
-        # Open a cursor to perform database operations
         with conn.cursor() as cur:
             i = 0
             while i < len(df) - 10000: 
@@ -60,6 +75,7 @@ if __name__ == "__main__":
                 i += 10000
             temp = df[i:]
             send_data(temp, cur, conn)
+
 
 
 

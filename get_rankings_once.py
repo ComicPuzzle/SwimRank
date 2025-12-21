@@ -79,7 +79,7 @@ def send_rankings_query():
                         RANK() OVER (
                             PARTITION BY b."Sex", b."AgeGroup", b.season, b."Team"
                             ORDER BY b.best_time
-                        ) AS club_rank
+                        ) AS team_rank
                     FROM best_times b
                 ),
 
@@ -88,7 +88,7 @@ def send_rankings_query():
                         s."UsasSwimTimeKey",
                         CASE WHEN s."SwimTime" = r.best_time THEN r.national_rank ELSE -1 END AS national_rank,
                         CASE WHEN s."SwimTime" = r.best_time THEN r.lsc_rank      ELSE -1 END AS lsc_rank,
-                        CASE WHEN s."SwimTime" = r.best_time THEN r.club_rank     ELSE -1 END AS club_rank
+                        CASE WHEN s."SwimTime" = r.best_time THEN r.team_rank     ELSE -1 END AS team_rank
                     FROM season_data s
                     LEFT JOIN ranked r
                         ON s."PersonKey" = r."PersonKey"
@@ -102,7 +102,7 @@ def send_rankings_query():
                 UPDATE "ResultsSchema"."{table}" t
                 SET national_rank = f.national_rank,
                     lsc_rank      = f.lsc_rank,
-                    club_rank     = f.club_rank
+                    team_rank     = f.team_rank
                 FROM final_ranks f
                 WHERE t."UsasSwimTimeKey" = f."UsasSwimTimeKey" """
                 cur.execute(query)
@@ -114,6 +114,3 @@ def send_rankings_query():
                 cur.execute(query)
 
         conn.commit()
-
-if __name__ == "__main__":
-    send_rankings_query()
