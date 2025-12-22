@@ -12,8 +12,6 @@ __pycache__/*
 *.json
 *.pem
 create_indexes_results.py
-delete_db.py
-get_credentials.py
 move_ids_to_db.py
 test.py
 .gitignore
