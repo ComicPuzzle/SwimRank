@@ -249,8 +249,8 @@ async def run_all_requests(keys):
 
 def get_id_results():
     keys = get_personkeys()
-    keys = keys[0:20000]
     loop = asyncio.get_event_loop()
+    keys = keys[:40000]
     responses = loop.run_until_complete(run_all_requests(keys))
 
     formatted = build_records(responses, [

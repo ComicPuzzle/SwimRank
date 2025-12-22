@@ -7,6 +7,8 @@ import asyncpg
 from nicegui.events import KeyEventArguments
 from datetime import datetime, timedelta
 from get_credentials import get_credentials
+import qrcode
+from io import BytesIO
 
 # --- GLOBAL DB POOL ---
 global_pool = None
@@ -18,22 +20,35 @@ def navbar():
     
     with ui.row().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
         # Home button
-        ui.button('Home', on_click=lambda: ui.navigate.to('/')) \
-            .props('flat') \
-            .classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
+        ui.button('Home', on_click=lambda: ui.navigate.to('/')).props('flat').classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
 
         # Separator (hidden on small screens)
-        ui.label('|').classes('text-2xl text-gray-500 hidden sm:inline-block')
+        ui.label('|').classes('text-2xl text-gray-500 sm:inline-block')
 
         # Rankings button
-        ui.button('Rankings', on_click=lambda: ui.navigate.to("/rankings"))\
-            .props('flat') \
-            .classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
+        ui.button('Rankings', on_click=lambda: ui.navigate.to("/rankings")).props('flat').classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
 
-        ui.label('|').classes('text-2xl text-gray-500 hidden sm:inline-block')
+        ui.label('|').classes('text-2xl text-gray-500 sm:inline-block')
 
         # Discussion button
-        ui.button('Discussion', on_click=lambda: ui.navigate.to('/discussion')) \
+        ui.button('Discussion', on_click=lambda: ui.navigate.to('/discussion')).props('flat').classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
+        
+        ui.label('|').classes('text-2xl text-gray-500 sm:inline-block')
+
+        # Discussion button
+        ui.button('About Me', on_click=lambda: ui.navigate.to('/aboutme')).props('flat').classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
+        
+        ui.label('|').classes('text-2xl text-gray-500 sm:inline-block')
+
+        # Discussion button
+        ui.button('Privacy Policy/FAQ', on_click=lambda: ui.navigate.to('/privacy')) \
+            .props('flat') \
+            .classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
+        
+        ui.label('|').classes('text-2xl text-gray-500 sm:inline-block')
+
+        # Discussion button
+        ui.button('Donate', on_click=lambda: ui.navigate.to('/donate')) \
             .props('flat') \
             .classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
 
@@ -58,22 +73,13 @@ def get_current_season():
         session['current_season'] = f"{'9/01/' + str(session['current_year']) + ' - 8/31/' + str(session['current_year'] + 1)}"
     else:
         session['current_season'] = f"{'9/01' + str(session['current_year'] - 1) + ' - 8/31/' + str(session['current_year'])}"
-        
+    return session['current_season']
 @app.on_shutdown
 async def shutdown():
     """Close global pool on app shutdown."""
     global global_pool
     if global_pool and not global_pool.is_closing():
         await global_pool.close()
-
-def reset_session_vars():
-    session = app.storage.tab
-    session['dbname'], session['port'], session['password'], session['ip'] = get_credentials()
-    session['course_radio'], session['best_times_label'], session['meets_label'], session['season_rankings_label'], session['career_rankings_label'] = None, None, None, None, None
-    session['progress_label'], session['comparison_label'], session['results_column'], session['best_times_column'] = None, None, None, None
-    session['upcoming_meets_column'], session['season_rankings_column'], session['ncaa_comparison_column'], session['best_rankings_table'] = None, None, None, None
-    session['best_times_label'], session['ncaa_comparison_label'], session['chart'], session['event_label'] = None, None, None, None
-    session['person'] = None
     
 def get_age_group(age):
     a1 = 0
@@ -180,13 +186,17 @@ async def fetch_person_event_data(table, key):
         rows = await con.fetch(query)
     return rows
 
-async def fetch_ranking_data(table1, table2, age_group, sex):
+async def fetch_ranking_data(table1, table2, age_group, sex, season):
+    start_str, end_str = season.split(" - ")
+    season_start = datetime.strptime(start_str, "%m/%d/%Y").strftime("%Y-%m-%d")
+    season_end = datetime.strptime(end_str, "%m/%d/%Y").strftime("%Y-%m-%d")
     def add_query(table, age_group, sex):
         if table == None:
             return f""""""
         else:
             query = f"""SELECT "Event", "Name", "Sex", "PersonKey", "Age", "LSC", "Team", "SwimTime", "national_rank", "lsc_rank", "team_rank" FROM  "ResultsSchema"."{table}" 
-                        WHERE "national_rank" != -1 AND "AgeGroup" = '{age_group}' AND "Sex" = {sex} """
+                        WHERE "national_rank" != -1 AND "SwimDate" >= '{season_start}' AND "SwimDate" < '{season_end}' AND "AgeGroup" = '{age_group}' AND "Sex" = {sex} """
+            
             return query
         
     query = add_query(table1, age_group, sex)
@@ -266,10 +276,8 @@ async def update_id_table():
     session['id_table'].visible = True
 
     def on_person_selected(msg):
-        person = msg.args  # full row data (Name, Age, etc.)
-        # store full info in session (not in URL)
+        person = msg.args 
         session['person'] = person
-        # navigate using only the person key
         ui.navigate.to(f'/swimmer/{person["PersonKey"]}')
 
     session['id_table'].on('person_selected', on_person_selected)
@@ -356,9 +364,9 @@ async def update_progression_chart():
         },
         'series': series
     }
-    if session['chart']:
-        session['chart'].delete()
-    session['chart'] = ui.echart(options=option).style('height: 600px; width: 100%; min-height: 600px;')
+    session['chart'].options.clear()
+    session['chart'].options.update(option)
+    session['chart'].update()
     session['chart'].visible = True
 
 async def update_results_table(course):
@@ -390,6 +398,7 @@ async def update_ncaa_comparison_table(event):
 async def update_best_rankings_table():
     await ui.context.client.connected()
     session = app.storage.tab
+    session['best_rankings_table'].rows = []
     session['best_rankings_table'].columns = [{'name': col, 'label': col, 'field': col} for col in ["Event", "SwimTime","Age", "Points", "TimeStandard", "Meet", "Team", "SwimDate"]]
     if not session['scy_df'].empty:
         scy_copy = session['scy_df'].copy()
@@ -450,7 +459,7 @@ async def update_season_rankings_table():
         row = msg.args['row']
         ui.navigate.to(f"/rankings?rank_type={rank_type}&event={row['Event']}&age_group={row['AgeGroup']}&lsc={row['LSC']}&team={row['Team']}&sex={int(row['Sex'])}")
     session['season_rankings_table'].on('open_rank_page', open_rank_page)
-
+    session['season_rankings_table'].rows = []
     start_str, end_str = [s.strip() for s in session['current_season'].split("-")]
     season_start = pd.to_datetime(start_str)
     season_end   = pd.to_datetime(end_str)
@@ -472,82 +481,23 @@ async def update_season_rankings_table():
 
     session['season_rankings_table'].visible = True
     session['season_rankings_table'].update()
-    return 
 
 async def display_event_data(e, df):
     await ui.context.client.connected()
     session = app.storage.tab
     session['lcm_df'] = df.loc[df['Event'].str.contains("LCM")]
     session['scy_df'] = df.loc[df['Event'].str.contains("SCY")]
-    if not session['results_column']:
-        session['best_times_column'] = ui.column().classes('w-full items-center')
-        session['ncaa_comparison_column'] = ui.column().classes('w-full items-center')
-        session['upcoming_meets_column'] = ui.column().classes('w-full items-center')
-        session['season_rankings_column'] = ui.column().classes('w-full items-center')
-        session['results_column'] = ui.column().classes('w-full items-center')
     
-    with session['best_times_column']:
-        if not session['best_times_label']:
-            session['best_times_label'] = ui.label('Best Times').style('font-size: 20px')
-        try:
-            session['best_rankings_table'].delete()
-        except:
-            pass
-        session['best_rankings_table'] = ui.table(rows=[])
-        session['best_rankings_table'].visible = False
-        await update_best_rankings_table()
-    with session['ncaa_comparison_column']:
-        if not session['ncaa_comparison_label']:
-            session['ncaa_comparison_label'] = ui.label("""NCAA Comparison (Better than % of Swimmers)""").style('font-size: 20px')
-        try:
-            session['ncaa_comparison_table'].delete()
-        except:
-            pass
-        session['ncaa_comparison_table'] = ui.table(rows=[])
-        session['ncaa_comparison_table'].visible = False
-        await update_ncaa_comparison_table(e)
-    with session['upcoming_meets_column']:
-        if not session['meets_label']:
-            session['meets_label'] = ui.label('Upcoming Championship Meets').style('font-size: 20px')
-        try:
-            session['upcoming_meets_table'].delete()
-        except:
-            pass
-        session['upcoming_meets_table'] = ui.table(rows=[])
-        session['upcoming_meets_table'].visible = False
-        await update_upcoming_meets_table()
-    with session['season_rankings_column']: 
-        if not session['season_rankings_label']:
-            session['season_rankings_label'] = ui.label('Current Season Rankings (' + session['current_season'] + ')').style('font-size: 20px')
-        try:
-            session['season_rankings_table'].delete()
-        except:
-            pass
-        session['season_rankings_table'] = ui.table(rows=[])
-        session['season_rankings_table'].visible = False
-        await update_season_rankings_table()
+    await update_best_rankings_table()
+    await update_ncaa_comparison_table(e)
+    await update_upcoming_meets_table()
+    await update_season_rankings_table()
     with session['results_column']:
-        try:
-            session['event_label'].delete()
-            session['course_radio'].delete()
-        except:
-            pass
-        session['event_label'] = ui.label(e + " Progression").style('font-size: 20px')
-        session['course_radio'] = ui.radio(["SCY", "LCM"], value="SCY", on_change=lambda: update_results_table(session['course_radio'].value)).props('inline')
-        try:
-            session['event_results_table'].delete()
-        except:
-            pass
-        session['event_results_table'] = ui.table(rows=[])
-        session['event_results_table'].visible = False
-        await update_results_table(session['course_radio'].value)
-        try:
-            session['chart'].delete()
-        except:
-            pass
-        session['chart'] = ui.echart([])
-        session['chart'].visible = False
-        await update_progression_chart()
+        if session['event_label']:
+            session['event_label'].set_text(e + " Progression")
+            session['event_label'].update()
+    await update_results_table(session['course_radio'].value)
+    await update_progression_chart()
 
 async def make_event_buttons(all_event_data_df):
     event_pairs = [('50 FR SCY', '50 FR LCM'), ('100 FR SCY', '100 FR LCM'),
@@ -605,7 +555,7 @@ async def graph_page(person_key: str):
             cell('Current Age', 'border-b-0 border-r-0')
             cell(age, 'border-b-0')
             cell('Sex', 'border-r-0')
-            cell(sex)
+            cell("Male" if sex == 0 else "Female")
 
     all_event_data = await collect_all_event_data(person_key)
     session['all_event_data_df'] = pd.DataFrame(all_event_data, columns=["Event", "Sex", "SwimTime", "Relay", 
@@ -618,6 +568,36 @@ async def graph_page(person_key: str):
     first_non_empty_event, first_non_empty_event_df = await make_event_buttons(session['all_event_data_df'])
     session['lcm_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['Event'].str.contains("LCM")]
     session['scy_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['Event'].str.contains("SCY")]
+
+    session['best_times_column'] = ui.column().classes('w-full items-center')
+    session['ncaa_comparison_column'] = ui.column().classes('w-full items-center')
+    session['upcoming_meets_column'] = ui.column().classes('w-full items-center')
+    session['season_rankings_column'] = ui.column().classes('w-full items-center')
+    session['results_column'] = ui.column().classes('w-full items-center')
+    with session['best_times_column']:
+        session['best_times_label'] = ui.label('Best Times').style('font-size: 20px')
+        session['best_rankings_table'] = ui.table(rows=[])
+        session['best_rankings_table'].visible = False
+    with session['ncaa_comparison_column']:
+        session['ncaa_comparison_label'] = ui.label("""NCAA Comparison (Better than % of Swimmers)""").style('font-size: 20px')
+        session['ncaa_comparison_table'] = ui.table(rows=[])
+        session['ncaa_comparison_table'].visible = False
+    with session['upcoming_meets_column']:
+        session['meets_label'] = ui.label('Upcoming Championship Meets').style('font-size: 20px')
+        session['upcoming_meets_table'] = ui.table(rows=[])
+        session['upcoming_meets_table'].visible = False
+    with session['season_rankings_column']: 
+        session['season_rankings_label'] = ui.label('Current Season Rankings (' + session['current_season'] + ')').style('font-size: 20px')
+        session['season_rankings_table'] = ui.table(rows=[])
+        session['season_rankings_table'].visible = False
+    with session['results_column']:
+        session['event_label'] = ui.label(first_non_empty_event + " Progression").style('font-size: 20px')
+        session['course_radio'] = ui.radio(["SCY", "LCM"], value="SCY", on_change=lambda: update_results_table(session['course_radio'].value)).props('inline')
+        session['event_results_table'] = ui.table(rows=[])
+        session['event_results_table'].visible = False
+        session['chart'] = ui.echart({'series': []}).style('height: 600px; width: 100%; min-height: 600px;')
+        session['chart'].visible = False
+
     await display_event_data(first_non_empty_event, first_non_empty_event_df)
 
 @ui.page('/')
@@ -631,11 +611,14 @@ async def main_page():
     navbar() 
     session['main_page_column'] = ui.column().classes('w-full items-center')
     get_current_season()
-    reset_session_vars()
     
     await get_global_pool()
     with session['main_page_column']:
         ui.label('SwimRank').style('font-size: 200%; font-weight: 300, font-family: "Times New Roman", Times, serif;')
+        ui.label('This website provides swimming results and rankings data for competitive swimmers in the United States').style('font-size: 15px; margin-bottom: 20px;')
+        ui.separator()
+        ui.label('Swimmer Search').style('font-size: 200%; font-weight: 300, font-family: "Times New Roman", Times, serif;')
+        ui.label('This website contains data for over 1 million swimmers over the past 10 years').style('font-size: 15px')
         session['search_input'] = ui.input(label='Enter name...', placeholder='Type a name...')
         session['search_input'].on('keypress.enter', lambda: fetch_people(session['search_input'].value))
         
@@ -749,16 +732,18 @@ async def refresh_table(event_map):
     sex = 0 if session['sex_select'].value == 'Male' else 1
     ev = session['event_select'].value
     ag = session['age_select'].value
-    
-    scy_table, lcm_table = event_map[ev + " SCY"]
-    rows = await fetch_ranking_data(scy_table, lcm_table, ag, sex)
-    temp = pd.DataFrame(rows, columns=["Event", "Name", "Sex", "PersonKey", "Age", "LSC", "Team", "SwimTime", "national_rank", "lsc_rank", "team_rank"])
-    temp['SwimTime'] = temp.apply(lambda row: convert_timedelta(row['SwimTime']), axis=1)
-    session['scy_ranking_data'] = temp[temp['Event'].str.contains("FR")]
-    session['lcm_ranking_data'] = temp[temp['Event'].str.contains("FL")]
+    season = session['season_select'].value
     rt = session['rank_type_select'].value
     ls = session['lsc_select'].value
     cl = session['team_select'].value
+
+    scy_table, lcm_table = event_map[ev + " SCY"]
+    rows = await fetch_ranking_data(scy_table, lcm_table, ag, sex, season)
+    temp = pd.DataFrame(rows, columns=["Event", "Name", "Sex", "PersonKey", "Age", "LSC", "Team", "SwimTime", "national_rank", "lsc_rank", "team_rank"])
+    temp['SwimTime'] = temp.apply(lambda row: convert_timedelta(row['SwimTime']), axis=1)
+    session['scy_ranking_data'] = temp[temp['Event'].str.contains("SCY")]
+    session['lcm_ranking_data'] = temp[temp['Event'].str.contains("LCM")]
+    
     if rt == 'LSC' and ls:
         session['current_scy_rank_selection'] = session['scy_ranking_data'][session['scy_ranking_data']['LSC'] == ls].drop(columns=['national_rank', 'team_rank'])
         session['current_lcm_rank_selection'] = session['lcm_ranking_data'][session['lcm_ranking_data']['LSC'] == ls].drop(columns=['national_rank', 'team_rank'])
@@ -800,7 +785,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
     navbar() 
 
     event_map = {
-        '50 FR SCY'   : ("50_FR_SCY_results",   "50_FL_SCY_results"), '50 FR LCM'   : ("50_FR_SCY_results",   "50_FR_LCM_results"),
+        '50 FR SCY'   : ("50_FR_SCY_results",   "50_FR_LCM_results"), '50 FR LCM'   : ("50_FR_SCY_results",   "50_FR_LCM_results"),
         '100 FR SCY'  : ("100_FR_SCY_results",  "100_FR_LCM_results"), '100 FR LCM'  : ("100_FR_SCY_results",  "100_FR_LCM_results"),
         '200 FR SCY'  : ("200_FR_SCY_results",  "200_FR_LCM_results"), '200 FR LCM'  : ("200_FR_SCY_results",  "200_FR_LCM_results"),
         '500 FR SCY'  : ("500_FR_SCY_results",  "400_FR_LCM_results"), '400 FR LCM'  : ("500_FR_SCY_results",  "400_FR_LCM_results"),
@@ -820,17 +805,28 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
         '400 IM SCY'  : ("400_IM_SCY_results",  "400_IM_LCM_results"), '400 IM LCM'  : ("400_IM_SCY_results",  "400_IM_LCM_results"),}
 
     scy_table, lcm_table = event_map[event]
-    rows = await fetch_ranking_data(scy_table, lcm_table, age_group, sex)
+    season = get_current_season()
+    if age_group == "10 ":
+        age_group = '10 & Under'
+    event = event.split('SCY')[0].split('LCM')[0].strip()
+    rows = await fetch_ranking_data(scy_table, lcm_table, age_group, sex, season)
     temp = pd.DataFrame(rows, columns=["Event", "Name", "Sex", "PersonKey", "Age", "LSC", "Team", "SwimTime", "national_rank", "lsc_rank", "team_rank"])
     temp['SwimTime'] = temp.apply(lambda row: convert_timedelta(row['SwimTime']), axis=1)
-    session['scy_ranking_data'] = temp[temp['Event'].str.contains("FR")]
-    session['lcm_ranking_data'] = temp[temp['Event'].str.contains("FL")]
+    session['scy_ranking_data'] = temp[temp['Event'].str.contains("SCY")]
+    session['lcm_ranking_data'] = temp[temp['Event'].str.contains("LCM")]
     all_events =['50 FR', '100 FR', '200 FR', '500 FR', '1000 FR', '1650 FR', '50 FL', '100 FL', '200 FL',
                  '50 BK', '100 BK', '200 BK', '50 BR', '100 BR', '200 BR', '100 IM', '200 IM', '400 IM']
     all_sex= ['Male', 'Female']
     all_age_groups = ['10 & Under', '11-12', '13-14', '15-16', '17-18', '19 & Over']
     all_lscs = sorted(temp['LSC'].dropna().unique().tolist())
     all_teams = sorted(temp['Team'].dropna().unique().tolist())
+
+    start_str, end_str = season.split(" - ")
+    start_month_day, start_year = start_str.rsplit("/", 1)
+    end_month_day, end_year = end_str.rsplit("/", 1)
+    start_year = int(start_year)
+    end_year = int(end_year)
+    all_seasons = [f"{start_month_day}/{start_year - i} - {end_month_day}/{end_year - i}" for i in range(10)]
 
     # Reactive variables
     session['current_scy_page'] = {'num': 1}
@@ -840,6 +836,13 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
         # ---------------- FILTERS COLUMN ----------------
         with ui.column().classes('w-64 p-4 gap-4 bg-gray-50 rounded shadow-sm items-center'):
             ui.label("Filters").classes('text-lg font-bold')
+            session['season_select'] = ui.select(
+                options=all_seasons,
+                value=season,
+                label='Season',
+                on_change=lambda: refresh_table(event_map)
+            ).classes('w-full')
+
             session['rank_type_select'] = ui.select(
                 options=['National', 'LSC', 'Team'],
                 value=rank_type,
@@ -1048,6 +1051,79 @@ async def team_page(team: str):
     """)
     session['team_male_table'].on('person_selected', on_person_selected)
 
+@ui.page('/aboutme')
+async def aboutme_page():
+    await ui.context.client.connected()
+    session = app.storage.tab
+    navbar()
+    with ui.row().classes('w-full justify-center'):
+        with ui.column().classes('w-3/5 items-center text-center'):
+            ui.label('About Me').style('font-size: 28px')
+
+        with ui.column().classes('w-3/5'):
+            ui.label("Hello! My name is DW.").style('font-size: 15px')
+
+            ui.label(
+                "I was a competitive swimmer for over 12 years from 7 years old to now 21. "
+                "During my swimming career, I swam for my high school team, club team, and college club team. "
+                "Growing up, I used the swimmingrank.com website frequently to check my rankings and see how I compared "
+                "to other swimmers in my age group and events. However, with that website no longer available, "
+                "I decided to create SwimRank to fill that gap and provide swimmers with a similar resource to track "
+                "their rankings and progress."
+            ).style('font-size: 15px')
+
+            with ui.row().classes('items-center no-wrap'):
+                ui.label('Please contact me at').style('font-size: 15px')
+                ui.link(
+                    'DWwork178@gmail.com',
+                    'mailto:DWwork178@gmail.com'
+                ).classes('text-blue-600 hover:underline').style('font-size: 15px')
+
+            ui.label("Finally, it does cost money to host the database and website, "
+                "so if you would like to support the site please consider donating via the Donate page. Thank you!").style('font-size: 15px')
+
+@ui.page('/privacy')
+async def privacypolicy_page():
+    await ui.context.client.connected()
+    session = app.storage.tab
+    navbar()
+    with ui.row().classes('w-full justify-center'):
+        with ui.column().classes('w-3/5 items-center text-center'):
+            ui.label('Privacy Policy').style('font-size: 28px')
+        with ui.column().classes('w-3/5'):
+            ui.label("""I don't like ads or trackers either, so SwimRank is designed to be as privacy-friendly as possible. I do no track you activity on the site, nor do I use any third-party trackers or ads.
+                        All of the data available on this website is publicly available from USA Swimming's website and is used here simply to compile and display that information in a more user-friendly manner.
+                        I update this website weekly with the previous weeks meet results. Only meets registered with USA Swimming will be included in the rankings and results, so regular high school duel meets
+                        or college meets may not be included.""").style('font-size: 15px')
+        with ui.column().classes('w-3/5 items-center text-center'):
+            ui.label('FAQ').style('font-size: 28px')
+        with ui.column().classes('w-3/5'):
+            ui.label("""1. How often is the data updated?""").style('font-size: 15px').classes('font-semibold')
+            ui.label("""The data is updated weekly, typically on Mondays, to include the previous week's meet results.""").style('font-size: 15px')
+            ui.label("""2. Where does the data come from?""").style('font-size: 15px').classes('font-semibold')
+            ui.label("""All data is sourced from publicly available information on USA Swimming's website.""").style('font-size: 15px')
+            ui.label("""3. Why are some meets or times missing?""").style('font-size: 15px').classes('font-semibold')
+            ui.label("""Only meets that are officially registered with USA Swimming are included in the rankings and results. Regular high school duel meets or college meets may not be included. Additionally I have
+                        only collected data up to 2016 so results from before that year will not be displayed.""").style('font-size: 15px')
+
+def make_qr(data: str):
+        qr = qrcode.make(data)
+        buf = BytesIO()
+        qr.save(buf, format='PNG')
+        buf.seek(0)
+        return buf
+
+@ui.page('/donate')
+def donate_page():
+    navbar()
+    ZELLE_EMAIL = 'alphadjw@gmail.com'
+
+    with ui.row().classes('w-full justify-center'):
+        with ui.column().classes('w-3/5 items-center text-center'):
+            ui.label('Support This Website').style('font-size: 28px')
+
+            ui.label('Donate securely using Zelle through your bank app.').classes('text-center text-lg font-semibold')
+            ui.image('static/zelle_qr.png').classes('w-48 h-48')
 
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(title='SwimRank')

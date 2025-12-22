@@ -5,7 +5,7 @@ from datetime import datetime
 import time
 
 if __name__ == "__main__":
-
+    print('getting meet results')
     start_time = time.time()
     get_meet_results()
     current_time = time.time()
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     current_time = time.time()
     print(current_time - start_time)
     start_time = current_time
-
+    print('getting ncaa')
     get_ncaa_rankings()
     current_time = time.time()
     print(current_time - start_time)

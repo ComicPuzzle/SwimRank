@@ -114,3 +114,6 @@ def send_rankings_query():
                 cur.execute(query)
 
         conn.commit()
+        
+if __name__ == "__main__":
+    send_rankings_query()
