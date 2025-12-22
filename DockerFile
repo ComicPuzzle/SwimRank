@@ -1,0 +1,5 @@
+FROM SwimRank:1.0.0
+
+RUN pip install --no-cache-dir quotes
+
+COPY . /app

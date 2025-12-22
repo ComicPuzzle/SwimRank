@@ -4,6 +4,7 @@ from nicegui import Client, ui, app
 import pandas as pd
 import asyncio
 import asyncpg
+import os
 from nicegui.events import KeyEventArguments
 from datetime import datetime, timedelta
 from get_credentials import get_credentials
@@ -1126,4 +1127,4 @@ def donate_page():
             ui.image('static/zelle_qr.png').classes('w-48 h-48')
 
 if __name__ in {"__main__", "__mp_main__"}:
-    ui.run(title='SwimRank')
+    ui.run(title='SwimRank', reload='FLY_ALLOC_ID' not in os.environ)

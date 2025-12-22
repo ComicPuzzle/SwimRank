@@ -39,7 +39,7 @@ if __name__ == "__main__":
     ncaa_columns = ["Event", "Sex", "SwimTime", "NcaaSwimTimeKey"]
     ncaa_formats = ["text", "text", "interval", "integer"]
 
-    swimmer_ids_indexes = ["PersonKey", "Team"]
+    swimmer_ids_indexes = ["Team"]
     results_indexes = ["PersonKey", "Sex", "AgeGroup", "LSC", "Team"]
     ncaa_indexes = ["Event"]
 
@@ -81,18 +81,21 @@ if __name__ == "__main__":
 
                 cur.execute(create_query)
 
-                index_query = ""
                 if table_name == "SwimmerIDs":
                     for index in swimmer_ids_indexes:
                         temp = f"""CREATE INDEX "{table_name + "_" + index + "_idx"}" ON "ResultsSchema"."{table_name}"  USING btree ("{index}") WITH (deduplicate_items=True);"""
-                        index_query += temp
-                elif "Div" in table_name:
-                    index_query = f"""CREATE INDEX "{table_name + "_event_idx"}" ON "ResultsSchema"."{table_name}"  USING btree ("Event") WITH (deduplicate_items=True);"""
+                        temp2 = f"""CREATE INDEX idx_swimmerids_first_last ON "ResultsSchema"."SwimmerIDs" ("FirstName", "LastName");"""
+                        cur.execute(temp)
+                        cur.execute(temp2)
                 else:
-                    for index in results_indexes:
-                        temp = f"""CREATE INDEX "{table_name + "_" + index + "_idx"}" ON "ResultsSchema"."{table_name}"  USING btree ("{index}") WITH (deduplicate_items=True);"""
-                        index_query += temp
-                cur.execute(index_query)
+                    index_query = ""
+                    if "Div" in table_name:
+                        index_query = f"""CREATE INDEX "{table_name + "_event_idx"}" ON "ResultsSchema"."{table_name}"  USING btree ("Event") WITH (deduplicate_items=True);"""
+                    else:
+                        for index in results_indexes:
+                            temp = f"""CREATE INDEX "{table_name + "_" + index + "_idx"}" ON "ResultsSchema"."{table_name}"  USING btree ("{index}") WITH (deduplicate_items=True);"""
+                            index_query += temp
+                    cur.execute(index_query)
 
                 conn.commit()
 
