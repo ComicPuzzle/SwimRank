@@ -12,7 +12,7 @@ def convert_filename(name):
 if __name__ == "__main__":
     dbname, port, password, host, _ = get_credentials()
 
-    db_table_names = ['SwimmerIDs', "DivI_Male",  "DivI_Female",  "DivII_Male",  "DivII_Female",  "DivIII_Male",  "DivI_Female",
+    db_table_names = ["DivI_Male",  "DivI_Female",  "DivII_Male",  "DivII_Female",  "DivIII_Male",  "DivI_Female",
         '50_FR_SCY_results', '50_FR_LCM_results', '100_FR_SCY_results', '100_FR_LCM_results',
         '200_FR_SCY_results', '200_FR_LCM_results', '400_FR_LCM_results', '500_FR_SCY_results', 
         '800_FR_LCM_results', '1000_FR_SCY_results', '1500_FR_LCM_results', '1650_FR_SCY_results',
@@ -21,7 +21,7 @@ if __name__ == "__main__":
         '100_FL_LCM_results', '200_FL_LCM_results', '50_BR_SCY_results', '100_BR_SCY_results', '200_BR_SCY_results',
         '50_BR_LCM_results', '100_BR_LCM_results', '200_BR_LCM_results', '100_IM_SCY_results', '200_IM_SCY_results',
         '400_IM_SCY_results', '200_IM_LCM_results', '400_IM_LCM_results'
-    ]
+    ] #add back swimmmer ids
 
     db_columns = [
         "Name", "Sex", "Age", "AgeGroup", "Event", "Place", "Session", "Points", "SwimDate", "LSC",

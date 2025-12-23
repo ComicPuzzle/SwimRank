@@ -219,9 +219,8 @@ async def process_chunk(session, bearer_token, keys, swimmers_per_request):
 
 async def run_all_requests(keys):
     swimmers_per_request = 40
-    requests_per_token = 1000
-    swimmers_per_token = swimmers_per_request * requests_per_token  # = 40k
-
+    requests_per_token = 500
+    swimmers_per_token = swimmers_per_request * requests_per_token
     all_responses = []
 
     async with AsyncSession() as session:
@@ -231,7 +230,6 @@ async def run_all_requests(keys):
             end = start + swimmers_per_token
             key_slice = keys[start:end]
 
-            # New token for each 40,000 swimmers
             bearer_token = get_token()
             print(f"Generated bearer token for swimmers {start}–{end}")
 
@@ -241,25 +239,20 @@ async def run_all_requests(keys):
                 key_slice,
                 swimmers_per_request
             )
-
-            all_responses.extend(responses)
-
-    return all_responses
-
+            formatted = build_records(responses, [
+                "Name","Sex","Age","AgeGroup","Event","Place","Session","Points",
+                "SwimDate","LSC","Team","Meet","SwimTime","Relay","TimeStandard",
+                "MeetKey","UsasSwimTimeKey","PersonKey","SwimEventKey"
+            ])
+            df = pd.DataFrame.from_dict(formatted)
+            print('sending batch')
+            t = time.time()
+            send_data(df)
+            print(time.time() - t)
 
 def get_id_results():
     keys = get_personkeys()
     loop = asyncio.get_event_loop()
-    responses = loop.run_until_complete(run_all_requests(keys))
-
-    formatted = build_records(responses, [
-        "Name","Sex","Age","AgeGroup","Event","Place","Session","Points",
-        "SwimDate","LSC","Team","Meet","SwimTime","Relay","TimeStandard",
-        "MeetKey","UsasSwimTimeKey","PersonKey","SwimEventKey"
-    ])
-    t = time.time()
-    df = pd.DataFrame.from_dict(formatted)
-    send_data(df)
+    loop.run_until_complete(run_all_requests(keys))
     print("Final Data Sent")
-    print(time.time() - t)
     loop.close()

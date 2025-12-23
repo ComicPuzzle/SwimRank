@@ -4,12 +4,12 @@ from get_rankings_once import send_rankings_query
 import time
 
 if __name__ == "__main__":
-    start_time = time.time()
+    """start_time = time.time()
     print('getting ids')
     get_ids()
     current_time = time.time()
-    print(current_time - start_time)
-    start_time = current_time
+    print(current_time - start_time)"""
+    start_time = time.time()
     print('getting id results')
     get_id_results()
     current_time = time.time()
