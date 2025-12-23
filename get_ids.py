@@ -9,6 +9,7 @@ import psycopg
 from psycopg import sql 
 from get_credentials import get_credentials
 from io import StringIO
+import time
 
 def send_data(data, cur, conn):
     columns = ['FirstName', 'MiddleName', 'LastName', 'Team', 'LSC', 'Age', 'PersonKey']
@@ -66,6 +67,7 @@ def get_ids():
     df = df[['FirstName', 'MiddleName', 'LastName', 'Team', 'LSC', 'Age', 'PersonKey']]
     df = df.drop_duplicates(subset=['PersonKey'])
     dbname, port, password, host = get_credentials()
+    t = time.time()
     with psycopg.connect(f"dbname={dbname} port={port} user=postgres host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
             i = 0
@@ -75,6 +77,8 @@ def get_ids():
                 i += 10000
             temp = df[i:]
             send_data(temp, cur, conn)
+    print('sending data time')
+    print(time.time() - t)
 
 
 

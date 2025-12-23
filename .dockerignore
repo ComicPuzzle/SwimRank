@@ -1,0 +1,9 @@
+SwimRankEnv
+__pycache__
+*.pyc
+*.log
+*.db
+*.sqlite3
+*.env
+chromedriver_mac_arm64
+

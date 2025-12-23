@@ -1,5 +1,17 @@
-FROM SwimRank:1.0.0
+FROM python:3.11-slim
+WORKDIR /SwimRank
 
-RUN pip install --no-cache-dir quotes
+# Copy dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /app
+# Copy app files
+COPY MainApp.py .
+COPY get_credentials.py .
+COPY credentials.txt .
+COPY static/ ./static/
+
+# Expose Fly.io port
+EXPOSE 8080
+
+CMD ["python", "MainApp.py"]

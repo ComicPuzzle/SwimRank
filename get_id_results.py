@@ -258,8 +258,9 @@ def get_id_results():
         "SwimDate","LSC","Team","Meet","SwimTime","Relay","TimeStandard",
         "MeetKey","UsasSwimTimeKey","PersonKey","SwimEventKey"
     ])
-
+    t = time.time()
     df = pd.DataFrame.from_dict(formatted)
     send_data(df)
     print("Final Data Sent")
+    print(time.time() - t)
     loop.close()

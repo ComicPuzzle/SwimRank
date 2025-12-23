@@ -16,6 +16,10 @@ global_pool = None
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
+def footer():
+    bg_color = 'bg-gray-200/70'
+    with ui.row().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
+        ui.label('© SwimRankings.com 2025-2025. All rights reserved.').classes('text-gray-600')
 def navbar():
     bg_color = 'bg-gray-200/70'
     
@@ -42,16 +46,16 @@ def navbar():
         ui.label('|').classes('text-2xl text-gray-500 sm:inline-block')
 
         # Discussion button
-        ui.button('Privacy Policy/FAQ', on_click=lambda: ui.navigate.to('/privacy')) \
+        ui.button('Privacy Policy', on_click=lambda: ui.navigate.to('/privacy')) \
             .props('flat') \
             .classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
-        
+        """
         ui.label('|').classes('text-2xl text-gray-500 sm:inline-block')
 
         # Discussion button
         ui.button('Donate', on_click=lambda: ui.navigate.to('/donate')) \
             .props('flat') \
-            .classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
+            .classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')"""
 
 async def get_global_pool():
     """Return a shared asyncpg pool for all requests."""
@@ -598,7 +602,7 @@ async def graph_page(person_key: str):
         session['event_results_table'].visible = False
         session['chart'] = ui.echart({'series': []}).style('height: 600px; width: 100%; min-height: 600px;')
         session['chart'].visible = False
-
+    footer()
     await display_event_data(first_non_empty_event, first_non_empty_event_df)
 
 @ui.page('/')
@@ -616,7 +620,7 @@ async def main_page():
     await get_global_pool()
     with session['main_page_column']:
         ui.label('SwimRank').style('font-size: 200%; font-weight: 300, font-family: "Times New Roman", Times, serif;')
-        ui.label('This website provides swimming results and rankings data for competitive swimmers in the United States').style('font-size: 15px; margin-bottom: 20px;')
+        ui.label('This website provides up-to-date swimming results and rankings data for competitive swimmers in the United States').style('font-size: 15px; margin-bottom: 20px;')
         ui.separator()
         ui.label('Swimmer Search').style('font-size: 200%; font-weight: 300, font-family: "Times New Roman", Times, serif;')
         ui.label('This website contains data for over 1 million swimmers over the past 10 years').style('font-size: 15px')
@@ -627,6 +631,7 @@ async def main_page():
         session['id_table'].visible = False
         if not session['id_table_df'].empty:
             await update_id_table()
+    footer()
 
 async def show_page():
     PAGE_SIZE = 50
@@ -940,6 +945,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
     
     await refresh_table_ranksys()
     await show_page()
+    footer()
 
 @ui.page('/discussion')
 async def discussion_page():
@@ -953,6 +959,7 @@ async def discussion_page():
         # Placeholder box
         ui.input(placeholder='Start a new topic...').classes('w-1/2')
         ui.button('Post').classes('mt-2')
+    footer()
 
 @ui.page('/team/{team}')
 async def team_page(team: str):
@@ -1051,6 +1058,7 @@ async def team_page(team: str):
         </q-td>
     """)
     session['team_male_table'].on('person_selected', on_person_selected)
+    footer()
 
 @ui.page('/aboutme')
 async def aboutme_page():
@@ -1062,10 +1070,9 @@ async def aboutme_page():
             ui.label('About Me').style('font-size: 28px')
 
         with ui.column().classes('w-3/5'):
-            ui.label("Hello! My name is DW.").style('font-size: 15px')
-
+            ui.label("Hello!").style('font-size: 15px')
             ui.label(
-                "I was a competitive swimmer for over 12 years from 7 years old to now 21. "
+                "I was a competitive swimmer for over 12 years."
                 "During my swimming career, I swam for my high school team, club team, and college club team. "
                 "Growing up, I used the swimmingrank.com website frequently to check my rankings and see how I compared "
                 "to other swimmers in my age group and events. However, with that website no longer available, "
@@ -1082,11 +1089,11 @@ async def aboutme_page():
 
             ui.label("Finally, it does cost money to host the database and website, "
                 "so if you would like to support the site please consider donating via the Donate page. Thank you!").style('font-size: 15px')
+    footer()
 
 @ui.page('/privacy')
 async def privacypolicy_page():
     await ui.context.client.connected()
-    session = app.storage.tab
     navbar()
     with ui.row().classes('w-full justify-center'):
         with ui.column().classes('w-3/5 items-center text-center'):
@@ -1096,16 +1103,18 @@ async def privacypolicy_page():
                         All of the data available on this website is publicly available from USA Swimming's website and is used here simply to compile and display that information in a more user-friendly manner.
                         I update this website weekly with the previous weeks meet results. Only meets registered with USA Swimming will be included in the rankings and results, so regular high school duel meets
                         or college meets may not be included.""").style('font-size: 15px')
-        with ui.column().classes('w-3/5 items-center text-center'):
+        """with ui.column().classes('w-3/5 items-center text-center'):
             ui.label('FAQ').style('font-size: 28px')
         with ui.column().classes('w-3/5'):
-            ui.label("""1. How often is the data updated?""").style('font-size: 15px').classes('font-semibold')
-            ui.label("""The data is updated weekly, typically on Mondays, to include the previous week's meet results.""").style('font-size: 15px')
-            ui.label("""2. Where does the data come from?""").style('font-size: 15px').classes('font-semibold')
-            ui.label("""All data is sourced from publicly available information on USA Swimming's website.""").style('font-size: 15px')
-            ui.label("""3. Why are some meets or times missing?""").style('font-size: 15px').classes('font-semibold')
-            ui.label("""Only meets that are officially registered with USA Swimming are included in the rankings and results. Regular high school duel meets or college meets may not be included. Additionally I have
-                        only collected data up to 2016 so results from before that year will not be displayed.""").style('font-size: 15px')
+            ui.label('1. How often is the data updated?').style('font-size: 15px').classes('font-semibold')
+            ui.label('The data is updated weekly, typically on Mondays, to include the previous week's meet results.').style('font-size: 15px')
+            ui.label('2. Where does the data come from?').style('font-size: 15px').classes('font-semibold')
+            ui.label('All data is sourced from publicly available information on USA Swimming's website.').style('font-size: 15px')
+            ui.label('3. Why are some meets or times missing?').style('font-size: 15px').classes('font-semibold')
+            ui.label('Only meets that are officially registered with USA Swimming are included in the rankings and results. Regular high school duel meets or college meets may not be included. Additionally I have
+                        only collected data up to 2016 so results from before that year will not be displayed.').style('font-size: 15px')
+        """
+    footer()
 
 def make_qr(data: str):
         qr = qrcode.make(data)
@@ -1125,6 +1134,7 @@ def donate_page():
 
             ui.label('Donate securely using Zelle through your bank app.').classes('text-center text-lg font-semibold')
             ui.image('static/zelle_qr.png').classes('w-48 h-48')
+    footer()
 
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(title='SwimRank', reload='FLY_ALLOC_ID' not in os.environ)
