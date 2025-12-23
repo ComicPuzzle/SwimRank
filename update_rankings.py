@@ -10,7 +10,7 @@ from curl_cffi.requests import AsyncSession
 from get_credentials import get_credentials
 
 def send_season_ranking_query(season_start, season_end, season):
-    dbname, port, password, host = get_credentials()
+    dbname, port, password, host, _ = get_credentials()
     table_names = ['50_FR_SCY_results', '50_FR_LCM_results', '100_FR_SCY_results', '100_FR_LCM_results',
         '200_FR_SCY_results', '200_FR_LCM_results', '400_FR_LCM_results', '500_FR_SCY_results',
         '800_FR_LCM_results', '1000_FR_SCY_results', '1500_FR_LCM_results', '1650_FR_SCY_results',
@@ -20,7 +20,7 @@ def send_season_ranking_query(season_start, season_end, season):
         '50_BR_SCY_results', '100_BR_SCY_results', '200_BR_SCY_results', '50_BR_LCM_results', 
         '100_BR_LCM_results', '200_BR_LCM_results', '100_IM_SCY_results', '200_IM_SCY_results', '400_IM_SCY_results', '200_IM_LCM_results', '400_IM_LCM_results'
     ]
-    with psycopg.connect(f"dbname={dbname} port={port} user=postgres host='{host}' password='{password}'") as conn:
+    with psycopg.connect(f"dbname={dbname} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
         # Open a cursor to perform database operations
         with conn.cursor() as cur:
             for table in table_names:

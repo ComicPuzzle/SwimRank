@@ -10,7 +10,7 @@ def convert_filename(name):
         return name
 
 if __name__ == "__main__":
-    dbname, port, password, host = get_credentials()
+    dbname, port, password, host, _ = get_credentials()
 
     db_table_names = ['SwimmerIDs', "DivI_Male",  "DivI_Female",  "DivII_Male",  "DivII_Female",  "DivIII_Male",  "DivI_Female",
         '50_FR_SCY_results', '50_FR_LCM_results', '100_FR_SCY_results', '100_FR_LCM_results',
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     results_indexes = ["PersonKey", "Sex", "AgeGroup", "LSC", "Team"]
     ncaa_indexes = ["Event"]
 
-    with psycopg.connect(f"dbname={dbname} port={port} user=postgres host={host} password={password}") as conn:
+    with psycopg.connect(f"dbname={dbname} port={port} user=swimrank_write  host={host} password={password}") as conn:
         with conn.cursor() as cur:
             for table_name in db_table_names:
                 drop_query = sql.SQL("""DROP TABLE IF EXISTS {schema}.{table} CASCADE;""").format(

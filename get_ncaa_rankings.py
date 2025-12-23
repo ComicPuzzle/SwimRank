@@ -33,13 +33,13 @@ def get_ncaa_rankings():
     else:
         current_season = str(current_year-1) + "-"  + str(current_year)
 
-    dbname, port, password, host = get_credentials()
+    dbname, port, password, host, _ = get_credentials()
     tables = ["DivI_Male",  "DivI_Female",  "DivII_Male",  "DivII_Female",  "DivIII_Male",  "DivIII_Female"]
     c = ["Event", "Sex", "SwimTime", "NcaaSwimTimeKey"]
     f = ["text", "text", "interval", "integer"]
     k = "NcaaSwimTimeKey"   
 
-    with psycopg.connect(f"dbname={dbname} port={port} user=postgres host={host} password={password}") as conn:
+    with psycopg.connect(f"dbname={dbname} port={port} user=swimrank_write host={host} password={password}") as conn:
         with conn.cursor() as cur:
             for table_name in tables:
                 drop_query = sql.SQL("""DROP TABLE IF EXISTS {schema}.{table} CASCADE;""").format(
@@ -97,7 +97,7 @@ def get_ncaa_rankings():
                 table_name += "Female"
             print(table_name)
 
-            with psycopg.connect(f"dbname={dbname} port={port} user=postgres host='{host}' password='{password}'") as conn:
+            with psycopg.connect(f"dbname={dbname} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
                 with conn.cursor() as cur:
                         db_columns = ['Event', 'Sex', 'SwimTime', 'NcaaSwimTimeKey']
                         records = list(df.itertuples(index=False))

@@ -25,8 +25,8 @@ def get_previous_week_dates(today_date):
 
 def get_personkeys():
     query = """SELECT "PersonKey", "Age" FROM "ResultsSchema"."SwimmerIDs" """
-    db, port, password, host = get_credentials()
-    with psycopg.connect(f"dbname={db} port={port} user=postgres host='{host}' password='{password}'") as conn:
+    db, port, password, host, _ = get_credentials()
+    with psycopg.connect(f"dbname={db} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
             cur.execute(query)
             rows = cur.fetchall()
@@ -34,9 +34,9 @@ def get_personkeys():
     return {row[0:2] for row in rows}
 
 def send_id_data_batch(rows):
-    db, port, password, host = get_credentials()
+    db, port, password, host, _ = get_credentials()
 
-    with psycopg.connect(f"dbname={db} port={port} user=postgres host='{host}' password='{password}'") as conn:
+    with psycopg.connect(f"dbname={db} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
             cur.executemany("""INSERT INTO "ResultsSchema"."SwimmerIDs"
                     ("FirstName","MiddleName","LastName","Team","LSC","Age","PersonKey","Sex")
@@ -48,9 +48,9 @@ def send_id_data_batch(rows):
 
 
 def send_age_data_batch(rows):
-    db, port, password, host = get_credentials()
+    db, port, password, host, _ = get_credentials()
 
-    with psycopg.connect(f"dbname={db} port={port} user=postgres host='{host}' password='{password}'") as conn:
+    with psycopg.connect(f"dbname={db} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
             # Build VALUES block safely
             values = sql.SQL(", ").join(
@@ -72,7 +72,7 @@ def send_age_data_batch(rows):
 
 
 def send_data(df):
-    db, port, password, host = get_credentials()
+    db, port, password, host, _ = get_credentials()
     table_map = {
         '50 FR SCY': '50_FR_SCY_results',
         '50 FR LCM': '50_FR_LCM_results',
@@ -117,7 +117,7 @@ def send_data(df):
         "MeetKey","UsasSwimTimeKey","PersonKey","SwimEventKey"
     ]
 
-    with psycopg.connect(f"dbname={db} port={port} user=postgres host='{host}' password='{password}'") as conn:
+    with psycopg.connect(f"dbname={db} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
             # Pre-split entire dataframe by event (VERY Fast)
             grouped = {event: df[df["Event"] == event] for event in table_map}

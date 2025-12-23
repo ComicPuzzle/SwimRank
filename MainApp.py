@@ -59,7 +59,7 @@ def navbar():
 
 async def get_global_pool():
     """Return a shared asyncpg pool for all requests."""
-    dbname, port, password, ip = get_credentials()
+    dbname, port, password, ip, user = get_credentials()
     global global_pool
     if global_pool is None or global_pool.is_closing():
         global_pool = await asyncpg.create_pool(

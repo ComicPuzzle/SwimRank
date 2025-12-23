@@ -26,7 +26,7 @@ def get_personkeys():
     return [row[0] for row in rows]
 
 def send_data(df):
-    db, port, password, host = get_credentials()
+    db, port, password, host, _ = get_credentials()
     table_map = {
         '50 FR SCY': '50_FR_SCY_results',
         '50 FR LCM': '50_FR_LCM_results',
@@ -71,7 +71,7 @@ def send_data(df):
         "MeetKey","UsasSwimTimeKey","PersonKey","SwimEventKey"
     ]
 
-    with psycopg.connect(f"dbname={db} port={port} user=postgres host='{host}' password='{password}'") as conn:
+    with psycopg.connect(f"dbname={db} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
             # Pre-split entire dataframe by event (VERY Fast)
             grouped = {event: df[df["Event"] == event] for event in table_map}

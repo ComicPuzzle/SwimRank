@@ -68,7 +68,7 @@ def get_ids():
     df = df.drop_duplicates(subset=['PersonKey'])
     dbname, port, password, host = get_credentials()
     t = time.time()
-    with psycopg.connect(f"dbname={dbname} port={port} user=postgres host='{host}' password='{password}'") as conn:
+    with psycopg.connect(f"dbname={dbname} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
             i = 0
             while i < len(df) - 10000: 
