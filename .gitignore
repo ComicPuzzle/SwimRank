@@ -1,14 +1,12 @@
 __pycache__/*
 selenium/*
 SwimRankEnv/*
-collect_swimmer_data/*
 .venv/*
 .DS_Store
 *.json
 __pycache__/*
 credentials.txt
 *.json
-*.pem
 create_indexes_results.py
 move_ids_to_db.py
 test.py

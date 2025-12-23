@@ -3,13 +3,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 from seleniumwire import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
 
 def get_token():
     options = webdriver.ChromeOptions()
     options.page_load_strategy = 'eager'
     options.add_argument("--headless=new")
     options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
     driver.get("https://data.usaswimming.org/datahub/usas/individualsearch")
     WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.ID, "firstOrPreferredName")))
     browser_log = driver.get_log('performance') 
