@@ -66,7 +66,7 @@ def get_ids():
     df.drop(columns=['Name'], inplace=True)
     df = df[['FirstName', 'MiddleName', 'LastName', 'Team', 'LSC', 'Age', 'PersonKey']]
     df = df.drop_duplicates(subset=['PersonKey'])
-    dbname, port, password, host = get_credentials()
+    dbname, port, password, host, _ = get_credentials()
     t = time.time()
     with psycopg.connect(f"dbname={dbname} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:

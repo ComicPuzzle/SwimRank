@@ -10,7 +10,7 @@ from curl_cffi.requests import AsyncSession
 from get_credentials import get_credentials
 
 def send_rankings_query():
-    dbname, port, password, host = get_credentials()
+    dbname, port, password, host, _ = get_credentials()
     table_names = ['50_FR_SCY_results', '50_FR_LCM_results', '100_FR_SCY_results', '100_FR_LCM_results',
         '200_FR_SCY_results', '200_FR_LCM_results', '400_FR_LCM_results', '500_FR_SCY_results',
         '800_FR_LCM_results', '1000_FR_SCY_results', '1500_FR_LCM_results', '1650_FR_SCY_results',

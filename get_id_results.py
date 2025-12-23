@@ -17,8 +17,8 @@ SEM = asyncio.Semaphore(10)
 
 def get_personkeys():
     query = """SELECT "PersonKey" FROM "ResultsSchema"."SwimmerIDs" """
-    db, port, password, host = get_credentials()
-    with psycopg.connect(f"dbname={db} port={port} user=postgres host='{host}' password='{password}'") as conn:
+    db, port, password, host, _ = get_credentials()
+    with psycopg.connect(f"dbname={db} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
             cur.execute(query)
             rows = cur.fetchall()
@@ -250,7 +250,6 @@ async def run_all_requests(keys):
 def get_id_results():
     keys = get_personkeys()
     loop = asyncio.get_event_loop()
-    keys = keys[:40000]
     responses = loop.run_until_complete(run_all_requests(keys))
 
     formatted = build_records(responses, [
