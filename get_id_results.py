@@ -16,7 +16,7 @@ from get_rankings_once import send_rankings_query
 SEM = asyncio.Semaphore(10)
 
 def get_personkeys():
-    query = """SELECT "PersonKey" FROM "ResultsSchema"."SwimmerIDs" """
+    query = """SELECT "PersonKey" FROM "ResultsSchema"."SwimmerIDs" WHERE "Collected" != 1"""
     db, port, password, host, _ = get_credentials()
     with psycopg.connect(f"dbname={db} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
@@ -92,6 +92,21 @@ def send_data(df):
                 )
                 cur.executemany(query, records)
                 conn.commit()
+
+def send_update(keys):
+    db, port, password, host, _ = get_credentials()
+    with psycopg.connect(f"dbname={db} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE your_table_name
+                SET "Collected" = 1
+                WHERE "PersonKey" = ANY(%s)
+                """,
+                (keys)
+            )
+        conn.commit()
+
 
 async def fetch_id_results(session, bearer_token, temp_keys, index):
     async with SEM:                   
@@ -249,6 +264,8 @@ async def run_all_requests(keys):
             t = time.time()
             send_data(df)
             print(time.time() - t)
+            print('updating swimmerids to show if collected data already')
+            send_update(key_slice)
 
 def get_id_results():
     keys = get_personkeys()

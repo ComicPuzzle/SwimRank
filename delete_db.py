@@ -33,8 +33,8 @@ if __name__ == "__main__":
         "timestamp without time zone", "text", "text", "text", "interval", "integer",
         "text", "integer", "integer", "integer", "integer", "integer", "integer", "integer"
     ]
-    id_columns = ["FirstName", "MiddleName", "LastName", "Team", "LSC", "Age", "Sex", "PersonKey"]
-    id_formats = ["text", "text", "text", "text", "text", "integer", "integer", "integer"]
+    id_columns = ["FirstName", "MiddleName", "LastName", "Team", "LSC", "Age", "Sex", "PersonKey", "Collected"]
+    id_formats = ["text", "text", "text", "text", "text", "integer", "integer", "integer", "integer"]
 
     ncaa_columns = ["Event", "Sex", "SwimTime", "NcaaSwimTimeKey"]
     ncaa_formats = ["text", "text", "interval", "integer"]

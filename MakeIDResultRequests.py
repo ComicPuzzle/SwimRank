@@ -33,7 +33,7 @@ async def make_id_results_request(session, token, ids, index):
     'Authorization': f'Bearer {token}'
     }
     print(index)
-    counter = 0
+    counter = 1
     while True:
         try:
             response = await session.post(url, headers=headers, data=payload, verify=["/Users/daniel/Desktop/others -imp/SwimRank/_.usaswimming.org.pem", "/Users/daniel/Desktop/others -imp/SwimRank/cacert.pem"], 
@@ -42,5 +42,5 @@ async def make_id_results_request(session, token, ids, index):
         except Exception as e:
             print(e)
             print(counter)
-            time.sleep(30 + counter)
+            time.sleep(30 * counter)
             counter += 1
