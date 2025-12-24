@@ -95,15 +95,12 @@ def send_data(df):
 
 def send_update(keys):
     db, port, password, host, _ = get_credentials()
+    person_keys = [(k,) for k in keys]
     with psycopg.connect(f"dbname={db} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
             cur.execute(
-                """
-                UPDATE your_table_name
-                SET "Collected" = 1
-                WHERE "PersonKey" = ANY(%s)
-                """,
-                (keys)
+                """UPDATE "ResultsSchema"."SwimmerIDs" SET \"Collected\" = 1 WHERE \"PersonKey\" = ANY(%s::int[])""",
+                (keys,)
             )
         conn.commit()
 
@@ -233,8 +230,8 @@ async def process_chunk(session, bearer_token, keys, swimmers_per_request):
 
 
 async def run_all_requests(keys):
-    swimmers_per_request = 40
-    requests_per_token = 500
+    swimmers_per_request = 10
+    requests_per_token = 10
     swimmers_per_token = swimmers_per_request * requests_per_token
     all_responses = []
 
@@ -244,7 +241,6 @@ async def run_all_requests(keys):
 
             end = start + swimmers_per_token
             key_slice = keys[start:end]
-
             bearer_token = get_token()
             print(f"Generated bearer token for swimmers {start}–{end}")
 
