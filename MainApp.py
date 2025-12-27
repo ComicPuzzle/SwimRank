@@ -19,7 +19,7 @@ pd.set_option('display.width', None)
 def footer():
     bg_color = 'bg-gray-200/70'
     with ui.row().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
-        ui.label('© SwimRankings.com 2025-2025. All rights reserved.').classes('text-gray-600')
+        ui.label('© SwimmingRank.org 2025-2025. All rights reserved.').classes('text-gray-600')
 def navbar():
     bg_color = 'bg-gray-200/70'
     
@@ -1089,19 +1089,19 @@ async def aboutme_page():
                     "provides a comprehensive review of  the meets that swimmer has attended and historical times in any particular event, and tabulates the rankings "
                     "across teams/state/national levels.").style('font-size: 15px')
 
-                ui.label("I will keep improving this website such that it provides the data and information that the swimming community needs. Any comment and suggestion will be greatly appreciated. Please email me at:").style('font-size: 15px')
-                ui.label("Finally, it does cost money to host the database and run the website, so if you would like to support the site please consider donating via the Donate page. Thank you!").style('font-size: 15px')
-
-                with ui.row().classes('items-center no-wrap'):
-                    ui.label('Please contact me at').style('font-size: 15px')
-                    ui.link(
-                        'DWwork178@gmail.com',
-                        'mailto:DWwork178@gmail.com'
-                    ).classes('text-blue-600 hover:underline').style('font-size: 15px')
-
-                #ui.label("Finally, it does cost money to host the database and website, "
-                    "so if you would like to support the site please consider donating via the Donate page. Thank you!"#).style('font-size: 15px')
-        footer()
+                
+                with ui.row().classes('items-center justify-center gap-1'):
+                    ui.label("I will keep improving this website such that it provides the data and information that the swimming community needs. Any ").style('font-size: 15px')
+                    ui.label("comment and suggestion will be greatly appreciated").style('font-size: 15px')
+                    ui.label("Please email me at:").style('font-size: 15px')
+                    ui.link('support@swimmingrank.org', 'mailto:support@swimmingrank.org').classes('text-blue-600 hover:underline').style('font-size: 15px')
+                
+                with ui.row().classes('items-center justify-center gap-1'):
+                    ui.label("Finally, it does cost money to host the database and run the website, so if you would like to support the site please consider").style('font-size: 15px')
+                    ui.label("donating via the").style('font-size: 15px') 
+                    ui.link("Donate page", '/donate').classes('text-blue-600 hover:underline').style('font-size: 15px')
+                    ui.label("Thank you!").style('font-size: 15px')
+    footer()
 
 @ui.page('/privacy')
 async def privacypolicy_page():
@@ -1111,10 +1111,11 @@ async def privacypolicy_page():
         with ui.row().classes('w-full flex-1 justify-center items-start'):
             with ui.column().classes('w-3/5 items-center text-center'):
                 ui.label('Privacy Policy').style('font-size: 28px')
-                ui.label("""I don't like ads or trackers either, so SwimRank is designed to be as privacy-friendly as possible. I do no track you activity on the site, nor do I use any third-party trackers or ads.
-                            All of the data available on this website is publicly available from USA Swimming's website and is used here simply to compile and display that information in a more user-friendly manner.
-                            I update this website weekly with the previous weeks meet results. Only meets registered with USA Swimming will be included in the rankings and results, so regular high school duel meets
-                            or college meets may not be included.""").style('font-size: 15px')
+                ui.label("""SwimmingRank.org is designed to be as privacy friendly as possible. I do not track, collect, or store any of your activities on the site, or do I use any third-party trackers or ads.
+                         All of the data available on this website is publicly available via USA Swimming. I update this website weekly with the previous week's results.
+                         Only meets registered with USA Swimming will be included in the rankings and results, so regular high school dual meets or college
+                         meets may not be included.""").style('font-size: 15px')
+                ui.label("""Last updated: December 27th, 2025""").style('font-size: 15px')
             """with ui.column().classes('w-3/5 items-center text-center'):
                 ui.label('FAQ').style('font-size: 28px')
             with ui.column().classes('w-3/5'):
@@ -1139,8 +1140,6 @@ def make_qr(data: str):
 def donate_page():
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         navbar()
-        ZELLE_EMAIL = 'alphadjw@gmail.com'
-
         with ui.row().classes('w-full justify-center flex-1 items-center'):
             with ui.column().classes('w-3/5 items-center text-center'):
                 ui.label('Support This Website').style('font-size: 28px')
@@ -1150,4 +1149,4 @@ def donate_page():
         footer()
 
 if __name__ in {"__main__", "__mp_main__"}:
-    ui.run(title='SwimRank', reload='FLY_ALLOC_ID' not in os.environ)
+    ui.run(title='SwimmingRank', reload='FLY_ALLOC_ID' not in os.environ)
