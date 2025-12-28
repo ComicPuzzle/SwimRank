@@ -621,7 +621,7 @@ async def main_page():
         await get_global_pool()
 
         with session['main_page_column']:
-            ui.label('SwimRank').style('font-size: 28px').classes('font-bold')
+            ui.label('SwimmingRank').style('font-size: 28px').classes('font-bold')
             ui.label('This website provides up-to-date swimming results and rankings data for competitive swimmers in the United States').style('font-size: 15px; margin-bottom: 20px;')
 
             ui.separator()
@@ -1084,7 +1084,7 @@ async def aboutme_page():
                 ui.label(
                     "I am a college student and a competitive swimmer. During my swimming career, I used the swimmingrank.com website frequently to check my rankings"
                     " and see how I compared to other swimmers in my age group and events. Like many of my fellow swimmers, we liked the comprehensive information and"
-                    " clean design of that website. However, with that website no longer available, I decided to create SwimRankings to fill that gap and provide "
+                    " clean design of that website. However, with that website no longer available, I decided to create SwimmingRank to fill that gap and provide "
                     "swimmers with a similar resource to track their rankings and progressions over years. My website allows for the search of a particular swimmer, "
                     "provides a comprehensive review of  the meets that swimmer has attended and historical times in any particular event, and tabulates the rankings "
                     "across teams/state/national levels.").style('font-size: 15px')
