@@ -611,10 +611,10 @@ async def graph_page(person_key: str):
 
 @ui.page('/')
 async def main_page():
+    ui.add_head_html("""<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "e0d7f940137e4602a44bb27a2d7e1117"}'></script>""")
     await ui.context.client.connected()
     session = app.storage.tab
     session['id_table_df'] = []
-    ui.add_head_html("""<script defer arc='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "78532f88c6b5477db78ae749b95ad044"}'""")
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         navbar()
         session['main_page_column'] = ui.column().classes('w-full flex-1 items-center')

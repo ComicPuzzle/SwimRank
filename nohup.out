@@ -680,3 +680,1570 @@ TimeoutError: No connection after 3.0 seconds
 https://www.swimmingrank.org/admin/serverConfig.json not found
 WARNING:  WatchFiles detected changes in 'MainApp.py'. Reloading...
 NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+https://172.190.139.8/ecp/Current/exporttool/microsoft.exchange.ediscovery.exporttool.application not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 614, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7d54bf858b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+WARNING:  WatchFiles detected changes in 'MainApp.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 614, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7f451c550b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 614, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x725709350b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://www.swimmingrank.org/.git/config not found
+https://www.swimmingrank.org/vendor/.git/config not found
+https://www.swimmingrank.org/lib/.git/config not found
+https://www.swimmingrank.org/app/.git/config not found
+https://www.swimmingrank.org/core/.git/config not found
+https://www.swimmingrank.org/admin/.git/config not found
+https://www.swimmingrank.org/api/.git/config not found
+https://www.swimmingrank.org/backend/.git/config not found
+https://www.swimmingrank.org/public/.git/config not found
+https://www.swimmingrank.org/assets/.git/config not found
+https://www.swimmingrank.org/uploads/.git/config not found
+https://www.swimmingrank.org/laravel/.git/config not found
+https://www.swimmingrank.org/wordpress/.git/config not found
+https://www.swimmingrank.org/wp-content/.git/config not found
+https://www.swimmingrank.org/old/.git/config not found
+https://www.swimmingrank.org/backup/.git/config not found
+https://www.swimmingrank.org/test/.git/config not found
+https://www.swimmingrank.org/dev/.git/config not found
+https://www.swimmingrank.org/staging/.git/config not found
+https://www.swimmingrank.org/production/.git/config not found
+https://www.swimmingrank.org/.env not found
+https://www.swimmingrank.org/.env.local not found
+https://www.swimmingrank.org/.env.production not found
+https://www.swimmingrank.org/.env.staging not found
+https://www.swimmingrank.org/.env.development not found
+https://www.swimmingrank.org/.env.test not found
+https://www.swimmingrank.org/.env.example not found
+https://www.swimmingrank.org/.env.sample not found
+https://www.swimmingrank.org/.env.template not found
+https://www.swimmingrank.org/.env.default not found
+https://www.swimmingrank.org/.env.dist not found
+https://www.swimmingrank.org/.env.dev.example not found
+https://www.swimmingrank.org/.env.prod.example not found
+https://www.swimmingrank.org/.env.stage.example not found
+https://www.swimmingrank.org/.env.save not found
+https://www.swimmingrank.org/.env.saved not found
+https://www.swimmingrank.org/.env.backup not found
+https://www.swimmingrank.org/.env.bak not found
+https://www.swimmingrank.org/.env.old not found
+https://www.swimmingrank.org/.env.copy not found
+https://www.swimmingrank.org/.env.copy1 not found
+https://www.swimmingrank.org/.env.copy2 not found
+https://www.swimmingrank.org/.env.back not found
+https://www.swimmingrank.org/.env.orig not found
+https://www.swimmingrank.org/.env.original not found
+https://www.swimmingrank.org/.env.previous not found
+https://www.swimmingrank.org/.env.prev not found
+https://www.swimmingrank.org/.env~ not found
+https://www.swimmingrank.org/.env.swp not found
+https://www.swimmingrank.org/.env.swo not found
+https://www.swimmingrank.org/.env.tmp not found
+https://www.swimmingrank.org/.env.temp not found
+https://www.swimmingrank.org/.env.txt not found
+https://www.swimmingrank.org/.env.bak.txt not found
+https://www.swimmingrank.org/.env.1 not found
+https://www.swimmingrank.org/.env.2 not found
+https://www.swimmingrank.org/.env.2023 not found
+https://www.swimmingrank.org/.env.2024 not found
+https://www.swimmingrank.org/.env.2025 not found
+https://www.swimmingrank.org/.env.final not found
+https://www.swimmingrank.org/.env.last not found
+https://www.swimmingrank.org/.env.new not found
+https://www.swimmingrank.org/.env.dev not found
+https://www.swimmingrank.org/.env.prod not found
+https://www.swimmingrank.org/.env.stage not found
+https://www.swimmingrank.org/.env.testing not found
+https://www.swimmingrank.org/.env.qa not found
+https://www.swimmingrank.org/.env.live not found
+https://www.swimmingrank.org/.env.release not found
+https://www.swimmingrank.org/.env.local.example not found
+https://www.swimmingrank.org/.env.production.example not found
+https://www.swimmingrank.org/.env.staging.example not found
+https://www.swimmingrank.org/stripe.env not found
+https://www.swimmingrank.org/.stripe.env not found
+https://www.swimmingrank.org/stripe/.env not found
+https://www.swimmingrank.org/stripe/env not found
+https://www.swimmingrank.org/stripe/.env.local not found
+https://www.swimmingrank.org/sendgrid.env not found
+https://www.swimmingrank.org/.sendgrid.env not found
+https://www.swimmingrank.org/sendgrid/.env not found
+https://www.swimmingrank.org/sendgrid/env not found
+https://www.swimmingrank.org/sendgrid/.env.local not found
+https://www.swimmingrank.org/config/.env not found
+https://www.swimmingrank.org/config/env not found
+https://www.swimmingrank.org/config/.env.local not found
+https://www.swimmingrank.org/app/.env not found
+https://www.swimmingrank.org/app/.env.local not found
+https://www.swimmingrank.org/backend/.env not found
+https://www.swimmingrank.org/backend/.env.local not found
+https://www.swimmingrank.org/api/.env not found
+https://www.swimmingrank.org/api/.env.local not found
+https://www.swimmingrank.org/server/.env not found
+https://www.swimmingrank.org/server/.env.local not found
+https://www.swimmingrank.org/public/.env not found
+https://www.swimmingrank.org/public_html/.env not found
+https://www.swimmingrank.org/laravel/.env not found
+https://www.swimmingrank.org/www/.env not found
+https://www.swimmingrank.org/htdocs/.env not found
+https://www.swimmingrank.org/vendor/.env not found
+https://www.swimmingrank.org/lib/.env not found
+https://www.swimmingrank.org/lab/.env not found
+https://www.swimmingrank.org/cronlab/.env not found
+https://www.swimmingrank.org/cron/.env not found
+https://www.swimmingrank.org/core/.env not found
+https://www.swimmingrank.org/database/.env not found
+https://www.swimmingrank.org/assets/.env not found
+https://www.swimmingrank.org/apps/.env not found
+https://www.swimmingrank.org/uploads/.env not found
+https://www.swimmingrank.org/admin/.env not found
+https://www.swimmingrank.org/web/.env not found
+https://www.swimmingrank.org/functions/.env not found
+https://www.swimmingrank.org/dist/.env not found
+https://www.swimmingrank.org/build/.env not found
+https://www.swimmingrank.org/frontend/.env not found
+https://www.swimmingrank.org/actuator/env not found
+https://www.swimmingrank.org/proc/self/environ not found
+https://www.swimmingrank.org/.vscode/.env not found
+https://www.swimmingrank.org/market/.env.production not found
+https://www.swimmingrank.org/cron/.env.staging not found
+https://www.swimmingrank.org/website/.env not found
+https://www.swimmingrank.org/production/.env.production not found
+https://www.swimmingrank.org/live/.env not found
+https://www.swimmingrank.org/kyc/.env.local not found
+https://www.swimmingrank.org/server/.env.production not found
+https://www.swimmingrank.org/staging/.env not found
+https://www.swimmingrank.org/mailer/.env not found
+https://www.swimmingrank.org/admin/.env.staging not found
+https://www.swimmingrank.org/app/.env.production not found
+https://www.swimmingrank.org/stg/.env.staging not found
+https://www.swimmingrank.org/shop/.env.local not found
+https://www.swimmingrank.org/public/.env.staging not found
+https://www.swimmingrank.org/nodeweb/.env not found
+https://www.swimmingrank.org/prod/.env.staging not found
+https://www.swimmingrank.org/.env.sample.php not found
+https://www.swimmingrank.org/backend/.env.staging not found
+https://www.swimmingrank.org/shop/.env.production not found
+https://www.swimmingrank.org/BACK/.env not found
+https://www.swimmingrank.org/demo/.env.production not found
+https://www.swimmingrank.org/.env.test.local not found
+https://www.swimmingrank.org/market/.env not found
+https://www.swimmingrank.org/crm/.env not found
+https://www.swimmingrank.org/cron/.env.local not found
+https://www.swimmingrank.org/live/.env.staging not found
+https://www.swimmingrank.org/current/.env.local not found
+https://www.swimmingrank.org/.envs not found
+https://www.swimmingrank.org/portal/.env.local not found
+https://www.swimmingrank.org/APP/.env not found
+https://www.swimmingrank.org/backup/.env.staging not found
+https://www.swimmingrank.org/beta/.env.local not found
+https://www.swimmingrank.org/development/.env.production not found
+https://www.swimmingrank.org/test/.env.staging not found
+https://www.swimmingrank.org/service/.env.local not found
+https://www.swimmingrank.org/laravel/.env.production not found
+https://www.swimmingrank.org/test/.env.local not found
+https://www.swimmingrank.org/develop/.env not found
+https://www.swimmingrank.org/laravel/core/.env.production not found
+https://www.swimmingrank.org/laravel/core/.env not found
+https://www.swimmingrank.org/current/.env.production not found
+https://www.swimmingrank.org/qa/.env.production not found
+https://www.swimmingrank.org/web/.env.staging not found
+https://www.swimmingrank.org/server/.env.staging not found
+https://www.swimmingrank.org/qa/.env.local not found
+https://www.swimmingrank.org/market/.env.local not found
+https://www.swimmingrank.org/.docker/.env not found
+https://www.swimmingrank.org/new/.env.local not found
+https://www.swimmingrank.org/marketing/.env not found
+https://www.swimmingrank.org/project/.env.production not found
+https://www.swimmingrank.org/.envrc not found
+https://www.swimmingrank.org/crm/.env.production not found
+https://www.swimmingrank.org/beta/.env.production not found
+https://www.swimmingrank.org/crm/.env.local not found
+https://www.swimmingrank.org/.environment not found
+https://www.swimmingrank.org/website/.env.staging not found
+https://www.swimmingrank.org/web/.env.local not found
+https://www.swimmingrank.org/api/.env.production not found
+https://www.swimmingrank.org/current/.env.staging not found
+https://www.swimmingrank.org/old/.env not found
+https://www.swimmingrank.org/FRONT/.env not found
+https://www.swimmingrank.org/backup/.env.local not found
+https://www.swimmingrank.org/node/.env not found
+https://www.swimmingrank.org/.env.production.local not found
+https://www.swimmingrank.org/kyc/.env not found
+https://www.swimmingrank.org/dev/.env not found
+https://www.swimmingrank.org/marketing/.env.staging not found
+https://www.swimmingrank.org/storage/.env not found
+https://www.swimmingrank.org/laravel/.env.staging not found
+https://www.swimmingrank.org/production/.env.staging not found
+https://www.swimmingrank.org/demo/.env.local not found
+https://www.swimmingrank.org/old/.env.staging not found
+https://www.swimmingrank.org/website/.env.production not found
+https://www.swimmingrank.org/develop/.env.production not found
+https://www.swimmingrank.org/API/.env not found
+https://www.swimmingrank.org/storage/.env.production not found
+https://www.swimmingrank.org/public_html/.env.production not found
+https://www.swimmingrank.org/develop/.env.local not found
+https://www.swimmingrank.org/services/.env.production not found
+https://www.swimmingrank.org/services/.env.local not found
+https://www.swimmingrank.org/back/.env not found
+https://www.swimmingrank.org/qa/.env not found
+https://www.swimmingrank.org/dev/.env.staging not found
+https://www.swimmingrank.org/demo/.env.staging not found
+https://www.swimmingrank.org/website/.env.local not found
+https://www.swimmingrank.org/stg/.env.production not found
+https://www.swimmingrank.org/web/.env.production not found
+https://www.swimmingrank.org/.env.docker.dev not found
+https://www.swimmingrank.org/storage/.env.staging not found
+https://www.swimmingrank.org/product/.env.production not found
+https://www.swimmingrank.org/shop/.env not found
+https://www.swimmingrank.org/user/.env.local not found
+https://www.swimmingrank.org/old/.env.production not found
+https://www.swimmingrank.org/marketing/.env.production not found
+https://www.swimmingrank.org/settings.py not found
+https://www.swimmingrank.org/production/.env.local not found
+https://www.swimmingrank.org/apis/.env.production not found
+https://www.swimmingrank.org/staging/.env.local not found
+https://www.swimmingrank.org/dev/.env.local not found
+https://www.swimmingrank.org/laravel/core/.env.local not found
+https://www.swimmingrank.org/user/.env.staging not found
+https://www.swimmingrank.org/application/.env not found
+https://www.swimmingrank.org/new/.env.production not found
+https://www.swimmingrank.org/project/.env.staging not found
+https://www.swimmingrank.org/xampp/.env.local not found
+https://www.swimmingrank.org/product/.env not found
+https://www.swimmingrank.org/FRONTEND/.env not found
+https://www.swimmingrank.org/twitter/.env not found
+https://www.swimmingrank.org/prod/.env.production not found
+https://www.swimmingrank.org/.env.php not found
+https://www.swimmingrank.org/develop/.env.staging not found
+https://www.swimmingrank.org/beta/.env not found
+https://www.swimmingrank.org/backup/.env not found
+https://www.swimmingrank.org/project/.env.local not found
+https://www.swimmingrank.org/shop/.env.staging not found
+https://www.swimmingrank.org/staging/.env.staging not found
+https://www.swimmingrank.org/storage/.env.local not found
+https://www.swimmingrank.org/stg/.env.local not found
+https://www.swimmingrank.org/development/.env not found
+https://www.swimmingrank.org/.docker/laravel/app/.env not found
+https://www.swimmingrank.org/test/.env.production not found
+https://www.swimmingrank.org/client/.env not found
+https://www.swimmingrank.org/qa/.env.staging not found
+https://www.swimmingrank.org/properties.ini not found
+https://www.swimmingrank.org/public_html/.env.staging not found
+https://www.swimmingrank.org/portal/.env.staging not found
+https://www.swimmingrank.org/prod/.env.local not found
+https://www.swimmingrank.org/stg/.env not found
+https://www.swimmingrank.org/new/.env.staging not found
+https://www.swimmingrank.org/crm/.env.staging not found
+https://www.swimmingrank.org/admin/.env.production not found
+https://www.swimmingrank.org/client/.env.local not found
+https://www.swimmingrank.org/apis/.env.staging not found
+https://www.swimmingrank.org/production/.env not found
+https://www.swimmingrank.org/user/.env not found
+https://www.swimmingrank.org/live/.env.local not found
+https://www.swimmingrank.org/apis/.env not found
+https://www.swimmingrank.org/config.env not found
+https://www.swimmingrank.org/env.backup not found
+https://www.swimmingrank.org/usr/.env not found
+https://www.swimmingrank.org/public/.env.production not found
+https://www.swimmingrank.org/product/.env.staging not found
+https://www.swimmingrank.org/apis/.env.local not found
+https://www.swimmingrank.org/public/.env.local not found
+https://www.swimmingrank.org/nodeapi/.env not found
+https://www.swimmingrank.org/app/.env.staging not found
+https://www.swimmingrank.org/portal/.env.production not found
+https://www.swimmingrank.org/development/.env.local not found
+https://www.swimmingrank.org/public_html/.env.local not found
+https://www.swimmingrank.org/old/.env.local not found
+https://www.swimmingrank.org/front/.env not found
+https://www.swimmingrank.org/test/.env not found
+https://www.swimmingrank.org/cron/.env.production not found
+https://www.swimmingrank.org/.env.development.local not found
+https://www.swimmingrank.org/demo/.env not found
+https://www.swimmingrank.org/services/.env not found
+https://www.swimmingrank.org/BACKEND/.env not found
+https://www.swimmingrank.org/product/.env.local not found
+https://www.swimmingrank.org/beta/.env.staging not found
+https://www.swimmingrank.org/market/.env.staging not found
+https://www.swimmingrank.org/media/.env not found
+https://www.swimmingrank.org/laravel/core/.env.staging not found
+https://www.swimmingrank.org/api/.env.staging not found
+https://www.swimmingrank.org/service/.env.production not found
+https://www.swimmingrank.org/portal/.env not found
+https://www.swimmingrank.org/admin/.env.local not found
+https://www.swimmingrank.org/xampp/.env.staging not found
+https://www.swimmingrank.org/lms/.env not found
+https://www.swimmingrank.org/backend/.env.production not found
+https://www.swimmingrank.org/kyc/.env.staging not found
+https://www.swimmingrank.org/marketing/.env.local not found
+https://www.swimmingrank.org/development/.env.staging not found
+https://www.swimmingrank.org/new/.env not found
+https://www.swimmingrank.org/xampp/.env not found
+https://www.swimmingrank.org/kyc/.env.production not found
+https://www.swimmingrank.org/services/.env.staging not found
+https://www.swimmingrank.org/client/.env.staging not found
+https://www.swimmingrank.org/xampp/.env.production not found
+https://www.swimmingrank.org/staging/.env.production not found
+https://www.swimmingrank.org/live/.env.production not found
+https://www.swimmingrank.org/service/.env not found
+https://www.swimmingrank.org/.gitlab-ci/.env not found
+https://www.swimmingrank.org/project/.env not found
+https://www.swimmingrank.org/dev/.env.production not found
+https://www.swimmingrank.org/laravel/.env.local not found
+https://www.swimmingrank.org/prod/.env not found
+https://www.swimmingrank.org/client/.env.production not found
+https://www.swimmingrank.org/current/.env not found
+https://www.swimmingrank.org/service/.env.staging not found
+https://www.swimmingrank.org/backup/.env.production not found
+https://www.swimmingrank.org/phpinfo.php not found
+https://www.swimmingrank.org/info.php not found
+https://www.swimmingrank.org/php.php not found
+https://www.swimmingrank.org/i.php not found
+https://www.swimmingrank.org/pinfo.php not found
+https://www.swimmingrank.org/test.php not found
+https://www.swimmingrank.org/temp.php not found
+https://www.swimmingrank.org/time.php not found
+https://www.swimmingrank.org/infos.php not found
+https://www.swimmingrank.org/infophp.php not found
+https://www.swimmingrank.org/php-info.php not found
+https://www.swimmingrank.org/phpversion.php not found
+https://www.swimmingrank.org/old_phpinfo.php not found
+https://www.swimmingrank.org/linusadmin-phpinfo.php not found
+https://www.swimmingrank.org/_profiler/phpinfo not found
+https://www.swimmingrank.org/_environment not found
+https://www.swimmingrank.org/webroot/index.php/_environment not found
+https://www.swimmingrank.org/phpinfo not found
+https://www.swimmingrank.org/admin/phpinfo.php not found
+https://www.swimmingrank.org/admin/info.php not found
+https://www.swimmingrank.org/test/phpinfo.php not found
+https://www.swimmingrank.org/test/info.php not found
+https://www.swimmingrank.org/dev/phpinfo.php not found
+https://www.swimmingrank.org/dev/info.php not found
+https://www.swimmingrank.org/development/phpinfo.php not found
+https://www.swimmingrank.org/development/info.php not found
+https://www.swimmingrank.org/develop/phpinfo.php not found
+https://www.swimmingrank.org/develop/info.php not found
+https://www.swimmingrank.org/api/phpinfo.php not found
+https://www.swimmingrank.org/api/info.php not found
+https://www.swimmingrank.org/backend/phpinfo.php not found
+https://www.swimmingrank.org/backend/info.php not found
+https://www.swimmingrank.org/server/phpinfo.php not found
+https://www.swimmingrank.org/server/info.php not found
+https://www.swimmingrank.org/current/phpinfo.php not found
+https://www.swimmingrank.org/current/info.php not found
+https://www.swimmingrank.org/services/phpinfo.php not found
+https://www.swimmingrank.org/services/info.php not found
+https://www.swimmingrank.org/service/phpinfo.php not found
+https://www.swimmingrank.org/laravel/phpinfo.php not found
+https://www.swimmingrank.org/laravel/info.php not found
+https://www.swimmingrank.org/lara/phpinfo.php not found
+https://www.swimmingrank.org/lara/info.php not found
+https://www.swimmingrank.org/dashboard/phpinfo.php not found
+https://www.swimmingrank.org/help/phpinfo.php not found
+https://www.swimmingrank.org/help/info.php not found
+https://www.swimmingrank.org/helper/phpinfo.php not found
+https://www.swimmingrank.org/helper/info.php not found
+https://www.swimmingrank.org/xampp/phpinfo.php not found
+https://www.swimmingrank.org/xampp/info.php not found
+https://www.swimmingrank.org/backup/phpinfo.php not found
+https://www.swimmingrank.org/backup/info.php not found
+https://www.swimmingrank.org/old/phpinfo.php not found
+https://www.swimmingrank.org/crm/phpinfo.php not found
+https://www.swimmingrank.org/info not found
+https://www.swimmingrank.org/php.ini not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 614, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x725709350b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+WARNING:  WatchFiles detected changes in 'MainApp.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 614, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7f6aff25cb80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+WARNING:  WatchFiles detected changes in 'MainApp.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 614, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7c0e15940b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+WARNING:  WatchFiles detected changes in 'MainApp.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 614, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a65e014b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+WARNING:  WatchFiles detected changes in 'MainApp.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://0.0.0.0/admin/config.php not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://0.0.0.0/admin/config.php not found
+https://www.swimmingrank.org/admin/serverConfig.json not found
+https://www.swimmingrank.org/apps not found
+https://www.swimmingrank.org/api/action not found
+https://www.swimmingrank.org/api/actions not found
+https://www.swimmingrank.org/_next/data not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://www.swimmingrank.org/.env not found
+https://www.swimmingrank.org/"/_nicegui/2.9.0/static/tailwindcss.min.js" not found
+https://www.swimmingrank.org/"/_nicegui/2.9.0/static/quasar.umd.prod.js" not found
+https://www.swimmingrank.org/"/_nicegui/2.9.0/static/vue.global.prod.js" not found
+https://www.swimmingrank.org/"/_nicegui/2.9.0/static/lang/en-US.umd.prod.js" not found
+https://www.swimmingrank.org/"/_nicegui/2.9.0/static/es-module-shims.js" not found
+https://www.swimmingrank.org/"/_nicegui/2.9.0/static/nicegui.js" not found
+https://www.swimmingrank.org/"/_nicegui/2.9.0/static/socket.io.min.js" not found
+https://www.swimmingrank.org/.git/config not found
+https://www.swimmingrank.org/backend/.env not found
+https://www.swimmingrank.org/admin/.env not found
+https://www.swimmingrank.org/core/.env not found
+https://www.swimmingrank.org/.env.bak not found
+https://www.swimmingrank.org/.git/logs/HEAD not found
+https://www.swimmingrank.org/wp-config.php not found
+https://www.swimmingrank.org/.gitlab-ci.yml not found
+https://www.swimmingrank.org/config.json not found
+https://www.swimmingrank.org/config.js not found
+https://www.swimmingrank.org/aws-config.js not found
+https://www.swimmingrank.org/aws.config.js not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://0.0.0.0/robots.txt not found
+https://www.swimmingrank.org/admin/serverConfig.json not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://172.190.139.8/8dtp4ylhthir.php not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://172.190.139.8/robots.txt not found
+https://172.190.139.8/sitemap.xml not found
+https://172.190.139.8/config.json not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://www.swimmingrank.org/admin/serverConfig.json not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://172.190.139.8/+CSCOL+/Java.jar not found
+https://172.190.139.8/+CSCOE+/logon_forms.js not found
+https://172.190.139.8/+CSCOL+/a1.jar not found
+https://172.190.139.8/+CSCOE+/transfer.js not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://172.190.139.8/webui/ not found
+https://www.swimmingrank.org/robots.txt not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://www.swimmingrank.org/robots.txt not found
+https://www.swimmingrank.org/robots.txt not found
+https://172.190.139.8/geoserver/web/ not found
+https://172.190.139.8/SDK/webLanguage not found
+https://172.190.139.8/.git/config not found
+https://172.190.139.8/.env not found
+https://172.190.139.8/api/.env not found
+https://172.190.139.8/backend/.env not found
+https://172.190.139.8/admin/.env not found
+https://172.190.139.8/.env.example not found
+https://172.190.139.8/app_dev.php/_profiler/phpinfo not found
+https://172.190.139.8/Backend/.env not found
+https://172.190.139.8/Application/.env not found
+https://172.190.139.8/sendgrid/.env not found
+https://172.190.139.8/staging.env not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://172.190.139.8/dashboard/.env not found
+https://172.190.139.8/php-info not found
+https://172.190.139.8/services/.env not found
+https://172.190.139.8/config/secrets.yml not found
+https://172.190.139.8/admin/info.php not found
+https://172.190.139.8/server.js not found
+https://172.190.139.8/env.json not found
+https://172.190.139.8/core/.env.prod not found
+https://172.190.139.8/uploads/.env not found
+https://172.190.139.8/shop/.env not found
+https://172.190.139.8/assets/.env not found
+https://172.190.139.8/sendgrid.env not found
+https://172.190.139.8/sources/.env.prod not found
+https://172.190.139.8/sources/.env.production not found
+https://172.190.139.8/v1/.env not found
+https://172.190.139.8/js/.env not found
+https://172.190.139.8/boot/.env not found
+https://172.190.139.8/run/.env not found
+https://172.190.139.8/proc/.env not found
+https://www.swimmingrank.org/.env not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://www.swimmingrank.org/js/lkk_ch.js not found
+https://www.swimmingrank.org/js/twint_ch.js not found
+https://www.swimmingrank.org/css/support_parent.css not found
+https://www.swimmingrank.org/admin/serverConfig.json not found
+https://www.swimmingrank.org/robots.txt not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://www.swimmingrank.org/robots.txt not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://www.swimmingrank.org/admin/serverConfig.json not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://172.190.139.8/security.txt not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://172.190.139.8/SDK/webLanguage not found
+https://www.swimmingrank.org/.git/config not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://www.swimmingrank.org/admin/serverConfig.json not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://www.swimmingrank.org//static.cloudflareinsights.com/beacon.min.js not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://172.190.139.8/developmentserver/metadatauploader not found
+https://www.swimmingrank.org/robots.txt not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://www.swimmingrank.org/admin/serverConfig.json not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://172.190.139.8/owa/auth/logon.aspx not found
+https://172.190.139.8/swagger not found
+https://172.190.139.8/api/swagger not found
+https://localhost/swagger not found
+https://localhost/api/swagger not found
+https://172.190.139.8/swagger not found
+https://172.190.139.8/api/swagger not found
+https://www.swimmingrank.org/swagger not found
+https://www.swimmingrank.org/api/swagger not found
+binding propagation for 0 active links took 0.253 s
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a963150b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+Columns must be same length as key
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 830, in rankings_page
+    temp['SwimTime'] = temp.apply(lambda row: convert_timedelta(row['SwimTime']), axis=1)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/pandas/core/frame.py", line 4301, in __setitem__
+    self._set_item_frame_value(key, value)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/pandas/core/frame.py", line 4429, in _set_item_frame_value
+    raise ValueError("Columns must be same length as key")
+ValueError: Columns must be same length as key
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x79a955af0790>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+ValueError: Columns must be same length as key
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+Columns must be same length as key
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 830, in rankings_page
+    temp['SwimTime'] = temp.apply(lambda row: convert_timedelta(row['SwimTime']), axis=1)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/pandas/core/frame.py", line 4301, in __setitem__
+    self._set_item_frame_value(key, value)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/pandas/core/frame.py", line 4429, in _set_item_frame_value
+    raise ValueError("Columns must be same length as key")
+ValueError: Columns must be same length as key
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7004a2754790>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+ValueError: Columns must be same length as key
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+Columns must be same length as key
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 830, in rankings_page
+    temp['SwimTime'] = temp.apply(lambda row: convert_timedelta(row['SwimTime']), axis=1)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/pandas/core/frame.py", line 4301, in __setitem__
+    self._set_item_frame_value(key, value)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/pandas/core/frame.py", line 4429, in _set_item_frame_value
+    raise ValueError("Columns must be same length as key")
+ValueError: Columns must be same length as key
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x77904b63c790>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+ValueError: Columns must be same length as key
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'MakeIDResultRequests.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'MakeIDResultRequests.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'MakeIDResultRequests.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+WARNING:  WatchFiles detected changes in 'get_id_results.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+https://www.swimmingrank.org/admin/serverConfig.json not found
+https://172.190.139.8/mcp not found
+https://172.190.139.8/api/mcp not found
+https://172.190.139.8/v1/mcp not found
+https://172.190.139.8/jsonrpc not found
+https://localhost/mcp not found
+https://localhost/api/mcp not found
+https://localhost/v1/mcp not found
+https://localhost/jsonrpc not found
+https://172.190.139.8/mcp not found
+https://172.190.139.8/api/mcp not found
+https://172.190.139.8/v1/mcp not found
+https://172.190.139.8/jsonrpc not found
+https://www.swimmingrank.org/mcp not found
+https://www.swimmingrank.org/api/mcp not found
+https://www.swimmingrank.org/v1/mcp not found
+https://www.swimmingrank.org/jsonrpc not found
+Columns must be same length as key
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 830, in rankings_page
+    temp['SwimTime'] = temp.apply(lambda row: convert_timedelta(row['SwimTime']), axis=1)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/pandas/core/frame.py", line 4301, in __setitem__
+    self._set_item_frame_value(key, value)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/pandas/core/frame.py", line 4429, in _set_item_frame_value
+    raise ValueError("Columns must be same length as key")
+ValueError: Columns must be same length as key
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7c0435ce8790>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+ValueError: Columns must be same length as key
+Columns must be same length as key
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 830, in rankings_page
+    temp['SwimTime'] = temp.apply(lambda row: convert_timedelta(row['SwimTime']), axis=1)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/pandas/core/frame.py", line 4301, in __setitem__
+    self._set_item_frame_value(key, value)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/pandas/core/frame.py", line 4429, in _set_item_frame_value
+    raise ValueError("Columns must be same length as key")
+ValueError: Columns must be same length as key
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7c0435ce8790>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+ValueError: Columns must be same length as key
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7c0443348b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://172.190.139.8/SDK/webLanguage not found
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 615, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7c0443348b80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://172.190.139.8/.env not found
+https://172.190.139.8/.git/config not found

@@ -16,7 +16,7 @@ from get_rankings_once import send_rankings_query
 SEM = asyncio.Semaphore(10)
 
 def get_personkeys():
-    query = """SELECT "PersonKey" FROM "ResultsSchema"."SwimmerIDs" WHERE "Collected" != 1 LIMIT 5000"""
+    query = """SELECT "PersonKey" FROM "ResultsSchema"."SwimmerIDs" WHERE "Collected" != 1 AND "PersonKey" != 0 LIMIT 10"""
     db, port, password, host, _ = get_credentials()
     with psycopg.connect(f"dbname={db} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
@@ -179,6 +179,7 @@ def build_records(responses, db_columns):
             row[16] = int(ev[15]["data"])
             row[17] = int(ev[16]["data"])
             row[18] = int(ev[17]["data"])
+            print(row)
 
             out.append(dict(zip(db_columns, row)))
 
@@ -193,15 +194,16 @@ async def process_chunk(session, bearer_token, keys, swimmers_per_request):
 
 
 async def run_all_requests():
-    swimmers_per_request = 50
+    swimmers_per_request = 1
     
     keys = get_personkeys()
     count = 0
     bearer_token = ""
     async with AsyncSession() as session:
 
-        while len(keys) == 5000:
-            if count % 10 == 0:
+        while len(keys) > 0:
+            print(keys)
+            if count % 100 == 0:
                 bearer_token = get_token()
                 print(f"Generated bearer token for swimmers {count*5000}-{(count+10)*5000}")
 
@@ -209,18 +211,20 @@ async def run_all_requests():
                 session,
                 bearer_token,
                 keys,
-                swimmers_per_request
-            )
+                swimmers_per_request)
+          
             formatted = build_records(responses, [
                 "Name","Sex","Age","AgeGroup","Event","Place","Session","Points",
                 "SwimDate","LSC","Team","Meet","SwimTime","Relay","TimeStandard",
                 "MeetKey","UsasSwimTimeKey","PersonKey","SwimEventKey"
             ])
+            print(len(formatted))
             df = pd.DataFrame.from_dict(formatted)
             print(df.head(10))
             if df.empty:
-                print("No data returned, sleeping for 60 seconds")
-                time.sleep(60)
+                print("No data returned, sleeping for 5 seconds")
+                send_update(keys)
+                time.sleep(5)
                 keys = get_personkeys()
                 continue
             print('sending batch')
@@ -233,7 +237,7 @@ async def run_all_requests():
             print(time.time() - t)
             count += 1
             keys = get_personkeys()
-            time.sleep(60)
+            time.sleep(5)
 
 def get_id_results():
     loop = asyncio.get_event_loop()
