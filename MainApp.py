@@ -23,7 +23,7 @@ def footer():
 def navbar():
     bg_color = 'bg-gray-200/70'
     
-    with ui.row().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
+    with ui.header().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
         # Home button
         ui.button('Home', on_click=lambda: ui.navigate.to('/')).props('flat').classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
 
@@ -613,6 +613,7 @@ async def main_page():
     await ui.context.client.connected()
     session = app.storage.tab
     session['id_table_df'] = []
+    ui.add_head_html("""<script defer arc='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "78532f88c6b5477db78ae749b95ad044"}'""")
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         navbar()
         session['main_page_column'] = ui.column().classes('w-full flex-1 items-center')
