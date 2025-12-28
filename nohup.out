@@ -506,3 +506,177 @@ Traceback (most recent call last):
     if task.result() is not None:
 asyncpg.exceptions.InsufficientPrivilegeError: permission denied for table 50_FR_SCY_results
 ERROR:    [Errno 98] Address already in use
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 618, in main_page
+    navbar()
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 26, in navbar
+    with ui.header().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page_layout.py", line 48, in __init__
+    _check_current_slot(self)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page_layout.py", line 290, in _check_current_slot
+    raise RuntimeError(f'Found top level layout element "{element.__class__.__name__}" inside element "{parent.__class__.__name__}". '
+RuntimeError: Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7abe5405cb80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+RuntimeError: Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 618, in main_page
+    navbar()
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 26, in navbar
+    with ui.header().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page_layout.py", line 48, in __init__
+    _check_current_slot(self)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page_layout.py", line 290, in _check_current_slot
+    raise RuntimeError(f'Found top level layout element "{element.__class__.__name__}" inside element "{parent.__class__.__name__}". '
+RuntimeError: Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7abe5405cb80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+RuntimeError: Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 618, in main_page
+    navbar()
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 26, in navbar
+    with ui.header().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page_layout.py", line 48, in __init__
+    _check_current_slot(self)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page_layout.py", line 290, in _check_current_slot
+    raise RuntimeError(f'Found top level layout element "{element.__class__.__name__}" inside element "{parent.__class__.__name__}". '
+RuntimeError: Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7abe5405cb80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+RuntimeError: Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 618, in main_page
+    navbar()
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 26, in navbar
+    with ui.header().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page_layout.py", line 48, in __init__
+    _check_current_slot(self)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page_layout.py", line 290, in _check_current_slot
+    raise RuntimeError(f'Found top level layout element "{element.__class__.__name__}" inside element "{parent.__class__.__name__}". '
+RuntimeError: Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7abe5405cb80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+RuntimeError: Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 618, in main_page
+    navbar()
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 26, in navbar
+    with ui.header().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page_layout.py", line 48, in __init__
+    _check_current_slot(self)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page_layout.py", line 290, in _check_current_slot
+    raise RuntimeError(f'Found top level layout element "{element.__class__.__name__}" inside element "{parent.__class__.__name__}". '
+RuntimeError: Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7abe5405cb80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+RuntimeError: Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 618, in main_page
+    navbar()
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 26, in navbar
+    with ui.header().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page_layout.py", line 48, in __init__
+    _check_current_slot(self)
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page_layout.py", line 290, in _check_current_slot
+    raise RuntimeError(f'Found top level layout element "{element.__class__.__name__}" inside element "{parent.__class__.__name__}". '
+RuntimeError: Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7abe5405cb80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+RuntimeError: Found top level layout element "Header" inside element "Column". Top level layout elements can not be nested but must be direct children of the page content.
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 613, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x7abe5405cb80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+WARNING:  WatchFiles detected changes in 'MainApp.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080
+No connection after 3.0 seconds
+Traceback (most recent call last):
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/background_tasks.py", line 52, in _handle_task_result
+    task.result()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 125, in wait_for_result
+    return await result
+  File "/home/eatonadmin/swimrank/SwimRank/MainApp.py", line 614, in main_page
+    await ui.context.client.connected()
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/client.py", line 175, in connected
+    raise TimeoutError(f'No connection after {timeout} seconds')
+TimeoutError: No connection after 3.0 seconds
+Exception in callback <function page.__call__.<locals>.check_for_late_return_value at 0x72ec2ca5cb80>
+handle: <Handle page.__call__.<locals>.check_for_late_return_value>
+Traceback (most recent call last):
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/home/eatonadmin/.local/lib/python3.10/site-packages/nicegui/page.py", line 107, in check_for_late_return_value
+    if task.result() is not None:
+TimeoutError: No connection after 3.0 seconds
+https://www.swimmingrank.org/admin/serverConfig.json not found
+WARNING:  WatchFiles detected changes in 'MainApp.py'. Reloading...
+NiceGUI ready to go on http://localhost:8080, and http://10.201.75.248:8080

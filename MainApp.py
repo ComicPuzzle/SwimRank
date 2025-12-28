@@ -1,3 +1,4 @@
+
 import math
 import time
 from nicegui import Client, ui, app
@@ -23,7 +24,7 @@ def footer():
 def navbar():
     bg_color = 'bg-gray-200/70'
     
-    with ui.header().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
+    with ui.row().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
         # Home button
         ui.button('Home', on_click=lambda: ui.navigate.to('/')).props('flat').classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
 
@@ -1081,7 +1082,6 @@ async def aboutme_page():
             with ui.column().classes('w-3/5 items-center text-center'):
                 ui.label('About Me').style('font-size: 28px')
 
-                ui.label("Hello!").style('font-size: 15px')
                 ui.label(
                     "I am a college student and a competitive swimmer. During my swimming career, I used the swimmingrank.com website frequently to check my rankings"
                     " and see how I compared to other swimmers in my age group and events. Like many of my fellow swimmers, we liked the comprehensive information and"
@@ -1093,7 +1093,7 @@ async def aboutme_page():
                 
                 with ui.row().classes('items-center justify-center gap-1'):
                     ui.label("I will keep improving this website such that it provides the data and information that the swimming community needs. Any ").style('font-size: 15px')
-                    ui.label("comment and suggestion will be greatly appreciated").style('font-size: 15px')
+                    ui.label("comment and suggestion will be greatly appreciated.").style('font-size: 15px')
                     ui.label("Please email me at:").style('font-size: 15px')
                     ui.link('support@swimmingrank.org', 'mailto:support@swimmingrank.org').classes('text-blue-600 hover:underline').style('font-size: 15px')
                 
