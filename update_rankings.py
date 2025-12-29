@@ -25,77 +25,59 @@ def send_season_ranking_query(season_start, season_end, season):
         with conn.cursor() as cur:
             for table in table_names:
                 query = f"""
-                    WITH season_data AS (
-                    SELECT 
-                        r."UsasSwimTimeKey",
-                        r."PersonKey",
-                        r."Sex",
-                        r."AgeGroup",
-                        r."LSC",
-                        r."Team",
-                        r."SwimDate",
-                        r."SwimTime",
-                        CASE
-                            WHEN r."SwimDate" >= '{season_start}' AND r."SwimDate" < '{season_end}' THEN '{season}'
-                        END AS season
-                    FROM "ResultsSchema"."{table}" r
-                ),
+                            WITH best_times AS (
+                            SELECT "UsasSwimTimeKey", "PersonKey", "Sex", "AgeGroup", "LSC", "Team", "SwimTime" as best_time
+                            FROM (
+                            SELECT "UsasSwimTimeKey","PersonKey", "Sex", "AgeGroup", "LSC", "Team", "SwimTime",
+                            ROW_NUMBER() OVER (PARTITION BY "PersonKey", "Sex", "AgeGroup", "LSC", "Team" ORDER BY "SwimTime" ASC, "SwimDate" DESC) as rn
+                            FROM "ResultsSchema"."{table}"
+                            WHERE "SwimDate" >= '{season_start}' AND "SwimDate" < '{season_end}' 
+                            ) as ranked
+                            WHERE
+                            rn = 1
+                            ),
 
-                best_times AS (
-                    SELECT 
-                        "PersonKey",
-                        "Sex",
-                        "AgeGroup",
-                        "LSC",
-                        "Team",
-                        season,
-                        MIN("SwimTime") AS best_time
-                    FROM season_data
-                    GROUP BY "PersonKey", "Sex", "AgeGroup", "LSC", "Team", season
-                ),
-
-                ranked AS (
-                    SELECT 
-                        b.*,
-                        RANK() OVER (
-                            PARTITION BY b."Sex", b."AgeGroup", b.season
+                            ranked AS (
+                            SELECT
+                            b.*,
+                            RANK() OVER (
+                            PARTITION BY b."Sex", b."AgeGroup"
                             ORDER BY b.best_time
-                        ) AS national_rank,
+                            ) AS national_rank,
 
-                        RANK() OVER (
-                            PARTITION BY b."Sex", b."AgeGroup", b.season, b."LSC"
+                            RANK() OVER (
+                            PARTITION BY b."Sex", b."AgeGroup", b."LSC"
                             ORDER BY b.best_time
-                        ) AS lsc_rank,
+                            ) AS lsc_rank,
 
-                        RANK() OVER (
-                            PARTITION BY b."Sex", b."AgeGroup", b.season, b."Team"
+                            RANK() OVER (
+                            PARTITION BY b."Sex", b."AgeGroup", b."Team"
                             ORDER BY b.best_time
-                        ) AS team_rank
-                    FROM best_times b
-                ),
+                            ) AS team_rank
+                            FROM best_times b
+                            ),
 
-                final_ranks AS (
-                    SELECT 
-                        s."UsasSwimTimeKey",
-                        CASE WHEN s."SwimTime" = r.best_time THEN r.national_rank ELSE -1 END AS national_rank,
-                        CASE WHEN s."SwimTime" = r.best_time THEN r.lsc_rank      ELSE -1 END AS lsc_rank,
-                        CASE WHEN s."SwimTime" = r.best_time THEN r.team_rank     ELSE -1 END AS team_rank
-                    FROM season_data s
-                    LEFT JOIN ranked r
-                        ON s."PersonKey" = r."PersonKey"
-                        AND s."Sex" = r."Sex"
-                        AND s."AgeGroup" = r."AgeGroup"
-                        AND s.season = r.season
-                        AND s."LSC" = r."LSC"
-                        AND s."Team" = r."Team"
-                )
+                            final_ranks AS (
+                            SELECT
+                            s."UsasSwimTimeKey",
+                            CASE WHEN s.best_time = r.best_time THEN r.national_rank ELSE -1 END AS national_rank,
+                            CASE WHEN s.best_time = r.best_time THEN r.lsc_rank ELSE -1 END AS lsc_rank,
+                            CASE WHEN s.best_time = r.best_time THEN r.team_rank ELSE -1 END AS team_rank
+                            FROM best_times s
+                            LEFT JOIN ranked r
+                            ON s."PersonKey" = r."PersonKey"
+                            AND s."Sex" = r."Sex"
+                            AND s."AgeGroup" = r."AgeGroup"
+                            AND s."LSC" = r."LSC"
+                            AND s."Team" = r."Team"
+                            )
 
-                UPDATE "ResultsSchema"."{table}" t
-                SET national_rank = f.national_rank,
-                    lsc_rank      = f.lsc_rank,
-                    team_rank     = f.team_rank
-                FROM final_ranks f
-                WHERE t."UsasSwimTimeKey" = f."UsasSwimTimeKey" """
+                            UPDATE "ResultsSchema"."{table}" t
+                            SET national_rank = f.national_rank,
+                            lsc_rank = f.lsc_rank,
+                            team_rank = f.team_rank
+                            FROM final_ranks f
+                            WHERE t."UsasSwimTimeKey" = f."UsasSwimTimeKey" """
                 cur.execute(query)
 
                 query = f"""UPDATE "ResultsSchema"."SwimmerIDs" AS i

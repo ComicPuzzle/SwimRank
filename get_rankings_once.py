@@ -4,7 +4,6 @@ import pandas as pd
 import time
 import numpy as np
 import psycopg
-from psycopg_pool import ConnectionPool
 from psycopg import sql
 import asyncio
 from curl_cffi.requests import AsyncSession
@@ -22,102 +21,81 @@ def send_rankings_query():
         '100_BR_LCM_results', '200_BR_LCM_results', '100_IM_SCY_results', '200_IM_SCY_results', '400_IM_SCY_results', '200_IM_LCM_results', '400_IM_LCM_results'
     ]
 
-    pool = ConnectionPool(conninfo=f"dbname={dbname} port={port} user=swimrank_write host='localhost' password='{password}'", open=True, min_size=1, max_size=10, reconnect_timeout=None)
     for table in table_names:
         print(table)
-        for date_range in ["""WHEN r."SwimDate" >= '2025-09-01' AND r."SwimDate" < '2026-09-01' THEN '2025-2026'""",
-                            """WHEN r."SwimDate" >= '2024-09-01' AND r."SwimDate" < '2025-09-01' THEN '2024-2025'""",
-                            """WHEN r."SwimDate" >= '2023-09-01' AND r."SwimDate" < '2024-09-01' THEN '2023-2024'""",
-                            """WHEN r."SwimDate" >= '2022-09-01' AND r."SwimDate" < '2023-09-01' THEN '2022-2023'""",
-                            """WHEN r."SwimDate" >= '2021-09-01' AND r."SwimDate" < '2022-09-01' THEN '2021-2022'""",
-                            """WHEN r."SwimDate" >= '2020-09-01' AND r."SwimDate" < '2021-09-01' THEN '2020-2021'""",
-                            """WHEN r."SwimDate" >= '2019-09-01' AND r."SwimDate" < '2020-09-01' THEN '2019-2020'""",
-                            """WHEN r."SwimDate" >= '2018-09-01' AND r."SwimDate" < '2019-09-01' THEN '2018-2019'""",
-                            """WHEN r."SwimDate" >= '2017-09-01' AND r."SwimDate" < '2018-09-01' THEN '2017-2018'""",
-                            """WHEN r."SwimDate" >= '2016-09-01' AND r."SwimDate" < '2017-09-01' THEN '2016-2017'"""]:
+        for date_range in [""" "SwimDate" >= '2025-09-01' AND "SwimDate" < '2026-09-01'""",
+                            """ "SwimDate" >= '2024-09-01' AND "SwimDate" < '2025-09-01'""",
+                            """ "SwimDate" >= '2023-09-01' AND "SwimDate" < '2024-09-01'""",
+                            """ "SwimDate" >= '2022-09-01' AND "SwimDate" < '2023-09-01'""",
+                            """ "SwimDate" >= '2021-09-01' AND "SwimDate" < '2022-09-01'""",
+                            """ "SwimDate" >= '2020-09-01' AND "SwimDate" < '2021-09-01'""",
+                            """ "SwimDate" >= '2019-09-01' AND "SwimDate" < '2020-09-01'""",
+                            """ "SwimDate" >= '2018-09-01' AND "SwimDate" < '2019-09-01'""",
+                            """ "SwimDate" >= '2017-09-01' AND "SwimDate" < '2018-09-01'""",
+                            """ "SwimDate" >= '2016-09-01' AND "SwimDate" < '2017-09-01'"""]:
             print(date_range)
-            with pool.connection() as conn:
+            with psycopg.connect(f"dbname={dbname} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
                 # Open a cursor to perform database operations
                 with conn.cursor() as cur:
                         query = f"""
-                            WITH season_data AS (
-                            SELECT 
-                                r."UsasSwimTimeKey",
-                                r."PersonKey",
-                                r."Sex",
-                                r."AgeGroup",
-                                r."LSC",
-                                r."Team",
-                                r."SwimDate",
-                                r."SwimTime",
-                                CASE {date_range}
-                                END AS season
-                            FROM "ResultsSchema"."{table}" r
-                        ),
+                            WITH best_times AS (
+                            SELECT "UsasSwimTimeKey", "PersonKey", "Sex", "AgeGroup", "LSC", "Team", "SwimTime" as best_time
+                            FROM (
+                            SELECT "UsasSwimTimeKey","PersonKey", "Sex", "AgeGroup", "LSC", "Team", "SwimTime",
+                            ROW_NUMBER() OVER (PARTITION BY "PersonKey", "Sex", "AgeGroup", "LSC", "Team" ORDER BY "SwimTime" ASC, "SwimDate" DESC) as rn
+                            FROM "ResultsSchema"."{table}"
+                            WHERE {date_range}
+                            ) as ranked
+                            WHERE
+                            rn = 1
+                            ),
 
-                        best_times AS (
-                            SELECT 
-                                "PersonKey",
-                                "Sex",
-                                "AgeGroup",
-                                "LSC",
-                                "Team",
-                                season,
-                                MIN("SwimTime") AS best_time
-                            FROM season_data
-                            GROUP BY "PersonKey", "Sex", "AgeGroup", "LSC", "Team", season
-                        ),
+                            ranked AS (
+                            SELECT
+                            b.*,
+                            RANK() OVER (
+                            PARTITION BY b."Sex", b."AgeGroup"
+                            ORDER BY b.best_time
+                            ) AS national_rank,
 
-                        ranked AS (
-                            SELECT 
-                                b.*,
-                                RANK() OVER (
-                                    PARTITION BY b."Sex", b."AgeGroup", b.season
-                                    ORDER BY b.best_time
-                                ) AS national_rank,
+                            RANK() OVER (
+                            PARTITION BY b."Sex", b."AgeGroup", b."LSC"
+                            ORDER BY b.best_time
+                            ) AS lsc_rank,
 
-                                RANK() OVER (
-                                    PARTITION BY b."Sex", b."AgeGroup", b.season, b."LSC"
-                                    ORDER BY b.best_time
-                                ) AS lsc_rank,
-
-                                RANK() OVER (
-                                    PARTITION BY b."Sex", b."AgeGroup", b.season, b."Team"
-                                    ORDER BY b.best_time
-                                ) AS team_rank
+                            RANK() OVER (
+                            PARTITION BY b."Sex", b."AgeGroup", b."Team"
+                            ORDER BY b.best_time
+                            ) AS team_rank
                             FROM best_times b
-                        ),
+                            ),
 
-                        final_ranks AS (
-                            SELECT 
-                                s."UsasSwimTimeKey",
-                                CASE WHEN s."SwimTime" = r.best_time THEN r.national_rank ELSE -1 END AS national_rank,
-                                CASE WHEN s."SwimTime" = r.best_time THEN r.lsc_rank      ELSE -1 END AS lsc_rank,
-                                CASE WHEN s."SwimTime" = r.best_time THEN r.team_rank     ELSE -1 END AS team_rank
-                            FROM season_data s
+                            final_ranks AS (
+                            SELECT
+                            s."UsasSwimTimeKey",
+                            CASE WHEN s.best_time = r.best_time THEN r.national_rank ELSE -1 END AS national_rank,
+                            CASE WHEN s.best_time = r.best_time THEN r.lsc_rank ELSE -1 END AS lsc_rank,
+                            CASE WHEN s.best_time = r.best_time THEN r.team_rank ELSE -1 END AS team_rank
+                            FROM best_times s
                             LEFT JOIN ranked r
-                                ON s."PersonKey" = r."PersonKey"
-                                AND s."Sex" = r."Sex"
-                                AND s."AgeGroup" = r."AgeGroup"
-                                AND s.season = r.season
-                                AND s."LSC" = r."LSC"
-                                AND s."Team" = r."Team"
-                        )
+                            ON s."PersonKey" = r."PersonKey"
+                            AND s."Sex" = r."Sex"
+                            AND s."AgeGroup" = r."AgeGroup"
+                            AND s."LSC" = r."LSC"
+                            AND s."Team" = r."Team"
+                            )
 
-                        UPDATE "ResultsSchema"."{table}" t
-                        SET national_rank = f.national_rank,
-                            lsc_rank      = f.lsc_rank,
-                            team_rank     = f.team_rank
-                        FROM final_ranks f
-                        WHERE t."UsasSwimTimeKey" = f."UsasSwimTimeKey" """
-                        print(query)
-                        break
+                            UPDATE "ResultsSchema"."{table}" t
+                            SET national_rank = f.national_rank,
+                            lsc_rank = f.lsc_rank,
+                            team_rank = f.team_rank
+                            FROM final_ranks f
+                            WHERE t."UsasSwimTimeKey" = f."UsasSwimTimeKey" """
                         cur.execute(query)
-
                 conn.commit()
-        time.sleep(120)
+        time.sleep(30)
     
-    with pool.connection() as conn:
+    with psycopg.connect(f"dbname={dbname} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
         with conn.cursor() as cur:
             for table in table_names:
                 query = f"""UPDATE "ResultsSchema"."SwimmerIDs" AS i
