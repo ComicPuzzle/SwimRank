@@ -4,6 +4,7 @@ import pandas as pd
 import time
 import numpy as np
 import psycopg
+from psycopg_pool import ConnectionPool
 from psycopg import sql
 import asyncio
 from curl_cffi.requests import AsyncSession
@@ -21,6 +22,7 @@ def send_rankings_query():
         '100_BR_LCM_results', '200_BR_LCM_results', '100_IM_SCY_results', '200_IM_SCY_results', '400_IM_SCY_results', '200_IM_LCM_results', '400_IM_LCM_results'
     ]
 
+    pool = ConnectionPool(conninfo=f"dbname={dbname} port={port} user=swimrank_write host='localhost' password='{password}'", open=True, min_size=1, max_size=10, reconnect_timeout=None)
     for table in table_names:
         print(table)
         for date_range in ["""WHEN r."SwimDate" >= '2025-09-01' AND r."SwimDate" < '2026-09-01' THEN '2025-2026'""",
@@ -34,7 +36,7 @@ def send_rankings_query():
                             """WHEN r."SwimDate" >= '2017-09-01' AND r."SwimDate" < '2018-09-01' THEN '2017-2018'""",
                             """WHEN r."SwimDate" >= '2016-09-01' AND r."SwimDate" < '2017-09-01' THEN '2016-2017'"""]:
             print(date_range)
-            with psycopg.connect(f"dbname={dbname} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
+            with pool.connection() as conn:
                 # Open a cursor to perform database operations
                 with conn.cursor() as cur:
                         query = f"""
@@ -108,12 +110,14 @@ def send_rankings_query():
                             team_rank     = f.team_rank
                         FROM final_ranks f
                         WHERE t."UsasSwimTimeKey" = f."UsasSwimTimeKey" """
+                        print(query)
+                        break
                         cur.execute(query)
 
                 conn.commit()
         time.sleep(120)
     
-    with psycopg.connect(f"dbname={dbname} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
+    with pool.connection() as conn:
         with conn.cursor() as cur:
             for table in table_names:
                 query = f"""UPDATE "ResultsSchema"."SwimmerIDs" AS i

@@ -1085,7 +1085,7 @@ async def aboutme_page():
                 ui.label(
                     "I am a college student and a competitive swimmer. During my swimming career, I used the swimmingrank.com website frequently to check my rankings"
                     " and see how I compared to other swimmers in my age group and events. Like many of my fellow swimmers, we liked the comprehensive information and"
-                    " clean design of that website. However, with that website no longer available, I decided to create SwimmingRank to fill that gap and provide "
+                    " clean design of that website. However, with that website no longer available, I decided to create SwimmingRank.org to fill that gap and provide "
                     "swimmers with a similar resource to track their rankings and progressions over years. My website allows for the search of a particular swimmer, "
                     "provides a comprehensive review of  the meets that swimmer has attended and historical times in any particular event, and tabulates the rankings "
                     "across teams/state/national levels.").style('font-size: 15px')
@@ -1093,7 +1093,7 @@ async def aboutme_page():
                 
                 with ui.row().classes('items-center justify-center gap-1'):
                     ui.label("I will keep improving this website such that it provides the data and information that the swimming community needs. Any ").style('font-size: 15px')
-                    ui.label("comment and suggestion will be greatly appreciated.").style('font-size: 15px')
+                    ui.label("comments and suggestion will be greatly appreciated.").style('font-size: 15px')
                     ui.label("Please email me at:").style('font-size: 15px')
                     ui.link('support@swimmingrank.org', 'mailto:support@swimmingrank.org').classes('text-blue-600 hover:underline').style('font-size: 15px')
                 
@@ -1112,11 +1112,11 @@ async def privacypolicy_page():
         with ui.row().classes('w-full flex-1 justify-center items-start'):
             with ui.column().classes('w-3/5 items-center text-center'):
                 ui.label('Privacy Policy').style('font-size: 28px')
-                ui.label("""SwimmingRank.org is designed to be as privacy friendly as possible. I do not track, collect, or store any of your activities on the site, or do I use any third-party trackers or ads.
+                ui.label("""SwimmingRank.org is designed to be as privacy friendly as possible. I do not track, collect, or store any of your activities on the site, nor do I use any third-party trackers or ads.
                          All of the data available on this website is publicly available via USA Swimming. I update this website weekly with the previous week's results.
                          Only meets registered with USA Swimming will be included in the rankings and results, so regular high school dual meets or college
                          meets may not be included.""").style('font-size: 15px')
-                ui.label("""Last updated: December 27th, 2025""").style('font-size: 15px')
+                ui.label("""Last updated: December 29th, 2025""").style('font-size: 15px')
             """with ui.column().classes('w-3/5 items-center text-center'):
                 ui.label('FAQ').style('font-size: 28px')
             with ui.column().classes('w-3/5'):
