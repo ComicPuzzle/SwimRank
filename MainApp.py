@@ -11,7 +11,8 @@ from datetime import datetime, timedelta
 from get_credentials import get_credentials
 import qrcode
 from io import BytesIO
-import yagmail
+import smtplib
+from email.message import EmailMessage
 
 # --- GLOBAL DB POOL ---
 global_pool = None
@@ -1109,16 +1110,29 @@ def donate_page():
                 ui.image('static/zelle_qr.png').classes('w-48 h-48')
         footer()
 
-def send_feedback_email(user_email: str, message: str, category: str, p):
-    receiver = "support@swimmingrank.org"
-    body = message
 
-    yag = yagmail.SMTP(user_email, password=p)
-    yag.send(
-        to=receiver,
-        subject="Subject: " + category,
-        contents=body, 
-    )
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+
+WEBSITE_EMAIL = "alphadjw@gmail.com"  
+EMAIL_PASSWORD = "efpe ptjd sode zdyc"  
+
+def send_feedback_email(message: str, user_email: str, category: str):
+    email = EmailMessage()
+    email["From"] = WEBSITE_EMAIL
+    email["To"] = WEBSITE_EMAIL
+    email["Subject"] = f"SwimmingRank: {category}"
+
+    body = f"""
+        Message: {message}
+        User email: {user_email or "Not provided"} """
+
+    email.set_content(body)
+
+    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        server.starttls()
+        server.login(WEBSITE_EMAIL, EMAIL_PASSWORD)
+        server.send_message(email)
 
 @ui.page('/feedback')
 def feedback_page():
@@ -1129,15 +1143,9 @@ def feedback_page():
             ui.label('Have a bug, suggestion, or question? Send it below.').classes('text-gray-600 text-center')
 
             email_input = ui.input(
-                label='Your Email',
+                label='Your Email (Optional)',
                 placeholder='youremail@example.com'
             ).classes('w-full').props('type=email outlined')
-
-
-            password = ui.input(
-                label='Your Email Password',
-                placeholder=''
-            ).classes('w-full').props('type=password outlined')
 
             category = ui.select(
                 ['Bug', 'Feature Request', 'General Feedback'],
@@ -1153,21 +1161,15 @@ def feedback_page():
             status = ui.label().classes('text-center')
 
             def submit():
-                if not email_input.value or '@' not in email_input.value:
-                    status.set_text('Please enter a valid email address.')
-                    status.classes(add='text-red-600', remove='text-green-600')
-                    return
                 if not feedback.value.strip():
                     status.set_text('Please enter a message.')
                     status.classes(add='text-red-600', remove='text-green-600')
                     return
-                print(email_input.value, password.value)
                 try:
                     send_feedback_email(
-                        email_input.value,
                         feedback.value,
+                        email_input.value,
                         category.value,
-                        password.value
                     )
                     email_input.value = ''
                     feedback.value = ''
