@@ -21,42 +21,27 @@ def footer():
     bg_color = 'bg-gray-200/70'
     with ui.row().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
         ui.label('© SwimmingRank.org 2025-2025. All rights reserved.').classes('text-gray-600')
+
 def navbar():
     bg_color = 'bg-gray-200/70'
-    
-    with ui.row().classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
-        # Home button
-        ui.button('Home', on_click=lambda: ui.navigate.to('/')).props('flat').classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
+    with ui.row().classes(
+        f'w-full {bg_color} py-3 px-4 '
+        'flex-col md:flex-row '
+        'items-center justify-center gap-3 shadow-sm'
+    ):
+        with ui.row().classes('gap-3 flex-wrap justify-center'):
+            for label, path in [
+                ('Home', '/'),
+                ('Rankings', '/rankings'),
+                ('Discussion', '/discussion'),
+                ('About Me', '/aboutme'),
+                ('Privacy Policy', '/privacy'),
+            ]:
+                ui.button(label, on_click=lambda p=path: ui.navigate.to(p)) \
+                    .props('flat dense') \
+                    .classes('text-base md:text-lg font-semibold px-3 py-1')
 
-        # Separator (hidden on small screens)
-        ui.label('|').classes('text-2xl text-gray-500 sm:inline-block')
 
-        # Rankings button
-        ui.button('Rankings', on_click=lambda: ui.navigate.to("/rankings")).props('flat').classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
-
-        ui.label('|').classes('text-2xl text-gray-500 sm:inline-block')
-
-        # Discussion button
-        ui.button('Discussion', on_click=lambda: ui.navigate.to('/discussion')).props('flat').classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
-        
-        ui.label('|').classes('text-2xl text-gray-500 sm:inline-block')
-
-        # Discussion button
-        ui.button('About Me', on_click=lambda: ui.navigate.to('/aboutme')).props('flat').classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
-        
-        ui.label('|').classes('text-2xl text-gray-500 sm:inline-block')
-
-        # Discussion button
-        ui.button('Privacy Policy', on_click=lambda: ui.navigate.to('/privacy')) \
-            .props('flat') \
-            .classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')
-        """
-        ui.label('|').classes('text-2xl text-gray-500 sm:inline-block')
-
-        # Discussion button
-        ui.button('Donate', on_click=lambda: ui.navigate.to('/donate')) \
-            .props('flat') \
-            .classes('text-2xl font-semibold hover:shadow-md transition-shadow duration-200')"""
 
 async def get_global_pool():
     """Return a shared asyncpg pool for all requests."""
@@ -157,7 +142,7 @@ async def fetch_people(name):
             SELECT "FirstName", "MiddleName", "LastName", "Team", "LSC", "Age", "Sex", "PersonKey"
             FROM "ResultsSchema"."SwimmerIDs"
             WHERE "FirstName" = $1
-            AND "LastName"  = $2"""
+            AND "LastName"  = $2 AND "Sex" IS NOT NULL"""
         rows = await con.fetch(query, name[0], name[1])
 
     session['id_table_df'] = pd.DataFrame(rows, columns=['FirstName', 'MiddleName', 'LastName', 'Team', 'LSC', 'Age', 'Sex', 'PersonKey'])
@@ -274,13 +259,38 @@ async def update_id_table():
     temp['Sex'] = temp['Sex'].apply(lambda x: alter_sex(x))
     session['id_table'].rows = temp.to_dict('records')
 
-    session['id_table'].add_slot('body-cell-Name', """
-        <q-td :props="props">
-            <q-btn @click="() => $parent.$emit('person_selected', props.row)" 
-                    :label="props.row.Name" 
-                    flat dense color='primary'/>
-        </q-td>
-    """)
+    session['id_table'].add_slot('body', r'''
+            <q-tr v-if="!props.inGrid" :props="props">
+                <q-td key="Name" :props="props">
+                    <q-btn
+                    flat dense color="primary"
+                    :label="props.row.Name"
+                    @click="$parent.$emit('person_selected', props.row)"
+                    />
+            </q-td>
+            <q-td key="Team">{{ props.row.Team }}</q-td>
+            <q-td key="LSC">{{ props.row.LSC }}</q-td>
+            <q-td key="Age">{{ props.row.Age }}</q-td>
+            <q-td key="Sex">{{ props.row.Sex }}</q-td>
+            </q-tr>
+            ''')    
+    session['id_table'].add_slot('item', r'''
+            <div class="flex justify-center">
+            <q-card class="q-mb-sm shadow-sm rounded-lg w-full max-w-md">
+                <q-card-section>
+                <q-btn
+                    flat dense color="primary"
+                    :label="props.row.Name"
+                    class="text-left"
+                    @click="$parent.$emit('person_selected', props.row)"
+                />
+                <div class="text-sm text-gray-600 mt-1">
+                    {{ props.row.Team }} • {{ props.row.LSC }} • {{ props.row.Age }} • {{ props.row.Sex }}
+                </div>
+                </q-card-section>
+            </q-card>
+            </div>
+            ''')
     session['id_table'].update()
     session['id_table'].visible = True
 
@@ -552,6 +562,7 @@ async def graph_page(person_key: str):
 
     with ui.column().classes('w-full items-center'):
         ui.label(name).style('font-size: 28px')
+        #with ui.grid().classes('grid-cols-1 md:grid-cols-2 gap-2'):
         with ui.grid(columns=2).classes('fit-content gap-0 bg-gray-300'):
             def cell(text, extra_classes=''):
                 return ui.label(text).classes(
@@ -585,44 +596,57 @@ async def graph_page(person_key: str):
     session['results_column'] = ui.column().classes('w-full items-center')
     with session['best_times_column']:
         session['best_times_label'] = ui.label('Best Times').style('font-size: 20px')
-        session['best_rankings_table'] = ui.table(rows=[])
+        with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+            session['best_rankings_table'] = ui.table(rows=[])
         session['best_rankings_table'].visible = False
     with session['ncaa_comparison_column']:
         session['ncaa_comparison_label'] = ui.label("""NCAA Comparison (Better than % of Swimmers)""").style('font-size: 20px')
-        session['ncaa_comparison_table'] = ui.table(rows=[])
+        with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+            session['ncaa_comparison_table'] = ui.table(rows=[])
         session['ncaa_comparison_table'].visible = False
     with session['upcoming_meets_column']:
         session['meets_label'] = ui.label('Upcoming Championship Meets').style('font-size: 20px')
-        session['upcoming_meets_table'] = ui.table(rows=[])
+        with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+            session['upcoming_meets_table'] = ui.table(rows=[])
         session['upcoming_meets_table'].visible = False
     with session['season_rankings_column']: 
         session['season_rankings_label'] = ui.label('Current Season Rankings (' + session['current_season'] + ')').style('font-size: 20px')
-        session['season_rankings_table'] = ui.table(rows=[])
+        with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+            session['season_rankings_table'] = ui.table(rows=[])
         session['season_rankings_table'].visible = False
     with session['results_column']:
         session['event_label'] = ui.label(first_non_empty_event + " Progression").style('font-size: 20px')
         session['course_radio'] = ui.radio(["SCY", "LCM"], value="SCY", on_change=lambda: update_results_table(session['course_radio'].value)).props('inline')
-        session['event_results_table'] = ui.table(rows=[])
+        with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+            session['event_results_table'] = ui.table(rows=[])
         session['event_results_table'].visible = False
-        session['chart'] = ui.echart({'series': []}).style('height: 600px; width: 100%; min-height: 600px;')
+        session['chart'] = ui.echart({'series': []}).classes('w-full h-[300px] md:h-[600px]')
         session['chart'].visible = False
     footer()
     await display_event_data(first_non_empty_event, first_non_empty_event_df)
 
 @ui.page('/')
 async def main_page():
-    ui.add_head_html("""<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "e0d7f940137e4602a44bb27a2d7e1117"}'></script>""")
+    ui.add_head_html('''
+                    <title>Swimming Rank</title>
+
+                    <meta name="description" content="SwimmingRank provides rankings, swimmer times, team rankings, and performance analytics across age groups and events.">
+
+                    <meta name="keywords" content="swimming rankings, USA swimming, swimmer rankings, swim times, swim teams, age group swimming">
+
+                    <meta name="robots" content="index, follow">
+                    ''')
     await ui.context.client.connected()
     session = app.storage.tab
     session['id_table_df'] = []
-    with ui.column().classes('min-h-screen w-full flex flex-col'):
+    with ui.column().classes('min-h-screen w-full flex flex-col items-center'):
         navbar()
         session['main_page_column'] = ui.column().classes('w-full flex-1 items-center')
 
         get_current_season()
         await get_global_pool()
 
-        with session['main_page_column']:
+        with session['main_page_column'].classes('w-3/5'):
             ui.label('SwimmingRank').style('font-size: 28px').classes('font-bold')
             ui.label('This website provides up-to-date swimming results and rankings data for competitive swimmers in the United States').style('font-size: 15px; margin-bottom: 20px;')
 
@@ -633,8 +657,7 @@ async def main_page():
 
             session['search_input'] = ui.input(label='Enter name...', placeholder='Type a name...')
             session['search_input'].on('keypress.enter', lambda: fetch_people(session['search_input'].value)) 
-
-            session['id_table'] = ui.table(rows=[], columns=[])
+            session['id_table'] = ui.table(rows=[], columns=[]).props(':grid="Quasar.Screen.lt.md"')
             session['id_table'].visible = False
             if session['id_table_df'] != []:
                 await update_id_table()
@@ -647,15 +670,6 @@ async def show_page():
     await ui.context.client.connected()
     session = app.storage.tab
 
-    scy_start = (session['current_scy_page']['num'] - 1) * PAGE_SIZE
-    scy_end   = scy_start + PAGE_SIZE
-
-    lcm_start = (session['current_lcm_page']['num'] - 1) * PAGE_SIZE
-    lcm_end   = lcm_start + PAGE_SIZE
-
-    scy_page = session['current_scy_rank_selection'].iloc[scy_start:scy_end]
-    lcm_page = session['current_lcm_rank_selection'].iloc[lcm_start:lcm_end]
-    # Map rank column
     rank_map = {
         'National': 'national_rank',
         'LSC': 'lsc_rank',
@@ -673,8 +687,8 @@ async def show_page():
     ]
 
     session['ranking_table_scy'].columns = columns
-    session['ranking_table_scy'].rows = scy_page.to_dict('records')
-    session['ranking_table_scy'].visible = not scy_page.empty
+    session['ranking_table_scy'].rows = session['current_scy_rank_selection'].to_dict('records')
+    session['ranking_table_scy'].visible = not session['current_scy_rank_selection'].empty
     session['ranking_table_scy'].add_slot('body-cell-Name', """
         <q-td :props="props">
             <q-btn @click="() => $parent.$emit('person_selected', props.row)" 
@@ -684,8 +698,8 @@ async def show_page():
     """)
 
     session['ranking_table_lcm'].columns = columns
-    session['ranking_table_lcm'].rows = lcm_page.to_dict('records')
-    session['ranking_table_lcm'].visible = not lcm_page.empty
+    session['ranking_table_lcm'].rows = session['current_lcm_rank_selection'].to_dict('records')
+    session['ranking_table_lcm'].visible = not session['current_lcm_rank_selection'].empty
     session['ranking_table_lcm'].add_slot('body-cell-Name', """
         <q-td :props="props">
             <q-btn @click="() => $parent.$emit('person_selected', props.row)" 
@@ -703,42 +717,6 @@ async def show_page():
 
     session['ranking_table_scy'].on('person_selected', on_person_selected)
     session['ranking_table_lcm'].on('person_selected', on_person_selected)
-
-    # Page buttons
-    scy_total = math.ceil(len(session['current_scy_rank_selection']) / PAGE_SIZE)
-    lcm_total = math.ceil(len(session['current_lcm_rank_selection']) / PAGE_SIZE)
-
-    session['scy_prev'].visible = session['current_scy_page']['num'] > 1
-    session['scy_next'].visible = session['current_scy_page']['num'] < scy_total
-
-    session['lcm_prev'].visible = session['current_lcm_page']['num'] > 1
-    session['lcm_next'].visible = session['current_lcm_page']['num'] < lcm_total
-
-async def next_scy_page():
-    await ui.context.client.connected()
-    session = app.storage.tab
-    session['current_scy_page']['num'] += 1
-    await show_page()
-
-async def prev_scy_page():
-    await ui.context.client.connected()
-    session = app.storage.tab
-    if session['current_scy_page']['num'] > 1:
-        session['current_scy_page']['num'] -= 1
-        await show_page()
-
-async def next_lcm_page():
-    await ui.context.client.connected()
-    session = app.storage.tab
-    session['current_lcm_page']['num'] += 1
-    await show_page()
-
-async def prev_lcm_page():
-    await ui.context.client.connected()
-    session = app.storage.tab
-    if session['current_lcm_page']['num'] > 1:
-        session['current_lcm_page']['num'] -= 1
-        await show_page()
 
 async def refresh_table(event_map):
     await ui.context.client.connected()
@@ -769,8 +747,6 @@ async def refresh_table(event_map):
         session['current_scy_rank_selection'] = session['scy_ranking_data'].drop(columns=['lsc_rank', 'team_rank'])
         session['current_lcm_rank_selection'] = session['lcm_ranking_data'].drop(columns=['lsc_rank', 'team_rank'])
     
-    session['current_scy_page']['num'] = 1
-    session['current_lcm_page']['num'] = 1
     await show_page()
 
 async def refresh_table_ranksys():
@@ -789,12 +765,19 @@ async def refresh_table_ranksys():
         session['current_scy_rank_selection'] = session['scy_ranking_data'].drop(columns=['lsc_rank', 'team_rank'])
         session['current_lcm_rank_selection'] = session['lcm_ranking_data'].drop(columns=['lsc_rank', 'team_rank'])
     
-    session['current_scy_page']['num'] = 1
-    session['current_lcm_page']['num'] = 1
     await show_page()
 
 @ui.page('/rankings')
 async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_group = '13-14', lsc = '', team = '', sex: int = 0):
+    ui.add_head_html('''
+                    <title>SwimmingRank Ranking page</title>
+
+                    <meta name="description" content=Default rankings page for USA registered swimmers">
+
+                    <meta name="keywords" content="swimming rankings, USA swimming, swimmer rankings, swim times, swim teams, age group swimming">
+
+                    <meta name="robots" content="index, follow">
+                    ''')
     await ui.context.client.connected()
     session = app.storage.tab
     with ui.column().classes('min-h-screen w-full flex flex-col'):
@@ -844,48 +827,44 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
         end_year = int(end_year)
         all_seasons = [f"{start_month_day}/{start_year - i} - {end_month_day}/{end_year - i}" for i in range(10)]
 
-        # Reactive variables
-        session['current_scy_page'] = {'num': 1}
-        session['current_lcm_page'] = {'num': 1}
         # Dropdowns row
-        with ui.row().classes('w-full no-wrap items-start gap-4'):
+        with ui.column().classes('w-full gap-4 flex flex-col lg:flex-row items-start justify-center'):
             # ---------------- FILTERS COLUMN ----------------
-            with ui.column().classes('w-64 p-4 gap-4 bg-gray-50 rounded shadow-sm items-center'):
-                ui.label("Filters").classes('text-lg font-bold')
+            with ui.row().classes('w-full p-4 gap-4 bg-gray-50 rounded shadow-sm justify-center items-center'):
                 session['season_select'] = ui.select(
                     options=all_seasons,
                     value=season,
                     label='Season',
                     on_change=lambda: refresh_table(event_map)
-                ).classes('w-full')
+                ).classes('w-fit-content')
 
                 session['rank_type_select'] = ui.select(
                     options=['National', 'LSC', 'Team'],
                     value=rank_type,
                     label='Rank Type',
                     on_change=lambda: refresh_table_ranksys()
-                ).classes('w-full')
+                ).classes('w-fit-content')
 
                 session['sex_select'] = ui.select(
                     options=all_sex,
                     value='Male' if sex == 0 else 'Female',
                     label='Sex',
                     on_change=lambda: refresh_table(event_map)
-                ).classes('w-full')
+                ).classes('w-fit-content')
 
                 session['event_select'] = ui.select(
                     options=all_events,
                     value=event if event in all_events else all_events[0],
                     label='Event',
                     on_change=lambda: refresh_table(event_map)
-                ).classes('w-full')
+                ).classes('w-fit-content')
 
                 session['age_select'] = ui.select(
                     options=all_age_groups,
                     value=age_group if age_group in all_age_groups else all_age_groups[0],
                     label='Age Group',
                     on_change=lambda: refresh_table(event_map)
-                ).classes('w-full')
+                ).classes('w-fit-content')
 
                 session['lsc_select'] = ui.select(
                     options=all_lscs,
@@ -895,7 +874,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                 ).bind_visibility_from(
                     session['rank_type_select'], 'value',
                     backward=lambda v: v == 'LSC'
-                ).classes('w-full')
+                ).classes('w-fit-content')
 
                 session['team_select'] = ui.select(
                     options=all_teams,
@@ -908,50 +887,27 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                 ).bind_visibility_from(
                     session['rank_type_select'], 'value',
                     backward=lambda v: v == 'Team'
-                ).classes('w-full')
+                ).classes('w-fit-content')
+            with ui.row().classes('w-full flex flex-col lg:flex-row gap-2 justify-between'):
+                # ---------------- SCY TABLE ----------------
+                with ui.column().classes('w-full lg:w-2/5 items-center lg:ml-20'):
+                    ui.label("SCY Rankings").classes('text-lg font-semibold')
+                    with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+                        session['ranking_table_scy'] = ui.table(
+                            rows=[],
+                            columns=[],
+                            pagination=25,
+                        )
 
-            # ---------------- SCY TABLE ----------------
-            with ui.column().classes('flex-1 gap-2 justify-center items-center'):
-                ui.label("SCY Results").classes('text-lg font-semibold')
-                session['ranking_table_scy'] = ui.table(
-                    rows=[],
-                    columns=[]
-                ).classes('w-full max-h-[600px] overflow-y-auto')
-
-                with ui.row().classes('justify-between w-full mt-2 items-center'):
-                    session['scy_prev'] = ui.button('Prev SCY', on_click=prev_scy_page)
-                    ui.label().bind_text_from(
-                        session['current_scy_page'],
-                        'num',
-                        backward=lambda v: f"Page {v}"
-                    )
-
-                    session['scy_next'] = ui.button(
-                        'Next SCY',
-                        on_click=lambda: next_scy_page()
-                    )
-
-            # ---------------- LCM TABLE ----------------
-            with ui.column().classes('flex-1 gap-2 items-center'):
-                ui.label("LCM Results").classes('text-lg font-semibold')
-                session['ranking_table_lcm'] = ui.table(
-                    rows=[],
-                    columns=[]
-                ).classes('w-full max-h-[600px] overflow-y-auto')
-
-                with ui.row().classes('justify-between w-full mt-2 items-center'):
-                    session['lcm_prev'] = ui.button('Prev LCM', on_click=prev_lcm_page)
-
-                    ui.label().bind_text_from(
-                        session['current_lcm_page'],
-                        'num',
-                        backward=lambda v: f"Page {v}"
-                    )
-
-                    session['lcm_next'] = ui.button(
-                        'Next LCM',
-                        on_click=lambda: next_lcm_page()
-                    )
+                # ---------------- LCM TABLE ----------------
+                with ui.column().classes('w-full lg:w-2/5 items-center lg:mr-20'):
+                    ui.label("LCM Rankings").classes('text-lg font-semibold')
+                    with ui.element('div').classes('w-full lg:w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+                        session['ranking_table_lcm'] = ui.table(
+                        rows=[],
+                        columns=[],
+                        pagination=25
+                        )
         
         await refresh_table_ranksys()
         await show_page()
@@ -1027,31 +983,33 @@ async def team_page(team: str):
             with ui.column().classes('w-64 p-4 gap-4 bg-gray-50 rounded shadow-sm items-center'):
                 ui.label('Age Group').classes('text-lg font-semibold')
                 session['team_age_select'] = ui.select(
-                    options=list(age_groups.keys()),
-                    value='All',
-                    on_change=lambda _: update_tables(),
+                options=list(age_groups.keys()),
+                value='All',
+                on_change=lambda _: update_tables(),
                 ).classes('w-full') 
 
             with ui.row().classes('flex-1 justify-center items-start gap-2'):
                 with ui.column().classes('w-[420px] items-center'):
                     ui.label('Male').classes('text-lg font-semibold mb-1')
-                    session['team_male_table'] = ui.table(
+                    with ui.element('div').classes('w-full lg:w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+                        session['team_male_table'] = ui.table(
                         columns=[
                             {'name': 'Name', 'label': 'Name', 'field': 'Name'},
                             {'name': 'Age', 'label': 'Age', 'field': 'Age'},
                         ],
                         rows=[],
-                    ).classes('fit-content')
+                        pagination=20).classes('fit-content')
                 
                 with ui.column().classes('w-[420px] items-center'):
                     ui.label('Female').classes('text-lg font-semibold mb-1')
-                    session['team_female_table'] = ui.table(
+                    with ui.element('div').classes('w-full lg:w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+                        session['team_female_table'] = ui.table(
                         columns=[
                             {'name': 'Name', 'label': 'Name', 'field': 'Name'},
                             {'name': 'Age', 'label': 'Age', 'field': 'Age'},
                         ],
                         rows=[], 
-                    ).classes('fit-content')
+                        pagination=20).classes('fit-content')
         update_tables()
         session['team_female_table'].add_slot('body-cell-Name', """
             <q-td :props="props">
@@ -1079,7 +1037,7 @@ async def aboutme_page():
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         navbar()
         with ui.row().classes('w-full justify-center flex-1'):
-            with ui.column().classes('w-3/5 items-center text-center'):
+            with ui.column().classes('w-full lg:w-3/5 items-center text-center'):
                 ui.label('About Me').style('font-size: 28px')
 
                 ui.label(
@@ -1110,7 +1068,7 @@ async def privacypolicy_page():
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         navbar()
         with ui.row().classes('w-full flex-1 justify-center items-start'):
-            with ui.column().classes('w-3/5 items-center text-center'):
+            with ui.column().classes('w-full lg:w-3/5 items-center text-center'):
                 ui.label('Privacy Policy').style('font-size: 28px')
                 ui.label("""SwimmingRank.org is designed to be as privacy friendly as possible. I do not track, collect, or store any of your activities on the site, nor do I use any third-party trackers or ads.
                          All of the data available on this website is publicly available via USA Swimming. I update this website weekly with the previous week's results.
@@ -1142,7 +1100,7 @@ def donate_page():
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         navbar()
         with ui.row().classes('w-full justify-center flex-1 items-center'):
-            with ui.column().classes('w-3/5 items-center text-center'):
+            with ui.column().classes('w-full lg:w-3/5 items-center text-center'):
                 ui.label('Support This Website').style('font-size: 28px')
 
                 ui.label('Donate securely using Zelle through your bank app.').classes('text-center text-lg font-semibold')
