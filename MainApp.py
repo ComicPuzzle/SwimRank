@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from get_credentials import get_credentials
 import qrcode
 from io import BytesIO
+import yagmail
 
 # --- GLOBAL DB POOL ---
 global_pool = None
@@ -36,6 +37,7 @@ def navbar():
                 ('Discussion', '/discussion'),
                 ('About Me', '/aboutme'),
                 ('Privacy Policy', '/privacy'),
+                ('Feedback', '/feedback')
             ]:
                 ui.button(label, on_click=lambda p=path: ui.navigate.to(p)) \
                     .props('flat dense') \
@@ -646,7 +648,7 @@ async def main_page():
         get_current_season()
         await get_global_pool()
 
-        with session['main_page_column'].classes('w-3/5'):
+        with session['main_page_column'].classes('w-full items-center lg:w-3/5'):
             ui.label('SwimmingRank').style('font-size: 28px').classes('font-bold')
             ui.label('This website provides up-to-date swimming results and rankings data for competitive swimmers in the United States').style('font-size: 15px; margin-bottom: 20px;')
 
@@ -657,8 +659,9 @@ async def main_page():
 
             session['search_input'] = ui.input(label='Enter name...', placeholder='Type a name...')
             session['search_input'].on('keypress.enter', lambda: fetch_people(session['search_input'].value)) 
-            session['id_table'] = ui.table(rows=[], columns=[]).props(':grid="Quasar.Screen.lt.md"')
-            session['id_table'].visible = False
+            with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+                session['id_table'] = ui.table(rows=[], columns=[])
+                session['id_table'].visible = False
             if session['id_table_df'] != []:
                 await update_id_table()
 
@@ -932,7 +935,7 @@ async def discussion_page():
 async def team_page(team: str):
     await ui.context.client.connected()
     session = app.storage.tab
-    with ui.column().classes('min-h-screen w-full flex flex-col'):
+    with ui.column().classes('min-h-screen w-full flex flex-col items-center'):
         navbar()
 
         session['team_df'] = await fetch_team_swimmers(team)
@@ -979,37 +982,36 @@ async def team_page(team: str):
             
         with ui.row().classes('w-full justify-center'):
             ui.label(f'Team: {team}').classes('text-2xl font-bold mb-4')
-        with ui.row().classes('w-full items-start no-wrap gap-3'):
-            with ui.column().classes('w-64 p-4 gap-4 bg-gray-50 rounded shadow-sm items-center'):
-                ui.label('Age Group').classes('text-lg font-semibold')
-                session['team_age_select'] = ui.select(
-                options=list(age_groups.keys()),
-                value='All',
-                on_change=lambda _: update_tables(),
-                ).classes('w-full') 
-
-            with ui.row().classes('flex-1 justify-center items-start gap-2'):
-                with ui.column().classes('w-[420px] items-center'):
-                    ui.label('Male').classes('text-lg font-semibold mb-1')
-                    with ui.element('div').classes('w-full lg:w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
-                        session['team_male_table'] = ui.table(
-                        columns=[
-                            {'name': 'Name', 'label': 'Name', 'field': 'Name'},
-                            {'name': 'Age', 'label': 'Age', 'field': 'Age'},
-                        ],
-                        rows=[],
-                        pagination=20).classes('fit-content')
-                
-                with ui.column().classes('w-[420px] items-center'):
-                    ui.label('Female').classes('text-lg font-semibold mb-1')
-                    with ui.element('div').classes('w-full lg:w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
-                        session['team_female_table'] = ui.table(
-                        columns=[
-                            {'name': 'Name', 'label': 'Name', 'field': 'Name'},
-                            {'name': 'Age', 'label': 'Age', 'field': 'Age'},
-                        ],
-                        rows=[], 
-                        pagination=20).classes('fit-content')
+        with ui.row().classes('gap-4 bg-gray-50 rounded shadow-sm items-center'):
+            ui.label('Age Group').classes('text-lg font-semibold')
+            session['team_age_select'] = ui.select( 
+            options=list(age_groups.keys()),
+            value='All',
+            on_change=lambda _: update_tables(),
+            ).classes('w-fit-content') 
+        with ui.row().classes('w-full lg:w-3/5 flex flex-col lg:flex-row gap-2 justify-center items-center'):
+            
+            with ui.column().classes('w-full lg:w-2/5 items-center'):
+                ui.label('Male').classes('text-lg font-semibold')
+                with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+                    session['team_male_table'] = ui.table(
+                    columns=[
+                        {'name': 'Name', 'label': 'Name', 'field': 'Name'},
+                        {'name': 'Age', 'label': 'Age', 'field': 'Age'},
+                    ],
+                    rows=[],
+                    pagination=20).classes('w-full')
+            
+            with ui.column().classes('w-full lg:w-2/5 items-center'):
+                ui.label('Female').classes('text-lg font-semibold')
+                with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+                    session['team_female_table'] = ui.table(
+                    columns=[
+                        {'name': 'Name', 'label': 'Name', 'field': 'Name'},
+                        {'name': 'Age', 'label': 'Age', 'field': 'Age'},
+                    ],
+                    rows=[], 
+                    pagination=20).classes('w-full')
         update_tables()
         session['team_female_table'].add_slot('body-cell-Name', """
             <q-td :props="props">
@@ -1105,6 +1107,79 @@ def donate_page():
 
                 ui.label('Donate securely using Zelle through your bank app.').classes('text-center text-lg font-semibold')
                 ui.image('static/zelle_qr.png').classes('w-48 h-48')
+        footer()
+
+def send_feedback_email(user_email: str, message: str, category: str, p):
+    receiver = "support@swimmingrank.org"
+    body = message
+
+    yag = yagmail.SMTP(user_email, password=p)
+    yag.send(
+        to=receiver,
+        subject="Subject: " + category,
+        contents=body, 
+    )
+
+@ui.page('/feedback')
+def feedback_page():
+    with ui.column().classes('min-h-screen w-full flex flex-row'):
+        navbar()
+        with ui.column().classes('w-full max-w-xl mx-auto p-6 gap-4 bg-white rounded-lg shadow-md'):
+            ui.label('Feedback').classes('text-2xl font-bold text-center')
+            ui.label('Have a bug, suggestion, or question? Send it below.').classes('text-gray-600 text-center')
+
+            email_input = ui.input(
+                label='Your Email',
+                placeholder='youremail@example.com'
+            ).classes('w-full').props('type=email outlined')
+
+
+            password = ui.input(
+                label='Your Email Password',
+                placeholder=''
+            ).classes('w-full').props('type=password outlined')
+
+            category = ui.select(
+                ['Bug', 'Feature Request', 'General Feedback'],
+                value='General Feedback',
+                label='Category'
+            ).classes('w-full')
+
+            feedback = ui.textarea(
+                label='Message',
+                placeholder='Type your feedback here...',
+            ).classes('w-full').props('outlined')
+
+            status = ui.label().classes('text-center')
+
+            def submit():
+                if not email_input.value or '@' not in email_input.value:
+                    status.set_text('Please enter a valid email address.')
+                    status.classes(add='text-red-600', remove='text-green-600')
+                    return
+                if not feedback.value.strip():
+                    status.set_text('Please enter a message.')
+                    status.classes(add='text-red-600', remove='text-green-600')
+                    return
+                print(email_input.value, password.value)
+                try:
+                    send_feedback_email(
+                        email_input.value,
+                        feedback.value,
+                        category.value,
+                        password.value
+                    )
+                    email_input.value = ''
+                    feedback.value = ''
+                    status.set_text('Thanks! Your message was sent.')
+                    status.classes(add='text-green-600', remove='text-red-600')
+                except Exception as e:
+                    print(e)
+                    status.set_text('Error sending feedback. Please try again later.')
+                    status.classes(add='text-red-600', remove='text-green-600')
+
+            ui.button('Send Feedback', on_click=submit).classes('w-full bg-blue-600 text-white')
+
         footer()
 
 if __name__ in {"__main__", "__mp_main__"}:
