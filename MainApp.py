@@ -80,43 +80,30 @@ def navbar():
                 ui.button(label, on_click=lambda p=path: (mobile_menu.close(), ui.navigate.to(p))).props('flat').classes(
                     'w-full justify-start px-4 py-3 rounded-lg hover:bg-gray-200').classes('font-size: 1.1em')
 
-    # ---------------- HEADER ----------------
-    with ui.header(elevated=True).classes('''w-full justify-center bg-gray-100 text-gray-800 px-4 border-b border-gray-200 z-50 '''):
-        with ui.element('div').classes('w-0 p-0 m-0'):
-            menu_btn = ui.button(icon='menu').props('flat round').classes('text-gray-700 relative right-1/2 translate-x-1/2')
-        ui.label('SwimmingRank').classes('font-semibold mx-auto').style('font-size: 2em')
-        
-
-    # ---------------- DRAWER ----------------
-    with ui.left_drawer(top_corner=False, bottom_corner=True, value=False, fixed=False).props('overlay').classes('''drawer-root bg-white w-64 rounded-r-2xl shadow-2xl z-40 items-center''') as left_drawer:
-        ui.label('Pages').classes('text-gray-600 font-bold px-5 pt-5 uppercase tracking-wide').style('font-size: 1.1em')
-
-        ui.separator().classes('mx-5 mb-3')
-
-        def nav_and_close(path: str):
-            left_drawer.toggle()
-            ui.navigate.to(path)
-
-        for path, label in PAGE_TITLES.items():
-            ui.button(label, on_click=lambda p=path: nav_and_close(p)).props('flat').classes(
-                f'''
-                w-full justify-start text-left
-                px-5 py-2
-                rounded-lg mx-2
-                transition-colors duration-200
-                hover:bg-gray-100
-                {"bg-gray-200" if current_path == path else ""}
-                '''
-            ).style('font-size: 1.1em')
-
-    # ---------- RESPONSIVE MENU BUTTON ----------
-    def open_menu():
-        if WIDTH < 640:
-            mobile_menu.open()
-        else:
-            left_drawer.toggle()
-
-    menu_btn.on_click(open_menu)
+    if WIDTH < 640:
+        with ui.header(elevated=True).classes('''w-full justify-center bg-gray-100 text-gray-800 px-4 border-b border-gray-200 z-50 '''):
+            with ui.element('div').classes('w-0 p-0 m-0'):
+                menu_btn = ui.button(icon='menu').props('flat round').classes('text-gray-700 relative right-1/2 translate-x-1/2')
+        mobile_menu.open()
+    else:
+        bg_color = 'bg-gray-200/70'
+        with ui.row().classes(
+            f'w-full {bg_color} py-3 px-4 '
+            'flex-col md:flex-row '
+            'items-center justify-center gap-3 shadow-sm'
+        ):
+            with ui.row().classes('gap-3 flex-wrap justify-center'):
+                for label, path in [
+                    ('Home', '/'),
+                    ('Rankings', '/rankings'),
+                    ('Discussion', '/discussion'),
+                    ('About Me', '/aboutme'),
+                    ('Privacy Policy', '/privacy'),
+                    ('Feedback', '/feedback'),
+                ]:
+                    ui.button(label, on_click=lambda p=path: ui.navigate.to(p)) \
+                        .props('flat dense') \
+                        .classes('font-semibold px-3 py-1').style('font-size: 1.3rem')
 
 
 async def get_global_pool():
@@ -738,7 +725,7 @@ async def main_page():
 
         get_current_season()
         await get_global_pool() 
-        with session['main_page_column'].classes('w-full items-center lg:w-3/5'):
+        with session['main_page_column'].classes('w-full items-center lg:w-4/5'):
             ui.add_head_html("""
                 <style>
                     .swimmer-input-class .q-field__native {
@@ -754,7 +741,7 @@ async def main_page():
                         font-size: 1rem;
                     }
             """)
-            ui.label('Swimmer Search').style('font-size: 2rem')
+            ui.label('Swimmer Search').style('font-size: 1.8rem')
             ui.label('This website provides up-to-date swimming results and rankings data for competitive swimmers in the United States').style('font-size: 1.1rem;')
             ui.label('It contains data for over 1 million swimmers over the past 10 years').style('font-size: 1.1rem')
 
