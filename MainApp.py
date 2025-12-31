@@ -55,36 +55,29 @@ def navbar():
 
     ui.on('resize', lambda e: get_dim(e))
     current_path = ui.context.client.page.path
-    # ---------- MOBILE FULLSCREEN HEADER ----------
-    with ui.dialog().props('maximized no-backdrop') as mobile_menu:
-        with ui.column().classes('h-screen w-full p-6 gap-4 bg-white'):
-            # Top bar
-            with ui.row().classes('w-full relative items-center'):
-                # CENTERED TITLE (true center)
-                ui.label('Pages').classes(
-                    'absolute left-1/2 -translate-x-1/2 font-semibold'
-                ).classes('font-size: 1.1em')
-
-                # RIGHT: minimize button
-                ui.button(
-                    icon='remove',
-                    on_click=mobile_menu.close
-                ).props('flat round').classes(
-                    'ml-auto'
-                )
-
-            ui.separator()
-
-            # Navigation buttons
-            for path, label in PAGE_TITLES.items():
-                ui.button(label, on_click=lambda p=path: (mobile_menu.close(), ui.navigate.to(p))).props('flat').classes(
-                    'w-full justify-start px-4 py-3 rounded-lg hover:bg-gray-200').classes('font-size: 1.1em')
-
+    
     if WIDTH < 640:
         with ui.header(elevated=True).classes('''w-full justify-center bg-gray-100 text-gray-800 px-4 border-b border-gray-200 z-50 '''):
             with ui.element('div').classes('w-0 p-0 m-0'):
                 menu_btn = ui.button(icon='menu').props('flat round').classes('text-gray-700 relative right-1/2 translate-x-1/2')
-        mobile_menu.open()
+            ui.label('SwimmingRank').classes('font-semibold mx-auto').style('font-size: 2em')
+        # ---------- MOBILE FULLSCREEN HEADER ----------
+        with ui.dialog(value=False).props('maximized no-backdrop') as mobile_menu:
+            with ui.column().classes('h-screen w-full p-6 gap-4 bg-white'):
+                # Top bar
+                with ui.row().classes('w-full relative items-center'):
+                    # CENTERED TITLE (true center)
+                    ui.label('Pages').classes('absolute left-1/2 -translate-x-1/2 font-semibold').classes('font-size: 1.1em')
+
+                    # RIGHT: minimize button
+                    ui.button(icon='remove', on_click=mobile_menu.close).props('flat round').classes('ml-auto')
+                ui.separator()
+
+                # Navigation buttons
+                for path, label in PAGE_TITLES.items():
+                    ui.button(label, on_click=lambda p=path: (mobile_menu.close(), ui.navigate.to(p))).props('flat').classes(
+                        'w-full justify-start px-4 py-3 rounded-lg hover:bg-gray-200').classes('font-size: 1.1em')
+        menu_btn.on_click(mobile_menu.open)
     else:
         bg_color = 'bg-gray-200/70'
         with ui.row().classes(
