@@ -972,6 +972,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
         with ui.row().classes('w-full justify-center'):  
             ui.label('Rankings').style('font-size: 2rem').classes('font-semibold')
         # Dropdowns row
+        SELECT_CLASSES = 'w-full sm:min-w-[200px] sm:w-auto'
         with ui.column().classes('w-full gap-4 flex flex-col lg:flex-row items-start justify-center'):
             # ---------------- FILTERS COLUMN ----------------
             with ui.row().classes('w-full p-4 gap-4 bg-gray-50 rounded shadow-sm justify-center items-center'):
@@ -980,35 +981,35 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                     value=season,
                     label='Season',
                     on_change=lambda: refresh_table(event_map)
-                ).classes('w-fit-content').style('font-size: 1.1rem')
-
-                session['rank_type_select'] = ui.select(
-                    options=['National', 'LSC', 'Team'],
-                    value=rank_type,
-                    label='Rank Type',
-                    on_change=lambda: refresh_table_ranksys()
-                ).classes('w-fit-content').style('font-size: 1.1rem')
+                ).classes(SELECT_CLASSES).style('font-size: 1.1rem')
 
                 session['sex_select'] = ui.select(
                     options=all_sex,
                     value='Male' if sex == 0 else 'Female',
                     label='Sex',
                     on_change=lambda: refresh_table(event_map)
-                ).classes('w-fit-content').style('font-size: 1.1rem')
+                ).classes(SELECT_CLASSES).style('font-size: 1.1rem')
 
                 session['event_select'] = ui.select(
                     options=all_events,
                     value=event if event in all_events else all_events[0],
                     label='Event',
                     on_change=lambda: refresh_table(event_map)
-                ).classes('w-fit-content').style('font-size: 1.1rem')
+                ).classes(SELECT_CLASSES).style('font-size: 1.1rem')
 
                 session['age_select'] = ui.select(
                     options=all_age_groups,
                     value=age_group if age_group in all_age_groups else all_age_groups[0],
                     label='Age Group',
                     on_change=lambda: refresh_table(event_map)
-                ).classes('w-fit-content').style('font-size: 1.1rem')
+                ).classes(SELECT_CLASSES).style('font-size: 1.1rem')
+
+                session['rank_type_select'] = ui.select(
+                    options=['National', 'LSC', 'Team'],
+                    value=rank_type,
+                    label='Rank Type',
+                    on_change=lambda: refresh_table_ranksys()
+                ).classes(SELECT_CLASSES).style('font-size: 1.1rem')
 
                 session['lsc_select'] = ui.select(
                     options=all_lscs,
@@ -1018,7 +1019,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                 ).bind_visibility_from(
                     session['rank_type_select'], 'value',
                     backward=lambda v: v == 'LSC'
-                ).classes('w-fit-content').style('font-size: 1.1rem')
+                ).classes(SELECT_CLASSES).style('font-size: 1.1rem')
 
                 session['team_select'] = ui.select(
                     options=all_teams,
@@ -1031,7 +1032,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                 ).bind_visibility_from(
                     session['rank_type_select'], 'value',
                     backward=lambda v: v == 'Team'
-                ).classes('w-fit-content').style('font-size: 1.1rem')
+                ).classes(SELECT_CLASSES).style('font-size: 1.1rem')
             with ui.row().classes('w-full flex flex-col lg:flex-row gap-2 justify-between'):
                 # ---------------- SCY TABLE ----------------
                 with ui.column().classes('w-full lg:w-2/5 items-center lg:ml-20'):
@@ -1197,7 +1198,7 @@ async def aboutme_page():
 
                 ui.label(
                     "I am a college student and a competitive swimmer. During my swimming career, I used the swimmingrank.com website frequently to check my rankings"
-                    " and see how I compared to other swimmers in my age group and events. Like many of my fellow swimmers, we liked the comprehensive information and"
+                    " and see how I compared to other swimmers in my age group and events. Like many of my fellow swimmers, I liked the comprehensive information and"
                     " clean design of that website. However, with that website no longer available, I decided to create SwimmingRank.org to fill that gap and provide "
                     "swimmers with a similar resource to track their rankings and progressions over years. My website allows for the search of a particular swimmer, "
                     "provides a comprehensive review of  the meets that swimmer has attended and historical times in any particular event, and tabulates the rankings "
@@ -1205,16 +1206,29 @@ async def aboutme_page():
 
                 
                 with ui.row().classes('items-center justify-center gap-1'):
-                    ui.label("I will keep improving this website such that it provides the data and information that the swimming community needs. Any ").style('font-size: 1.1rem')
-                    ui.label("comments and suggestion will be greatly appreciated.").style('font-size: 1.1rem')
-                    ui.label("Please email me at:").style('font-size: 1.1rem')
-                    ui.link('support@swimmingrank.org', 'mailto:support@swimmingrank.org').classes('text-blue-600 hover:underline').style('font-size: 1.1rem')
-                
+                    ui.html('''
+                        <p style="font-size:1.1rem; text-align:center; max-width: 900px; margin: 0 auto;">
+                            I will keep improving this website such that it provides the data and information that the
+                            swimming community needs. Any comments and suggestions will be greatly appreciated.
+                            You can email me directly at
+                            <a href="mailto:support@swimmingrank.org" class="text-blue-600 hover:underline">
+                                support@swimmingrank.org
+                            </a>
+                            or provide feedback anonymously on the
+                            <a href="/feedback" class="text-blue-600 hover:underline">
+                                Feedback Page
+                            </a>.
+                        </p>
+                        ''')
                 with ui.row().classes('items-center justify-center gap-1'):
-                    ui.label("Finally, it does cost money to host the database and run the website, so if you would like to support the site please consider").style('font-size: 1.1rem')
-                    ui.label("donating via the").style('font-size: 1.1rem') 
-                    ui.link("Donate page", '/donate').classes('text-blue-600 hover:underline').style('font-size: 1.1rem')
-                    ui.label("Thank you!").style('font-size: 1.1rem')
+                    ui.html('''
+                        <p style="font-size:1.1rem; text-align:center;">
+                            Finally, it does cost money to run the website and database, so if you would like to
+                            support the site please consider donating via the
+                            <a href="/donate" class="text-blue-600 hover:underline">Donate page</a>.
+                            Thank you!
+                        </p>
+                        ''')
     footer()
 
 @ui.page('/privacy')
@@ -1291,7 +1305,7 @@ def feedback_page():
     navbar()
     with ui.column().classes('min-h-screen w-full flex flex-row'):
         with ui.column().classes('w-full max-w-xl mx-auto p-6 gap-4 bg-white rounded-lg shadow-md items-center'):
-            ui.label('Feedback').classes('font-bold text-center').classes('font-size: 2rem')
+            ui.label('Feedback').classes('font-bold text-center').style('font-size: 1.6rem')
             ui.label('Have a bug, suggestion, or question? Send it below.').classes('text-gray-600 text-center').style('font-size: 1.1rem')
 
             email_input = ui.input(
