@@ -63,7 +63,7 @@ def navbar():
                 # CENTERED TITLE (true center)
                 ui.label('Pages').classes(
                     'absolute left-1/2 -translate-x-1/2 font-semibold'
-                ).classes('font-size: 1.3em')
+                ).classes('font-size: 1.1em')
 
                 # RIGHT: minimize button
                 ui.button(
@@ -78,7 +78,7 @@ def navbar():
             # Navigation buttons
             for path, label in PAGE_TITLES.items():
                 ui.button(label, on_click=lambda p=path: (mobile_menu.close(), ui.navigate.to(p))).props('flat').classes(
-                    'w-full justify-start px-4 py-3 rounded-lg hover:bg-gray-200').classes('font-size: 1.3em')
+                    'w-full justify-start px-4 py-3 rounded-lg hover:bg-gray-200').classes('font-size: 1.1em')
 
     # ---------------- HEADER ----------------
     with ui.header(elevated=True).classes('''w-full justify-center bg-gray-100 text-gray-800 px-4 border-b border-gray-200 z-50 '''):
@@ -89,7 +89,7 @@ def navbar():
 
     # ---------------- DRAWER ----------------
     with ui.left_drawer(top_corner=False, bottom_corner=True, value=False, fixed=False).props('overlay').classes('''drawer-root bg-white w-64 rounded-r-2xl shadow-2xl z-40 items-center''') as left_drawer:
-        ui.label('Pages').classes('text-gray-600 font-bold px-5 pt-5 uppercase tracking-wide').style('font-size: 1.3em')
+        ui.label('Pages').classes('text-gray-600 font-bold px-5 pt-5 uppercase tracking-wide').style('font-size: 1.1em')
 
         ui.separator().classes('mx-5 mb-3')
 
@@ -107,7 +107,7 @@ def navbar():
                 hover:bg-gray-100
                 {"bg-gray-200" if current_path == path else ""}
                 '''
-            ).style('font-size: 1.3em')
+            ).style('font-size: 1.1em')
 
     # ---------- RESPONSIVE MENU BUTTON ----------
     def open_menu():
@@ -512,6 +512,7 @@ async def update_season_rankings_table():
     session['season_rankings_table'].add_slot('body-cell-national_rank', """
         <q-td :props="props">
             <q-btn flat dense color="primary"
+                class="big-cell"
                 :label="props.row['national_rank']"
                 @click="() => $parent.$emit('open_rank_page', {type: 'National', row: props.row})"/>
         </q-td>
@@ -520,6 +521,7 @@ async def update_season_rankings_table():
     session['season_rankings_table'].add_slot('body-cell-lsc_rank', """
         <q-td :props="props">
             <q-btn flat dense color="secondary"
+                class="big-cell"
                 :label="props.row['lsc_rank']"
                 @click="() => $parent.$emit('open_rank_page', {type: 'LSC', row: props.row})"/>
         </q-td>
@@ -528,6 +530,7 @@ async def update_season_rankings_table():
     session['season_rankings_table'].add_slot('body-cell-team_rank', """
         <q-td :props="props">
             <q-btn flat dense color="accent"
+                class="big-cell"
                 :label="props.row['team_rank']"
                 @click="() => $parent.$emit('open_rank_page', {type: 'Team', row: props.row})"/>
         </q-td>
@@ -601,7 +604,7 @@ async def make_event_buttons(all_event_data_df):
                         first_non_empty_event = pair[0]
                         first_non_empty_event_df = event_df
                         first = False
-                    ui.button(pair[0].split('SCY')[0], on_click=lambda e=pair[0], df=event_df: display_event_data(e, df))
+                    ui.button(pair[0].split('SCY')[0], on_click=lambda e=pair[0], df=event_df: display_event_data(e, df)).style('font-size: 1.1rem')
 
     return (first_non_empty_event, first_non_empty_event_df)
 
@@ -618,8 +621,32 @@ async def graph_page(person_key: str):
     except:
         team = session['person']['Team']
     sex = session['person']['Sex']
-
     navbar() 
+    ui.add_head_html("""
+        <style>
+        :root {
+            --table-header-font-size: 1.1rem;
+            --table-body-font-size: 1rem;
+        }
+
+        /* Apply to all tables that use .custom-table */
+        .custom-table thead th {
+            font-size: var(--table-header-font-size) !important;
+            font-weight: 500;
+        }
+
+        .custom-table tbody td {
+            font-size: var(--table-body-font-size) !important;
+        }
+                     
+        .custom-table big-cell {
+            font-size: 1rem;
+        }
+        .custom-table .big-cell .q-btn__content {
+            font-size: 1rem;
+        }
+        </style>
+        """)
     with ui.row().classes('w-full justify-center mt-20 mb-5') as spinnerrow:
         spinner = ui.spinner(size='lg')
     all_event_data = await collect_all_event_data(person_key)
@@ -634,21 +661,20 @@ async def graph_page(person_key: str):
     spinnerrow.delete()
     spinner.delete()
     with ui.column().classes('w-full items-center'):
-        ui.label(name).style('font-size: 28px')
-        #with ui.grid().classes('grid-cols-1 md:grid-cols-2 gap-2'):
+        ui.label(name).style('font-size: 2rem')
         with ui.grid(columns=2).classes('fit-content gap-0 bg-gray-300'):
             def cell(text, extra_classes=''):
                 return ui.label(text).classes(
                     f'bg-white border border-gray-300 p-5 {extra_classes}'
                 )
-            cell('Team', 'p-1 border-b-0 border-r-0')
-            cell(team,  'text-base font-medium tracking-wide text-primary cursor-pointer hover:bg-gray-100 border-b-0').on('click', lambda e, t=team: ui.navigate.to(f'/team/{t}'))
-            cell('LSC', 'border-b-0 border-r-0')
-            cell(lsc, 'border-b-0')
-            cell('Current Age', 'border-b-0 border-r-0')
-            cell(age, 'border-b-0')
-            cell('Sex', 'border-r-0')
-            cell("Male" if sex == 0 else "Female")
+            cell('Team', 'p-1 border-b-0 border-r-0').style('font-size: 1.1rem')
+            cell(team,  'text-base font-medium tracking-wide text-primary cursor-pointer hover:bg-gray-100 border-b-0').on('click', lambda e, t=team: ui.navigate.to(f'/team/{t}')).style('font-size: 1.1rem')
+            cell('LSC', 'border-b-0 border-r-0').style('font-size: 1.1rem')
+            cell(lsc, 'border-b-0').style('font-size: 1.1rem')
+            cell('Current Age', 'border-b-0 border-r-0').style('font-size: 1.1rem')
+            cell(age, 'border-b-0').style('font-size: 1.1rem')
+            cell('Sex', 'border-r-0').style('font-size: 1.1rem')
+            cell("Male" if sex == 0 else "Female").style('font-size: 1.1rem')
 
     first_non_empty_event, first_non_empty_event_df = await make_event_buttons(session['all_event_data_df'])
     session['lcm_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['Event'].str.contains("LCM")]
@@ -659,34 +685,36 @@ async def graph_page(person_key: str):
     session['upcoming_meets_column'] = ui.column().classes('w-full items-center')
     session['season_rankings_column'] = ui.column().classes('w-full items-center')
     session['results_column'] = ui.column().classes('w-full items-center')
+
     with session['best_times_column']:
-        session['best_times_label'] = ui.label('Best Times').style('font-size: 20px')
+        session['best_times_label'] = ui.label('Best Times').style('font-size: 1.6rem')
         with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
-            session['best_rankings_table'] = ui.table(rows=[])
+            session['best_rankings_table'] = ui.table(rows=[]).classes('custom-table')
         session['best_rankings_table'].visible = False
     with session['ncaa_comparison_column']:
-        session['ncaa_comparison_label'] = ui.label("""NCAA Comparison (Better than % of Swimmers)""").style('font-size: 20px')
+        session['ncaa_comparison_label'] = ui.label("""NCAA Comparison (Better than % of Swimmers)""").style('font-size: 1.6rem')
         with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
-            session['ncaa_comparison_table'] = ui.table(rows=[])
+            session['ncaa_comparison_table'] = ui.table(rows=[]).classes('custom-table')
         session['ncaa_comparison_table'].visible = False
     with session['upcoming_meets_column']:
-        session['meets_label'] = ui.label('Upcoming Championship Meets').style('font-size: 20px')
+        session['meets_label'] = ui.label('Upcoming Championship Meets').style('font-size: 1.6rem')
         with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
-            session['upcoming_meets_table'] = ui.table(rows=[])
+            session['upcoming_meets_table'] = ui.table(rows=[]).classes('custom-table')
         session['upcoming_meets_table'].visible = False
     with session['season_rankings_column']: 
-        session['season_rankings_label'] = ui.label('Current Season Rankings (' + session['current_season'] + ')').style('font-size: 20px')
+        session['season_rankings_label'] = ui.label('Current Season Rankings (' + session['current_season'] + ')').style('font-size: 1.6rem')
         with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
-            session['season_rankings_table'] = ui.table(rows=[])
+            session['season_rankings_table'] = ui.table(rows=[]).classes('custom-table')
         session['season_rankings_table'].visible = False
     with session['results_column']:
-        session['event_label'] = ui.label(first_non_empty_event + " Progression").style('font-size: 20px')
-        session['course_radio'] = ui.radio(["SCY", "LCM"], value="SCY", on_change=lambda: update_results_table(session['course_radio'].value)).props('inline')
+        session['event_label'] = ui.label(first_non_empty_event + " Progression").style('font-size: 1.6rem')
+        session['course_radio'] = ui.radio(["SCY", "LCM"], value="SCY", on_change=lambda: update_results_table(session['course_radio'].value)).props('inline').style('font-size: 1.6rem')
         with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
-            session['event_results_table'] = ui.table(rows=[])
+            session['event_results_table'] = ui.table(rows=[]).classes('custom-table')
         session['event_results_table'].visible = False
         session['chart'] = ui.echart({'series': []}).classes('w-full h-[300px] md:h-[600px]')
         session['chart'].visible = False
+    
     footer()
     await display_event_data(first_non_empty_event, first_non_empty_event_df)
 
@@ -714,21 +742,21 @@ async def main_page():
             ui.add_head_html("""
                 <style>
                     .swimmer-input-class .q-field__native {
-                        font-size: 1.3em;
+                        font-size: 1.1rem;
                     }
                     .my-table th {
-                        font-size: 1.3em;
+                        font-size: 1.1rem;
                     }
                     .my-table .big-cell {
-                        font-size: 1.1em;
+                        font-size: 1rem;
                     }
                     .my-table .big-cell .q-btn__content {
-                        font-size: 1.1em;
+                        font-size: 1rem;
                     }
             """)
-            ui.label('Swimmer Search').style('font-size: 2em')
-            ui.label('This website provides up-to-date swimming results and rankings data for competitive swimmers in the United States').style('font-size: 1.3em;')
-            ui.label('It contains data for over 1 million swimmers over the past 10 years').style('font-size: 1.3em')
+            ui.label('Swimmer Search').style('font-size: 2rem')
+            ui.label('This website provides up-to-date swimming results and rankings data for competitive swimmers in the United States').style('font-size: 1.1rem;')
+            ui.label('It contains data for over 1 million swimmers over the past 10 years').style('font-size: 1.1rem')
 
             session['search_input'] = ui.input(placeholder='Type a name...').classes('swimmer-input-class')
             session['search_input'].on('keypress.enter', lambda: fetch_people(session['search_input'].value)) 
@@ -768,6 +796,7 @@ async def show_page():
     session['ranking_table_scy'].add_slot('body-cell-Name', """
         <q-td :props="props">
             <q-btn @click="() => $parent.$emit('person_selected', props.row)" 
+                    class="big-cell" 
                     :label="props.row.Name" 
                     flat dense color='primary'/>
         </q-td>
@@ -778,7 +807,8 @@ async def show_page():
     session['ranking_table_lcm'].visible = not session['current_lcm_rank_selection'].empty
     session['ranking_table_lcm'].add_slot('body-cell-Name', """
         <q-td :props="props">
-            <q-btn @click="() => $parent.$emit('person_selected', props.row)" 
+            <q-btn @click="() => $parent.$emit('person_selected', props.row)"
+                    class="big-cell" 
                     :label="props.row.Name" 
                     flat dense color='primary'/>
         </q-td>
@@ -852,6 +882,8 @@ async def refresh_table_ranksys():
 
 @ui.page('/rankings')
 async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_group = '13-14', lsc = '', team = '', sex: int = 0):
+    await ui.context.client.connected()
+    session = app.storage.tab
     ui.add_head_html('''
                     <title>SwimmingRank Ranking page</title>
 
@@ -861,8 +893,31 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
 
                     <meta name="robots" content="index, follow">
                     ''')
-    await ui.context.client.connected()
-    session = app.storage.tab
+    ui.add_head_html("""
+        <style>
+        :root {
+            --table-header-font-size: 1.1rem;
+            --table-body-font-size: 1rem;
+        }
+
+        /* Apply to all tables that use .custom-table */
+        .custom-table thead th {
+            font-size: var(--table-header-font-size) !important;
+            font-weight: 500;
+        }
+
+        .custom-table tbody td {
+            font-size: var(--table-body-font-size) !important;
+        }
+                     
+        .custom-table big-cell {
+            font-size: 1rem;
+        }
+        .custom-table .big-cell .q-btn__content {
+            font-size: 1rem;
+        }
+        </style>
+     """)
     navbar()
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         event_map = {
@@ -915,7 +970,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
         session['loading_row'].visible = False
         spinner.delete()
         with ui.row().classes('w-full justify-center'):  
-            ui.label('Rankings').style('font-size: 28px').classes('font-bold')
+            ui.label('Rankings').style('font-size: 2rem').classes('font-semibold')
         # Dropdowns row
         with ui.column().classes('w-full gap-4 flex flex-col lg:flex-row items-start justify-center'):
             # ---------------- FILTERS COLUMN ----------------
@@ -925,35 +980,35 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                     value=season,
                     label='Season',
                     on_change=lambda: refresh_table(event_map)
-                ).classes('w-fit-content font-size:lg')
+                ).classes('w-fit-content').style('font-size: 1.1rem')
 
                 session['rank_type_select'] = ui.select(
                     options=['National', 'LSC', 'Team'],
                     value=rank_type,
                     label='Rank Type',
                     on_change=lambda: refresh_table_ranksys()
-                ).classes('w-fit-content').style('font-size:15px')
+                ).classes('w-fit-content').style('font-size: 1.1rem')
 
                 session['sex_select'] = ui.select(
                     options=all_sex,
                     value='Male' if sex == 0 else 'Female',
                     label='Sex',
                     on_change=lambda: refresh_table(event_map)
-                ).classes('w-fit-content').style('font-size:15px')
+                ).classes('w-fit-content').style('font-size: 1.1rem')
 
                 session['event_select'] = ui.select(
                     options=all_events,
                     value=event if event in all_events else all_events[0],
                     label='Event',
                     on_change=lambda: refresh_table(event_map)
-                ).classes('w-fit-content').style('font-size:15px')
+                ).classes('w-fit-content').style('font-size: 1.1rem')
 
                 session['age_select'] = ui.select(
                     options=all_age_groups,
                     value=age_group if age_group in all_age_groups else all_age_groups[0],
                     label='Age Group',
                     on_change=lambda: refresh_table(event_map)
-                ).classes('w-fit-content').style('font-size:15px')
+                ).classes('w-fit-content').style('font-size: 1.1rem')
 
                 session['lsc_select'] = ui.select(
                     options=all_lscs,
@@ -963,7 +1018,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                 ).bind_visibility_from(
                     session['rank_type_select'], 'value',
                     backward=lambda v: v == 'LSC'
-                ).classes('w-fit-content').style('font-size:15px')
+                ).classes('w-fit-content').style('font-size: 1.1rem')
 
                 session['team_select'] = ui.select(
                     options=all_teams,
@@ -976,27 +1031,27 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                 ).bind_visibility_from(
                     session['rank_type_select'], 'value',
                     backward=lambda v: v == 'Team'
-                ).classes('w-fit-content').style('font-size:15px')
+                ).classes('w-fit-content').style('font-size: 1.1rem')
             with ui.row().classes('w-full flex flex-col lg:flex-row gap-2 justify-between'):
                 # ---------------- SCY TABLE ----------------
                 with ui.column().classes('w-full lg:w-2/5 items-center lg:ml-20'):
-                    ui.label("SCY Rankings").classes('font-semibold').style('font-size:20px')
+                    ui.label("SCY Rankings").classes('font-semibold').style('font-size: 1.6rem')
                     with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                         session['ranking_table_scy'] = ui.table(
                             rows=[],
                             columns=[],
                             pagination=25,
-                        ).style('font-size:18px')
+                        ).classes('custom-table')
 
                 # ---------------- LCM TABLE ----------------
                 with ui.column().classes('w-full lg:w-2/5 items-center lg:mr-20'):
-                    ui.label("LCM Rankings").classes('text-lg font-semibold').style('font-size:20px')
+                    ui.label("LCM Rankings").classes('text-lg font-semibold').style('font-size: 1.6rem')
                     with ui.element('div').classes('w-full lg:w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                         session['ranking_table_lcm'] = ui.table(
                         rows=[],
                         columns=[],
                         pagination=25
-                        ).style('font-size:18px')
+                        ).classes('custom-table')
         
         await refresh_table_ranksys()
         await show_page()
@@ -1021,6 +1076,18 @@ async def team_page(team: str):
     await ui.context.client.connected()
     session = app.storage.tab
     navbar()
+    ui.add_head_html("""
+                <style>
+                    .my-table th {
+                        font-size: 1.1rem;
+                    }
+                    .my-table .big-cell {
+                        font-size: 1.1rem;
+                    }
+                    .my-table .big-cell .q-btn__content {
+                        font-size: 1.1rem;
+                    }
+    """)
     with ui.column().classes('min-h-screen w-full flex flex-col items-center'):
         session['team_df'] = await fetch_team_swimmers(team)
 
@@ -1065,17 +1132,17 @@ async def team_page(team: str):
             ui.navigate.to(f'/swimmer/{person["PersonKey"]}')
             
         with ui.row().classes('w-full justify-center'):
-            ui.label(f'Team: {team}').classes('font-bold mb-4').style('font-size: 2em')
+            ui.label(f'Team: {team}').classes('font-semibold mb-4').style('font-size: 2rem')
         with ui.row().classes('gap-4 bg-gray-50 rounded shadow-sm items-center'):
-            ui.label('Age Group').classes('text-lg font-semibold').style('font-size: 1.3em')
+            ui.label('Age Group').classes('text-lg font-semibold').style('font-size: 1.1rem')
             session['team_age_select'] = ui.select( 
             options=list(age_groups.keys()),
             value='All',
             on_change=lambda _: update_tables(),
-            ).classes('w-fit-content').style('font-size: 1.3em')
+            ).classes('w-fit-content').style('font-size: 1.1em')
         with ui.row().classes('w-full lg:w-3/5 flex flex-col lg:flex-row gap-2 justify-center items-center'):
             with ui.column().classes('w-full lg:w-2/5 items-center'):
-                ui.label('Male').classes('font-semibold').style('font-size: 1.5em')
+                ui.label('Male').classes('font-semibold').style('font-size: 1.5rem')
                 with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                     session['team_male_table'] = ui.table(
                     columns=[
@@ -1083,10 +1150,10 @@ async def team_page(team: str):
                         {'name': 'Age', 'label': 'Age', 'field': 'Age'},
                     ],
                     rows=[],
-                    pagination=20).classes('w-full').style('font-size: 1.3em')
+                    pagination=20).classes('w-full my-table').style('font-size: 1.1rem')
             
             with ui.column().classes('w-full lg:w-2/5 items-center'):
-                ui.label('Female').classes('font-semibold').style('font-size: 1.5em')
+                ui.label('Female').classes('font-semibold').style('font-size: 1.5rem')
                 with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                     session['team_female_table'] = ui.table(
                     columns=[
@@ -1094,11 +1161,12 @@ async def team_page(team: str):
                         {'name': 'Age', 'label': 'Age', 'field': 'Age'},
                     ],
                     rows=[], 
-                    pagination=20).classes('w-full').style('font-size: 1.3em')
+                    pagination=20).classes('w-full my-table').style('font-size: 1.1rem')
         update_tables()
         session['team_female_table'].add_slot('body-cell-Name', """
             <q-td :props="props">
                 <q-btn @click="() => $parent.$emit('person_selected', props.row)" 
+                        class="big-cell"
                         :label="props.row.Name" 
                         flat dense color='primary'/>
             </q-td>
@@ -1107,7 +1175,8 @@ async def team_page(team: str):
 
         session['team_male_table'].add_slot('body-cell-Name', """
             <q-td :props="props">
-                <q-btn @click="() => $parent.$emit('person_selected', props.row)" 
+                <q-btn @click="() => $parent.$emit('person_selected', props.row)"
+                        class="big-cell" 
                         :label="props.row.Name" 
                         flat dense color='primary'/>
             </q-td>
@@ -1124,7 +1193,7 @@ async def aboutme_page():
         
         with ui.row().classes('w-full justify-center flex-1'):
             with ui.column().classes('w-full lg:w-3/5 items-center text-center'):
-                ui.label('About Me').style('font-size: 2em')
+                ui.label('About Me').style('font-size: 2rem')
 
                 ui.label(
                     "I am a college student and a competitive swimmer. During my swimming career, I used the swimmingrank.com website frequently to check my rankings"
@@ -1132,20 +1201,20 @@ async def aboutme_page():
                     " clean design of that website. However, with that website no longer available, I decided to create SwimmingRank.org to fill that gap and provide "
                     "swimmers with a similar resource to track their rankings and progressions over years. My website allows for the search of a particular swimmer, "
                     "provides a comprehensive review of  the meets that swimmer has attended and historical times in any particular event, and tabulates the rankings "
-                    "across teams/state/national levels.").style('font-size: 1.3em')
+                    "across teams/state/national levels.").style('font-size: 1.1rem')
 
                 
                 with ui.row().classes('items-center justify-center gap-1'):
-                    ui.label("I will keep improving this website such that it provides the data and information that the swimming community needs. Any ").style('font-size: 1.3em')
-                    ui.label("comments and suggestion will be greatly appreciated.").style('font-size: 1.3em')
-                    ui.label("Please email me at:").style('font-size: 1.3em')
-                    ui.link('support@swimmingrank.org', 'mailto:support@swimmingrank.org').classes('text-blue-600 hover:underline').style('font-size: 1.3em')
+                    ui.label("I will keep improving this website such that it provides the data and information that the swimming community needs. Any ").style('font-size: 1.1rem')
+                    ui.label("comments and suggestion will be greatly appreciated.").style('font-size: 1.1rem')
+                    ui.label("Please email me at:").style('font-size: 1.1rem')
+                    ui.link('support@swimmingrank.org', 'mailto:support@swimmingrank.org').classes('text-blue-600 hover:underline').style('font-size: 1.1rem')
                 
                 with ui.row().classes('items-center justify-center gap-1'):
-                    ui.label("Finally, it does cost money to host the database and run the website, so if you would like to support the site please consider").style('font-size: 1.3em')
-                    ui.label("donating via the").style('font-size: 1.3em') 
-                    ui.link("Donate page", '/donate').classes('text-blue-600 hover:underline').style('font-size: 1.3em')
-                    ui.label("Thank you!").style('font-size: 1.3em')
+                    ui.label("Finally, it does cost money to host the database and run the website, so if you would like to support the site please consider").style('font-size: 1.1rem')
+                    ui.label("donating via the").style('font-size: 1.1rem') 
+                    ui.link("Donate page", '/donate').classes('text-blue-600 hover:underline').style('font-size: 1.1rem')
+                    ui.label("Thank you!").style('font-size: 1.1rem')
     footer()
 
 @ui.page('/privacy')
@@ -1155,12 +1224,12 @@ async def privacypolicy_page():
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         with ui.row().classes('w-full flex-1 justify-center items-start'):
             with ui.column().classes('w-full lg:w-3/5 items-center text-center'):
-                ui.label('Privacy Policy').style('font-size: 2em')
+                ui.label('Privacy Policy').style('font-size: 2rem')
                 ui.label("""SwimmingRank.org is designed to be as privacy friendly as possible. I do not track, collect, or store any of your activities on the site, nor do I use any third-party trackers or ads.
                          All of the data available on this website is publicly available via USA Swimming. I update this website weekly with the previous week's results.
                          Only meets registered with USA Swimming will be included in the rankings and results, so regular high school dual meets or college
                          meets may not be included.""").style('font-size: 18px')
-                ui.label("""Last updated: December 29th, 2025""").style('font-size: 1.3em')
+                ui.label("""Last updated: December 29th, 2025""").style('font-size: 1.1rem')
             """with ui.column().classes('w-3/5 items-center text-center'):
                 ui.label('FAQ').style('font-size: 28px')
             with ui.column().classes('w-3/5'):
@@ -1187,9 +1256,9 @@ def donate_page():
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         with ui.row().classes('w-full justify-center flex-1 items-center'):
             with ui.column().classes('w-full lg:w-3/5 items-center text-center'):
-                ui.label('Support This Website').style('font-size: 2em')
+                ui.label('Support This Website').style('font-size: 2rem')
 
-                ui.label('Donate securely using Zelle through your bank app.').classes('text-center text-lg font-semibold').style('font-size: 1.3em')
+                ui.label('Donate securely using Zelle through your bank app.').classes('text-center text-lg font-semibold').style('font-size: 1.1rem')
                 ui.image('static/zelle_qr.png').classes('w-48 h-48')
     footer()
 
@@ -1222,26 +1291,26 @@ def feedback_page():
     navbar()
     with ui.column().classes('min-h-screen w-full flex flex-row'):
         with ui.column().classes('w-full max-w-xl mx-auto p-6 gap-4 bg-white rounded-lg shadow-md items-center'):
-            ui.label('Feedback').classes('font-bold text-center').classes('font-size: 2em')
-            ui.label('Have a bug, suggestion, or question? Send it below.').classes('text-gray-600 text-center').style('font-size: 1.3em')
+            ui.label('Feedback').classes('font-bold text-center').classes('font-size: 2rem')
+            ui.label('Have a bug, suggestion, or question? Send it below.').classes('text-gray-600 text-center').style('font-size: 1.1rem')
 
             email_input = ui.input(
                 label='Your Email (Optional)',
                 placeholder='youremail@example.com'
-            ).classes('w-full').props('type=email outlined').style('font-size: 1.3em')
+            ).classes('w-full').props('type=email outlined').style('font-size: 1.1rem')
 
             category = ui.select(
                 ['Bug', 'Feature Request', 'General Feedback'],
                 value='General Feedback',
                 label='Category'
-            ).classes('w-full').style('font-size: 1.3em')
+            ).classes('w-full').style('font-size: 1.1rem')
 
             feedback = ui.textarea(
                 label='Message',
                 placeholder='Type your feedback here...',
-            ).classes('w-full').props('outlined').style('font-size: 1.3em')
+            ).classes('w-full').props('outlined').style('font-size: 1.1rem')
 
-            status = ui.label().classes('text-center').style('font-size: 1.3em')
+            status = ui.label().classes('text-center').style('font-size: 1.1rem')
 
             def submit():
                 if not feedback.value.strip():
@@ -1263,7 +1332,7 @@ def feedback_page():
                     status.set_text('Error sending feedback. Please try again later.')
                     status.classes(add='text-red-600', remove='text-green-600')
 
-            ui.button('Send Feedback', on_click=submit).classes('w-full bg-blue-600 text-white').style('font-size: 1.3em')
+            ui.button('Send Feedback', on_click=submit).classes('w-full bg-blue-600 text-white').style('font-size: 1.1rem')
 
     footer()
 
