@@ -255,7 +255,6 @@ async def fetch_ranking_data(table1, table2, age_group, sex, season):
     pool = await get_global_pool()
     async with pool.acquire() as con:
         rows = await con.fetch(query)
-        print(rows)
     return rows
 
 async def fetch_ncaa_comp_data(time, gender, event):
@@ -811,6 +810,10 @@ async def update_page():
         'LSC': 'lsc_rank',
         'Team': 'team_rank'
     }
+    if session['rank_type_select'].value == 'LSC' and session['lsc_select'].value == None:
+        return
+    if session['rank_type_select'].value == 'Team' and session['team_select'].value == None:
+        return
     rank_col = rank_map[session['rank_type_select'].value]
 
     columns = [
@@ -872,14 +875,14 @@ async def refresh_table_ranksys():
     session['loading_row'].visible = True
     session['spinner'].visible = True
     if rt == 'LSC' and ls:
-        session['current_scy_rank_selection'] = session['scy_ranking_data'][session['scy_ranking_data']['LSC'] == ls].drop(columns=['national_rank', 'team_rank'])
-        session['current_lcm_rank_selection'] = session['lcm_ranking_data'][session['lcm_ranking_data']['LSC'] == ls].drop(columns=['national_rank', 'team_rank'])
+        session['current_scy_rank_selection'] = session['scy_ranking_data'][session['scy_ranking_data']['LSC'] == ls]
+        session['current_lcm_rank_selection'] = session['lcm_ranking_data'][session['lcm_ranking_data']['LSC'] == ls]
     elif rt == 'Team' and cl:
-        session['current_scy_rank_selection'] = session['scy_ranking_data'][session['scy_ranking_data']['Team'] == cl].drop(columns=['national_rank', 'lsc_rank'])
-        session['current_lcm_rank_selection'] = session['lcm_ranking_data'][session['lcm_ranking_data']['Team'] == cl].drop(columns=['national_rank', 'lsc_rank'])
+        session['current_scy_rank_selection'] = session['scy_ranking_data'][session['scy_ranking_data']['Team'] == cl]
+        session['current_lcm_rank_selection'] = session['lcm_ranking_data'][session['lcm_ranking_data']['Team'] == cl]
     else:
-        session['current_scy_rank_selection'] = session['scy_ranking_data'].drop(columns=['lsc_rank', 'team_rank'])
-        session['current_lcm_rank_selection'] = session['lcm_ranking_data'].drop(columns=['lsc_rank', 'team_rank'])
+        session['current_scy_rank_selection'] = session['scy_ranking_data']
+        session['current_lcm_rank_selection'] = session['lcm_ranking_data']
     await update_page()
     session['loading_row'].visible = False
     session['spinner'].visible = False
