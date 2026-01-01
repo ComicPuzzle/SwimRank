@@ -43,29 +43,6 @@ def create_indexes(cur, table):
         table=sql.Identifier(table)
     ))
 
-    # LSC RANK
-    cur.execute(sql.SQL("""
-        CREATE INDEX {idx}
-        ON {schema}.{table}
-        ("AgeGroup", "Sex", "SwimDate", "LSC", "lsc_rank")
-        WHERE "lsc_rank" != -1;
-    """).format(
-        idx=sql.Identifier(f"{table}_lsc_rank_idx"),
-        schema=sql.Identifier(SCHEMA),
-        table=sql.Identifier(table)
-    ))
-
-    # TEAM RANK
-    cur.execute(sql.SQL("""
-        CREATE INDEX {idx}
-        ON {schema}.{table}
-        ("AgeGroup", "Sex", "SwimDate", "Team", "team_rank")
-        WHERE "team_rank" != -1;
-    """).format(
-        idx=sql.Identifier(f"{table}_team_rank_idx"),
-        schema=sql.Identifier(SCHEMA),
-        table=sql.Identifier(table)
-    ))
     print(f"Created optimized indexes for {table}")
 
 if __name__ == "__main__":
