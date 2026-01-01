@@ -60,14 +60,14 @@ def navbar():
         with ui.header(elevated=True).classes('''w-full justify-center bg-gray-100 text-gray-800 px-4 border-b border-gray-200 z-50 '''):
             with ui.element('div').classes('w-0 p-0 m-0'):
                 menu_btn = ui.button(icon='menu').props('flat round').classes('text-gray-700 relative right-1/2 translate-x-1/2')
-            ui.label('SwimmingRank').classes('font-semibold mx-auto').style('font-size: 2em')
+            ui.label('SwimmingRank').classes('font-semibold mx-auto text-[#5898d4]').style('font-size: 2em')
         # ---------- MOBILE FULLSCREEN HEADER ----------
         with ui.dialog(value=False).props('maximized no-backdrop') as mobile_menu:
             with ui.column().classes('h-screen w-full p-6 gap-4 bg-white'):
                 # Top bar
                 with ui.row().classes('w-full relative items-center'):
                     # CENTERED TITLE (true center)
-                    ui.label('Pages').classes('absolute left-1/2 -translate-x-1/2 font-semibold').classes('font-size: 1.1em')
+                    ui.label('Pages').classes('absolute left-1/2 -translate-x-1/2 font-semibold').style('font-size: 1.3rem')
 
                     # RIGHT: minimize button
                     ui.button(icon='remove', on_click=mobile_menu.close).props('flat round').classes('ml-auto')
@@ -76,27 +76,27 @@ def navbar():
                 # Navigation buttons
                 for path, label in PAGE_TITLES.items():
                     ui.button(label, on_click=lambda p=path: (mobile_menu.close(), ui.navigate.to(p))).props('flat').classes(
-                        'w-full justify-start px-4 py-3 rounded-lg hover:bg-gray-200').classes('font-size: 1.1em')
+                        'w-full justify-start px-4 py-3 rounded-lg hover:bg-gray-200').style('font-size: 1.2em')
         menu_btn.on_click(mobile_menu.open)
     else:
-        bg_color = 'bg-gray-200/70'
-        with ui.row().classes(
-            f'w-full {bg_color} py-3 px-4 '
-            'flex-col md:flex-row '
-            'items-center justify-center gap-3 shadow-sm'
-        ):
-            with ui.row().classes('gap-3 flex-wrap justify-center'):
-                for label, path in [
-                    ('Home', '/'),
-                    ('Rankings', '/rankings'),
-                    ('Discussion', '/discussion'),
-                    ('About Me', '/aboutme'),
-                    ('Privacy Policy', '/privacy'),
-                    ('Feedback', '/feedback'),
-                ]:
-                    ui.button(label, on_click=lambda p=path: ui.navigate.to(p)) \
-                        .props('flat dense') \
-                        .classes('font-semibold px-3 py-1').style('font-size: 1.3rem')
+        with ui.header(elevated=True, fixed=False).classes('''w-full justify-center bg-gray-100 text-gray-800 px-4 border-b border-gray-200 z-50 '''):
+            ui.add_head_html("""
+                <style>
+                    .q-tab__label {
+                        font-size: 1.2rem;
+                    }
+                </style>
+            """)
+            with ui.tabs().classes('justify-center') as tabs:
+                ui.tab('Home').on('click', lambda: ui.navigate.to('/'))
+                ui.tab('Rankings').on('click', lambda: ui.navigate.to('/rankings'))
+                ui.tab('Discussion').on('click', lambda: ui.navigate.to('/discussion'))
+                ui.tab('About Me').on('click', lambda: ui.navigate.to('/aboutme'))
+                ui.tab('Privacy Policy').on('click', lambda: ui.navigate.to('/privacy'))
+                ui.tab('Feedback').on('click', lambda: ui.navigate.to('/feedback'))
+
+            # Styling for all tabs
+            tabs.props('dense').classes('font-bold text-[#5898d4]')
 
 
 async def get_global_pool():
@@ -119,7 +119,7 @@ def get_current_season():
     if session['current_month'] >= 9:
         session['current_season'] = f"{'9/01/' + str(session['current_year']) + ' - 8/31/' + str(session['current_year'] + 1)}"
     else:
-        session['current_season'] = f"{'9/01' + str(session['current_year'] - 1) + ' - 8/31/' + str(session['current_year'])}"
+        session['current_season'] = f"{'9/01/' + str(session['current_year'] - 1) + ' - 8/31/' + str(session['current_year'])}"
     return session['current_season']
 @app.on_shutdown
 async def shutdown():
@@ -733,6 +733,7 @@ async def main_page():
                     .my-table .big-cell .q-btn__content {
                         font-size: 1rem;
                     }
+                </style>
             """)
             ui.label('Swimmer Search').style('font-size: 1.8rem')
             ui.label('This website provides up-to-date swimming results and rankings data for competitive swimmers in the United States').style('font-size: 1.1rem;')
@@ -750,10 +751,8 @@ async def main_page():
 
 
 async def show_page():
-    PAGE_SIZE = 50
     await ui.context.client.connected()
     session = app.storage.tab
-
     rank_map = {
         'National': 'national_rank',
         'LSC': 'lsc_rank',
@@ -804,12 +803,21 @@ async def show_page():
     session['ranking_table_scy'].on('person_selected', on_person_selected)
     session['ranking_table_lcm'].on('person_selected', on_person_selected)
 
+async def update_page():
+    session = app.storage.tab
+    session['loading_row'].visible = False
+    session['ranking_table_scy'].rows = session['current_scy_rank_selection'].to_dict('records')
+
+    session['ranking_table_lcm'].rows = session['current_lcm_rank_selection'].to_dict('records')
+
+    session['ranking_table_scy'].visible = not session['current_scy_rank_selection'].empty
+    session['ranking_table_lcm'].visible = not session['current_lcm_rank_selection'].empty
+
 async def refresh_table(event_map):
     await ui.context.client.connected()
     session = app.storage.tab
     session['loading_row'].visible = True
-    with session['loading_row']:
-        spinner = ui.spinner(size='lg')
+    session['spinner'].visible = True
     sex = 0 if session['sex_select'].value == 'Male' else 1
     ev = session['event_select'].value
     ag = session['age_select'].value
@@ -829,14 +837,14 @@ async def refresh_table(event_map):
         session['current_scy_rank_selection'] = session['scy_ranking_data'][session['scy_ranking_data']['LSC'] == ls].drop(columns=['national_rank', 'team_rank'])
         session['current_lcm_rank_selection'] = session['lcm_ranking_data'][session['lcm_ranking_data']['LSC'] == ls].drop(columns=['national_rank', 'team_rank'])
     elif rt == 'Team' and cl:
-        session['current_scy_rank_selection'] = session['scy_ranking_data'][session['scy_ranking_data']['Team'] == ls].drop(columns=['national_rank', 'lsc_rank'])
-        session['current_lcm_rank_selection'] = session['lcm_ranking_data'][session['lcm_ranking_data']['Team'] == ls].drop(columns=['national_rank', 'lsc_rank'])
+        session['current_scy_rank_selection'] = session['scy_ranking_data'][session['scy_ranking_data']['Team'] == cl].drop(columns=['national_rank', 'lsc_rank'])
+        session['current_lcm_rank_selection'] = session['lcm_ranking_data'][session['lcm_ranking_data']['Team'] == cl].drop(columns=['national_rank', 'lsc_rank'])
     else:
         session['current_scy_rank_selection'] = session['scy_ranking_data'].drop(columns=['lsc_rank', 'team_rank'])
         session['current_lcm_rank_selection'] = session['lcm_ranking_data'].drop(columns=['lsc_rank', 'team_rank'])
-    spinner.delete()
+    await update_page()
     session['loading_row'].visible = False
-    await show_page()
+    session['spinner'].visible = False
 
 async def refresh_table_ranksys():
     await ui.context.client.connected()
@@ -845,8 +853,7 @@ async def refresh_table_ranksys():
     ls = session['lsc_select'].value
     cl = session['team_select'].value
     session['loading_row'].visible = True
-    with session['loading_row']:
-        spinner = ui.spinner(size='lg')
+    session['spinner'].visible = True
     if rt == 'LSC' and ls:
         session['current_scy_rank_selection'] = session['scy_ranking_data'][session['scy_ranking_data']['LSC'] == ls].drop(columns=['national_rank', 'team_rank'])
         session['current_lcm_rank_selection'] = session['lcm_ranking_data'][session['lcm_ranking_data']['LSC'] == ls].drop(columns=['national_rank', 'team_rank'])
@@ -856,9 +863,9 @@ async def refresh_table_ranksys():
     else:
         session['current_scy_rank_selection'] = session['scy_ranking_data'].drop(columns=['lsc_rank', 'team_rank'])
         session['current_lcm_rank_selection'] = session['lcm_ranking_data'].drop(columns=['lsc_rank', 'team_rank'])
-    spinner.delete()
+    await update_page()
     session['loading_row'].visible = False
-    await show_page()
+    session['spinner'].visible = False
 
 @ui.page('/rankings')
 async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_group = '13-14', lsc = '', team = '', sex: int = 0):
@@ -922,7 +929,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
         
         session['loading_row'] = ui.row().classes('w-full justify-center mt-20 mb-5')
         with session['loading_row']:
-            spinner = ui.spinner(size='lg')
+            session['spinner'] = ui.spinner(size='lg')
         
         scy_table, lcm_table = event_map[event]
         season = get_current_season()
@@ -947,15 +954,13 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
         start_year = int(start_year)
         end_year = int(end_year)
         all_seasons = [f"{start_month_day}/{start_year - i} - {end_month_day}/{end_year - i}" for i in range(10)]
-        session['loading_row'].visible = False
-        spinner.delete()
         with ui.row().classes('w-full justify-center'):  
             ui.label('Rankings').style('font-size: 2rem').classes('font-semibold')
         # Dropdowns row
         SELECT_CLASSES = 'w-full sm:min-w-[200px] sm:w-auto'
         with ui.column().classes('w-full gap-4 flex flex-col lg:flex-row items-start justify-center'):
             # ---------------- FILTERS COLUMN ----------------
-            with ui.row().classes('w-full p-4 gap-4 bg-gray-50 rounded shadow-sm justify-center items-center'):
+            with ui.row().classes('w-full lg:w-fit p-4 gap-4 bg-gray-100 rounded shadow-sm justify-center items-center'):
                 session['season_select'] = ui.select(
                     options=all_seasons,
                     value=season,
@@ -1013,9 +1018,9 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                     session['rank_type_select'], 'value',
                     backward=lambda v: v == 'Team'
                 ).classes(SELECT_CLASSES).style('font-size: 1.1rem')
-            with ui.row().classes('w-full flex flex-col lg:flex-row gap-2 justify-between'):
+            with ui.row().classes('w-full flex flex-col lg:flex-row gap-2 justify-between lg:justify-center'):
                 # ---------------- SCY TABLE ----------------
-                with ui.column().classes('w-full lg:w-2/5 items-center lg:ml-20'):
+                with ui.column().classes('w-full md:w-full lg:w-2/5 items-center lg:ml-20'):
                     ui.label("SCY Rankings").classes('font-semibold').style('font-size: 1.6rem')
                     with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                         session['ranking_table_scy'] = ui.table(
@@ -1025,9 +1030,9 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                         ).classes('custom-table')
 
                 # ---------------- LCM TABLE ----------------
-                with ui.column().classes('w-full lg:w-2/5 items-center lg:mr-20'):
-                    ui.label("LCM Rankings").classes('text-lg font-semibold').style('font-size: 1.6rem')
-                    with ui.element('div').classes('w-full lg:w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+                with ui.column().classes('w-full  md:w-full lg:w-2/5 items-center lg:mr-20'):
+                    ui.label("LCM Rankings").classes('font-semibold').style('font-size: 1.6rem')
+                    with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                         session['ranking_table_lcm'] = ui.table(
                         rows=[],
                         columns=[],
@@ -1121,7 +1126,7 @@ async def team_page(team: str):
             value='All',
             on_change=lambda _: update_tables(),
             ).classes('w-fit-content').style('font-size: 1.1em')
-        with ui.row().classes('w-full lg:w-3/5 flex flex-col lg:flex-row gap-2 justify-center items-center'):
+        with ui.row().classes('w-full lg:w-3/5 flex flex-col md:flex-col lg:flex-row gap-2 justify-center items-center'):
             with ui.column().classes('w-full lg:w-2/5 items-center'):
                 ui.label('Male').classes('font-semibold').style('font-size: 1.5rem')
                 with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
