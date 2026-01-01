@@ -255,6 +255,7 @@ async def fetch_ranking_data(table1, table2, age_group, sex, season):
     pool = await get_global_pool()
     async with pool.acquire() as con:
         rows = await con.fetch(query)
+        print(rows)
     return rows
 
 async def fetch_ncaa_comp_data(time, gender, event):
@@ -805,11 +806,27 @@ async def show_page():
 
 async def update_page():
     session = app.storage.tab
-    session['loading_row'].visible = False
+    rank_map = {
+        'National': 'national_rank',
+        'LSC': 'lsc_rank',
+        'Team': 'team_rank'
+    }
+    rank_col = rank_map[session['rank_type_select'].value]
+
+    columns = [
+        {'name': 'Name', 'label': 'Name', 'field': 'Name'},
+        {'name': 'LSC', 'label': 'LSC', 'field': 'LSC'},
+        {'name': 'Team', 'label': 'Team', 'field': 'Team'},
+        {'name': 'SwimTime', 'label': 'Time', 'field': 'SwimTime'},
+        {'name': rank_col, 'label': 'Rank', 'field': rank_col},
+    ]
+
+    session['ranking_table_scy'].columns = columns
     session['ranking_table_scy'].rows = session['current_scy_rank_selection'].to_dict('records')
-
+    
+    session['ranking_table_lcm'].columns = columns
     session['ranking_table_lcm'].rows = session['current_lcm_rank_selection'].to_dict('records')
-
+    
     session['ranking_table_scy'].visible = not session['current_scy_rank_selection'].empty
     session['ranking_table_lcm'].visible = not session['current_lcm_rank_selection'].empty
 
