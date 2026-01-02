@@ -54,12 +54,10 @@ def navbar():
     ''')
 
     ui.on('resize', lambda e: get_dim(e))
-    current_path = ui.context.client.page.path
-    
     if WIDTH < 640:
         with ui.header(elevated=True).classes('''w-full justify-center bg-gray-100 text-gray-800 px-4 border-b border-gray-200 z-50 '''):
             with ui.element('div').classes('w-0 p-0 m-0'):
-                menu_btn = ui.button(icon='menu').props('flat round').classes('text-gray-700 relative right-1/2 translate-x-1/2')
+                menu_btn = ui.button(icon='menu').props('flat round').classes('text-gray-700 absolute left-1/12')
             ui.label('SwimmingRank').classes('font-semibold mx-auto text-[#5898d4]').style('font-size: 2em')
         # ---------- MOBILE FULLSCREEN HEADER ----------
         with ui.dialog(value=False).props('maximized no-backdrop') as mobile_menu:
