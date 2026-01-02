@@ -1195,10 +1195,10 @@ async def aboutme_page():
     navbar()
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         
-        with ui.row().classes('w-full justify-center flex-1'):
-            with ui.column().classes('w-full lg:w-3/5 items-center text-center'):
+        with ui.row().classes('w-full justify-center'):
+            with ui.row().classes('w-full lg:w-3/5 justify-center'):
                 ui.label('About Me').style('font-size: 2rem')
-
+            with ui.column().classes('w-full lg:w-3/5 items-start'):
                 ui.label(
                     "I am a college student and a competitive swimmer. During my swimming career, I used the swimmingrank.com website frequently to check my rankings"
                     " and see how I compared to other swimmers in my age group and events. Like many of my fellow swimmers, I liked the comprehensive information and"
@@ -1208,9 +1208,9 @@ async def aboutme_page():
                     "across teams/state/national levels.").style('font-size: 1.1rem')
 
                 
-                with ui.row().classes('items-center justify-center gap-1'):
+                with ui.row().classes('items-start gap-1'):
                     ui.html('''
-                        <p style="font-size:1.1rem; text-align:center; max-width: 900px; margin: 0 auto;">
+                        <p style="font-size:1.1rem; margin: 0 auto;">
                             I will keep improving this website such that it provides the data and information that the
                             swimming community needs. Any comments and suggestions will be greatly appreciated.
                             You can email me directly at
@@ -1223,9 +1223,9 @@ async def aboutme_page():
                             </a>.
                         </p>
                         ''')
-                with ui.row().classes('items-center justify-center gap-1'):
+                with ui.row().classes('items-start gap-1'):
                     ui.html('''
-                        <p style="font-size:1.1rem; text-align:center;">
+                        <p style="font-size:1.1rem;">
                             Finally, it does cost money to run the website and database, so if you would like to
                             support the site please consider donating via the
                             <a href="/donate" class="text-blue-600 hover:underline">Donate page</a>.
@@ -1239,9 +1239,10 @@ async def privacypolicy_page():
     await ui.context.client.connected()
     navbar()
     with ui.column().classes('min-h-screen w-full flex flex-col'):
-        with ui.row().classes('w-full flex-1 justify-center items-start'):
-            with ui.column().classes('w-full lg:w-3/5 items-center text-center'):
+        with ui.row().classes('w-full justify-center items-start'):
+            with ui.row().classes('w-full lg:w-3/5 justify-center'):
                 ui.label('Privacy Policy').style('font-size: 2rem')
+            with ui.column().classes('w-full lg:w-3/5 items-start text-start'):
                 ui.label("""SwimmingRank.org is designed to be as privacy friendly as possible. I do not track, collect, or store any of your activities on the site, nor do I use any third-party trackers or ads.
                          All of the data available on this website is publicly available via USA Swimming. I update this website weekly with the previous week's results.
                          Only meets registered with USA Swimming will be included in the rankings and results, so regular high school dual meets or college
