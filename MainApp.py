@@ -35,11 +35,8 @@ PAGE_TITLES = {
 WIDTH = 0
 HEIGHT = 0
 
-def navbar():
-    def get_dim(event):
-        global WIDTH, HEIGHT
-        WIDTH = event.args['width']
-        HEIGHT = event.args['height']
+async def navbar():
+    global WIDTH, HEIGHT
     ui.add_head_html('''
         <script>
         function emitSize() {
@@ -52,8 +49,20 @@ def navbar():
         window.onresize = emitSize;
         </script>
     ''')
-
+    size = await ui.run_javascript('''
+        return {
+            width: window.innerWidth,
+            height: window.innerHeight
+        }
+    ''')
+    WIDTH = size['width']
+    HEIGHT = size['height']
     ui.on('resize', lambda e: get_dim(e))
+    ui.on('reload', lambda e: get_dim(e))
+    def get_dim(event=None):
+        global WIDTH, HEIGHT
+        WIDTH = event.args['width']
+        HEIGHT = event.args['height']
     if WIDTH < 640:
         with ui.header(elevated=True).classes('''w-full justify-center bg-gray-100 text-gray-800 px-4 border-b border-gray-200 z-50 '''):
             with ui.element('div').classes('w-0 p-0 m-0'):
@@ -95,6 +104,7 @@ def navbar():
 
             # Styling for all tabs
             tabs.props('dense').classes('font-bold text-[#5898d4]')
+
 
 
 async def get_global_pool():
@@ -599,7 +609,7 @@ async def graph_page(person_key: str):
     except:
         team = session['person']['Team']
     sex = session['person']['Sex']
-    navbar() 
+    await navbar() 
     ui.add_head_html("""
         <style>
         :root {
@@ -710,7 +720,7 @@ async def main_page():
     await ui.context.client.connected()
     session = app.storage.tab
     session['id_table_df'] = []
-    navbar()
+    await navbar()
     with ui.column().classes('min-h-screen w-full flex flex-col items-center'):
         session['main_page_column'] = ui.column().classes('w-full flex-1 items-center')
 
@@ -923,7 +933,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
         }
         </style>
      """)
-    navbar()
+    await navbar()
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         event_map = {
             '50 FR SCY'   : ("50_FR_SCY_results",   "50_FR_LCM_results"), '50 FR LCM'   : ("50_FR_SCY_results",   "50_FR_LCM_results"),
@@ -1063,7 +1073,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
 
 @ui.page('/discussion')
 async def discussion_page():
-    navbar()
+    await navbar()
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         with ui.column().classes('w-full flex-1 items-center py-10 px-6 gap-4'):
             ui.label('Discussion Forum').classes('text-3xl font-bold')
@@ -1079,7 +1089,7 @@ async def discussion_page():
 async def team_page(team: str):
     await ui.context.client.connected()
     session = app.storage.tab
-    navbar()
+    await navbar()
     ui.add_head_html("""
                 <style>
                     .my-table th {
@@ -1192,7 +1202,7 @@ async def team_page(team: str):
 async def aboutme_page():
     await ui.context.client.connected()
     session = app.storage.tab
-    navbar()
+    await navbar()
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         
         with ui.row().classes('w-full justify-center'):
@@ -1237,7 +1247,7 @@ async def aboutme_page():
 @ui.page('/privacy')
 async def privacypolicy_page():
     await ui.context.client.connected()
-    navbar()
+    await navbar()
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         with ui.row().classes('w-full justify-center items-start'):
             with ui.row().classes('w-full lg:w-3/5 justify-center'):
@@ -1269,10 +1279,11 @@ def make_qr(data: str):
         return buf
 
 @ui.page('/donate')
-def donate_page():
-    navbar()
+async def donate_page():
+    await ui.context.client.connected()
+    await navbar()
     with ui.column().classes('min-h-screen w-full flex flex-col'):
-        with ui.row().classes('w-full justify-center flex-1 items-center'):
+        with ui.row().classes('w-full justify-center items-center'):
             with ui.column().classes('w-full lg:w-3/5 items-center text-center'):
                 ui.label('Support This Website').style('font-size: 2rem')
 
@@ -1305,8 +1316,9 @@ def send_feedback_email(message: str, user_email: str, category: str):
         server.send_message(email)
 
 @ui.page('/feedback')
-def feedback_page():
-    navbar()
+async def feedback_page():
+    await ui.context.client.connected()
+    await navbar()
     with ui.column().classes('min-h-screen w-full flex flex-row'):
         with ui.column().classes('w-full max-w-xl mx-auto p-6 gap-4 bg-white rounded-lg shadow-md items-center'):
             ui.label('Feedback').classes('font-bold text-center').style('font-size: 1.6rem')
