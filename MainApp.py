@@ -22,7 +22,7 @@ pd.set_option('display.width', None)
 def footer():
     bg_color = 'bg-gray-200/70'
     with ui.footer(fixed=False).classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
-        ui.label('© SwimmingRank.org 2025-2025. All rights reserved.').classes('text-gray-600').style('font-size: 15px')
+        ui.label('© SwimmingRank.org 2025-2026. All rights reserved.').classes('text-gray-600').style('font-size: 15px')
 PAGE_TITLES = {
     '/': 'Swimmer Search',
     '/rankings': 'Rankings',
@@ -208,6 +208,7 @@ async def fetch_people(name):
         rows = await con.fetch(query, name[0], name[1])
 
     session['id_table_df'] = pd.DataFrame(rows, columns=['FirstName', 'MiddleName', 'LastName', 'Team', 'LSC', 'Age', 'Sex', 'PersonKey'])
+    session['id_table_df'] = session['id_table_df'].rename(columns={'Sex': 'Gender'})
     session['id_table_df'].insert(loc=0, column='Name', value='')
     session['id_table_df']['Name'] = (session['id_table_df'][['FirstName', 'MiddleName', 'LastName']]
                                             .fillna('')                 # replace None/NaN with empty string
@@ -309,7 +310,7 @@ async def collect_all_event_data(person_key):
 async def update_id_table():
     await ui.context.client.connected()
     session = app.storage.tab
-    session['id_table'].columns = [{'name': col, 'label': col, 'field': col} for col in ['Name', 'Team', 'LSC', 'Age', 'Sex']]
+    session['id_table'].columns = [{'name': col, 'label': col, 'field': col} for col in ['Name', 'Team', 'LSC', 'Age', 'Gender']]
     temp = session['id_table_df'].copy()
     def alter_sex(x):
         if x == 0:
@@ -318,7 +319,7 @@ async def update_id_table():
             return "Female"
         else:
             return "None"
-    temp['Sex'] = temp['Sex'].apply(lambda x: alter_sex(x))
+    temp['Gender'] = temp['Gender'].apply(lambda x: alter_sex(x))
     session['id_table'].rows = temp.to_dict('records')
 
     session['id_table'].add_slot('body', r'''
@@ -335,7 +336,7 @@ async def update_id_table():
         <q-td key="Team" class="big-cell">{{ props.row.Team }}</q-td>
         <q-td key="LSC" class="big-cell">{{ props.row.LSC }}</q-td>
         <q-td key="Age" class="big-cell">{{ props.row.Age }}</q-td>
-        <q-td key="Sex" class="big-cell">{{ props.row.Sex }}</q-td>
+        <q-td key="Gender" class="big-cell">{{ props.row.Gender }}</q-td>
         </q-tr>
     ''')
     session['id_table'].update()
@@ -454,7 +455,7 @@ async def update_upcoming_meets_table():
 
 async def update_ncaa_comparison_table(event):
     session = app.storage.tab
-    session['ncaa_comparisons'] = await fetch_ncaa_comp_data(str_to_timedelta(session['current_event_besttime'].strip('r')).total_seconds(), session['person']['Sex'], event)
+    session['ncaa_comparisons'] = await fetch_ncaa_comp_data(str_to_timedelta(session['current_event_besttime'].strip('r')).total_seconds(), session['person']['Gender'], event)
     session['ncaa_comparisons'] = ["{:.2f}".format(r['pct_faster']) + "%" for r in session['ncaa_comparisons']]
     session['ncaa_comparison_table'].columns = [{'name': col, 'label': col, 'field': col} for col in ["BestTime", "Division I", "Division II", "Division III"]]
     session['ncaa_comparison_table'].rows = [{'BestTime': session['current_event_besttime'].strip('r'), 'Division I' : session['ncaa_comparisons'][0], 'Division II' : session['ncaa_comparisons'][1], 'Division III' : session['ncaa_comparisons'][2]}]
@@ -527,7 +528,7 @@ async def update_season_rankings_table():
     def open_rank_page(msg):
         rank_type = msg.args['type']
         row = msg.args['row']
-        ui.navigate.to(f"/rankings?rank_type={rank_type}&event={row['Event']}&age_group={row['AgeGroup']}&lsc={row['LSC']}&team={row['Team']}&sex={int(row['Sex'])}&season={session['current_season']}")
+        ui.navigate.to(f"/rankings?rank_type={rank_type}&event={row['Event']}&age_group={row['AgeGroup']}&lsc={row['LSC']}&team={row['Team']}&sex={int(row['Gender'])}&season={session['current_season']}")
     session['season_rankings_table'].on('open_rank_page', open_rank_page)
     session['season_rankings_table'].rows = []
 
@@ -611,7 +612,7 @@ async def graph_page(person_key: str):
         team = session['person']['Team']
     except:
         team = session['person']['Team']
-    sex = session['person']['Sex']
+    sex = session['person']['Gender']
     await navbar() 
     ui.add_head_html("""
         <style>
@@ -648,6 +649,7 @@ async def graph_page(person_key: str):
     session['all_event_data_df']["SwimTime"] = session['all_event_data_df'].apply(lambda row: convert_timedelta(row['SwimTime']) + "r" if row['Relay'] == 1 else convert_timedelta(row['SwimTime']), axis=1)
     session['all_event_data_df']["SwimDate"] = session['all_event_data_df']["SwimDate"].apply(lambda x: x.strftime('%m/%d/%Y'))
     session['all_event_data_df'].drop('Relay', axis=1, inplace=True)
+    session['all_event_data_df'] = session['all_event_data_df'].rename(columns={'Sex': 'Gender'})
    
     season = get_current_season()
     start_str, end_str = season.split(" - " )
@@ -672,7 +674,7 @@ async def graph_page(person_key: str):
             cell(lsc, 'border-b-0').style('font-size: 1.1rem')
             cell('Current Age', 'border-b-0 border-r-0').style('font-size: 1.1rem')
             cell(age, 'border-b-0').style('font-size: 1.1rem')
-            cell('Sex', 'border-r-0').style('font-size: 1.1rem')
+            cell('Gender', 'border-r-0').style('font-size: 1.1rem')
             cell("Male" if sex == 0 else "Female").style('font-size: 1.1rem')
 
     first_non_empty_event, first_non_empty_event_df = await make_event_buttons(session['all_event_data_df'])
@@ -874,6 +876,7 @@ async def refresh_table(event_map):
     scy_table, lcm_table = event_map[ev + " SCY"]
     rows = await fetch_ranking_data(scy_table, lcm_table, ag, sex, season)
     temp = pd.DataFrame(rows, columns=["Event", "Name", "Sex", "PersonKey", "Age", "LSC", "Team", "SwimTime", "national_rank", "lsc_rank", "team_rank"])
+    temp = temp.rename(columns={'Sex':'Gender'})
     temp['SwimTime'] = temp.apply(lambda row: convert_timedelta(row['SwimTime']), axis=1)
     session['scy_ranking_data'] = temp[temp['Event'].str.contains("SCY")]
     session['lcm_ranking_data'] = temp[temp['Event'].str.contains("LCM")]
@@ -986,6 +989,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
         event = event.split('SCY')[0].split('LCM')[0].strip()
         rows = await fetch_ranking_data(scy_table, lcm_table, age_group, sex, season)
         temp = pd.DataFrame(rows, columns=["Event", "Name", "Sex", "PersonKey", "Age", "LSC", "Team", "SwimTime", "national_rank", "lsc_rank", "team_rank"])
+        temp = temp.rename(columns={'Sex':'Gender'})
         temp['SwimTime'] = temp.apply(lambda row: convert_timedelta(row['SwimTime']), axis=1)
         session['scy_ranking_data'] = temp[temp['Event'].str.contains("SCY")]
         session['lcm_ranking_data'] = temp[temp['Event'].str.contains("LCM")]
@@ -1019,7 +1023,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                 session['sex_select'] = ui.select(
                     options=all_sex,
                     value='Male' if sex == 0 else 'Female',
-                    label='Sex',
+                    label='Gender',
                     on_change=lambda: refresh_table(event_map)
                 ).classes(SELECT_CLASSES).style('font-size: 1.1rem')
 
@@ -1070,7 +1074,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                 # ---------------- SCY TABLE ----------------
                 with ui.column().classes('w-full md:w-full lg:w-2/5 items-center lg:ml-20'):
                     ui.label("SCY Rankings").classes('font-semibold').style('font-size: 1.6rem')
-                    with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+                    with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto md:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                         session['ranking_table_scy'] = ui.table(
                             rows=[],
                             columns=[],
@@ -1150,8 +1154,8 @@ async def team_page(team: str):
 
         def update_tables():
             filtered = filter_df()
-            males = filtered[filtered['Sex'] == 0]
-            females = filtered[filtered['Sex'] == 1]
+            males = filtered[filtered['Gender'] == 0]
+            females = filtered[filtered['Gender'] == 1]
 
             session['team_male_table'].rows = males.to_dict('records')
             session['team_female_table'].rows = females.to_dict('records')
