@@ -24,7 +24,7 @@ def footer():
     with ui.footer(fixed=False).classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
         ui.label('© SwimmingRank.org 2025-2025. All rights reserved.').classes('text-gray-600').style('font-size: 15px')
 PAGE_TITLES = {
-    '/': 'Home',
+    '/': 'Swimmer Search',
     '/rankings': 'Rankings',
     '/discussion': 'Discussion',
     '/aboutme': 'About Me',
@@ -95,7 +95,7 @@ async def navbar():
                 </style>
             """)
             with ui.tabs().classes('justify-center') as tabs:
-                ui.tab('Home').on('click', lambda: ui.navigate.to('/'))
+                ui.tab('Swimmer Search').on('click', lambda: ui.navigate.to('/'))
                 ui.tab('Rankings').on('click', lambda: ui.navigate.to('/rankings'))
                 ui.tab('Discussion').on('click', lambda: ui.navigate.to('/discussion'))
                 ui.tab('About Me').on('click', lambda: ui.navigate.to('/aboutme'))
@@ -269,7 +269,7 @@ async def fetch_ncaa_comp_data(time, gender, event):
     if gender == "Male":
         tables = ["DivI_Male",  "DivII_Male",  "DivIII_Male"]
     else:
-        tables = ["DivI_Male",  "DivII_Male",  "DivIII_Male"]
+        tables = ["DivI_Female",  "DivII_Female",  "DivIII_Female"]
     query = f"""SELECT 100.0 * COUNT(*) FILTER (WHERE EXTRACT(EPOCH FROM "SwimTime") > {time}) / COUNT(*) AS pct_faster
                 FROM "ResultsSchema"."{tables[0]}"
                 WHERE "Event" = '{event}'
@@ -524,13 +524,15 @@ async def update_season_rankings_table():
         </q-td>
     """)
 
+    session['current_season'] = session['season_rankings_select'].value
 
     def open_rank_page(msg):
         rank_type = msg.args['type']
         row = msg.args['row']
-        ui.navigate.to(f"/rankings?rank_type={rank_type}&event={row['Event']}&age_group={row['AgeGroup']}&lsc={row['LSC']}&team={row['Team']}&sex={int(row['Sex'])}")
+        ui.navigate.to(f"/rankings?rank_type={rank_type}&event={row['Event']}&age_group={row['AgeGroup']}&lsc={row['LSC']}&team={row['Team']}&sex={int(row['Sex'])}&season={session['current_season']}")
     session['season_rankings_table'].on('open_rank_page', open_rank_page)
     session['season_rankings_table'].rows = []
+
     start_str, end_str = [s.strip() for s in session['current_season'].split("-")]
     season_start = pd.to_datetime(start_str)
     season_end   = pd.to_datetime(end_str)
@@ -538,18 +540,27 @@ async def update_season_rankings_table():
         scy_copy = session['scy_df'].copy()
         scy_copy.drop(columns=['Points', 'TimeStandard'])
         scy_copy['SwimDate'] = scy_copy['SwimDate'].apply(lambda x: pd.to_datetime(x))
-        scy_min_season_row = scy_copy[(scy_copy["SwimDate"] >= season_start) & (scy_copy["SwimDate"] <= season_end) & (scy_copy["national_rank"] > 0)].to_dict(orient='records')
-        if scy_min_season_row:
-            scy_min_season_row[0]["SwimDate"] = scy_min_season_row[0]["SwimDate"].strftime('%m/%d/%Y')
+        scy_min_season_row = scy_copy[(scy_copy["SwimDate"] >= season_start) & (scy_copy["SwimDate"] <= season_end) & (scy_copy["national_rank"] > 0)]
+        scy_min_season_row['SwimDate'] = scy_min_season_row['SwimDate'].apply(lambda x: x.strftime('%m/%d/%Y'))
+        
+        if not scy_min_season_row.empty:
+            if isinstance(scy_min_season_row,pd.DataFrame):
+                scy_min_season_row = scy_min_season_row.to_dict(orient='records')
+            else:
+                scy_min_season_row = scy_min_season_row.to_dict()
             session['season_rankings_table'].rows.extend(scy_min_season_row)
+    
     if not session['lcm_df'].empty:
         lcm_copy = session['lcm_df'].copy()
         lcm_copy['SwimDate'] = lcm_copy['SwimDate'].apply(lambda x: pd.to_datetime(x))
-        lcm_min_season_row = lcm_copy[(lcm_copy["SwimDate"] >= season_start) & (lcm_copy["SwimDate"] <= season_end) & (lcm_copy["national_rank"] > 0)].to_dict(orient='records')
-        if lcm_min_season_row:
-            lcm_min_season_row[0]["SwimDate"] = lcm_min_season_row[0]["SwimDate"].strftime('%m/%d/%Y')
+        lcm_min_season_row = lcm_copy[(lcm_copy["SwimDate"] >= season_start) & (lcm_copy["SwimDate"] <= season_end) & (lcm_copy["national_rank"] > 0)]
+        lcm_min_season_row['SwimDate'] = lcm_min_season_row['SwimDate'].apply(lambda x: x.strftime('%m/%d/%Y'))
+        if not lcm_min_season_row.empty:
+            if isinstance(lcm_min_season_row,pd.DataFrame):
+                lcm_min_season_row = lcm_min_season_row.to_dict(orient='records')
+            else:
+                lcm_min_season_row = lcm_min_season_row.to_dict()
             session['season_rankings_table'].rows.extend(lcm_min_season_row)
-
     session['season_rankings_table'].visible = True
     session['season_rankings_table'].update()
 
@@ -646,6 +657,14 @@ async def graph_page(person_key: str):
     session['all_event_data_df']["SwimDate"] = session['all_event_data_df']["SwimDate"].apply(lambda x: x.strftime('%m/%d/%Y'))
     session['all_event_data_df'].drop('Relay', axis=1, inplace=True)
    
+    season = get_current_season()
+    start_str, end_str = season.split(" - " )
+    start_month_day, start_year = start_str.rsplit("/", 1)
+    end_month_day, end_year = end_str.rsplit("/", 1)
+    start_year = int(start_year)
+    end_year = int(end_year)
+    all_seasons = [f"{start_month_day}/{start_year - i} - {end_month_day}/{end_year - i}" for i in range(10)]
+    
     spinnerrow.delete()
     spinner.delete()
     with ui.column().classes('w-full items-center'):
@@ -690,7 +709,13 @@ async def graph_page(person_key: str):
             session['upcoming_meets_table'] = ui.table(rows=[]).classes('custom-table')
         session['upcoming_meets_table'].visible = False
     with session['season_rankings_column']: 
-        session['season_rankings_label'] = ui.label('Current Season Rankings (' + session['current_season'] + ')').style('font-size: 1.6rem')
+        with ui.row().classes('w-full justify-center'):
+            session['season_rankings_label'] = ui.label('Current Season Rankings: ').style('font-size: 1.6rem')
+            session['season_rankings_select'] = ui.select(
+                options=all_seasons,
+                value=session['current_season'],
+                on_change=lambda: update_season_rankings_table()
+            )
         with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
             session['season_rankings_table'] = ui.table(rows=[]).classes('custom-table')
         session['season_rankings_table'].visible = False
@@ -896,7 +921,7 @@ async def refresh_table_ranksys():
     session['spinner'].visible = False
 
 @ui.page('/rankings')
-async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_group = '13-14', lsc = '', team = '', sex: int = 0):
+async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_group = '13-14', lsc = '', team = '', sex: int = 0, season=''):
     await ui.context.client.connected()
     session = app.storage.tab
     ui.add_head_html('''
@@ -960,7 +985,10 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
             session['spinner'] = ui.spinner(size='lg')
         
         scy_table, lcm_table = event_map[event]
-        season = get_current_season()
+        if session['current_season']:
+            season = session['current_season']
+        else:
+            season = get_current_season()
         if age_group == "10 ":
             age_group = '10 & Under'
         event = event.split('SCY')[0].split('LCM')[0].strip()
