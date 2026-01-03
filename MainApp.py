@@ -1095,6 +1095,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
 
 @ui.page('/discussion')
 async def discussion_page():
+    await ui.context.client.connected()
     await navbar()
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         with ui.column().classes('w-full flex-1 items-center py-10 px-6 gap-4'):
