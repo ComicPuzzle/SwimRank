@@ -1279,7 +1279,7 @@ async def privacypolicy_page():
                 ui.label('Privacy Policy').style('font-size: 2rem')
             with ui.column().classes('w-full lg:w-3/5 items-start text-start'):
                 ui.label("""SwimmingRank.org is designed to be as privacy friendly as possible. I do not track, collect, or store any of your activities on the site, nor do I use any third-party trackers or ads.
-                         All of the data available on this website is publicly available via USA Swimming. I update this website weekly with the previous week's results.
+                         All of the data available on this website is publicly available via USA Swimming. I update this website several days a week with meet results.
                          Only meets registered with USA Swimming will be included in the rankings and results, so regular high school dual meets or college
                          meets may not be included.""").style('font-size: 18px')
                 ui.label("""Last updated: December 29th, 2025""").style('font-size: 1.1rem')
