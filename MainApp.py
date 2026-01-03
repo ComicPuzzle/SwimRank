@@ -675,7 +675,7 @@ async def graph_page(person_key: str):
             cell('Current Age', 'border-b-0 border-r-0').style('font-size: 1.1rem')
             cell(age, 'border-b-0').style('font-size: 1.1rem')
             cell('Gender', 'border-r-0').style('font-size: 1.1rem')
-            cell("Male" if sex == 0 else "Female").style('font-size: 1.1rem')
+            cell(sex).style('font-size: 1.1rem')
 
     first_non_empty_event, first_non_empty_event_df = await make_event_buttons(session['all_event_data_df'])
     session['lcm_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['Event'].str.contains("LCM")]
