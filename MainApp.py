@@ -538,28 +538,22 @@ async def update_season_rankings_table():
     season_end   = pd.to_datetime(end_str)
     if not session['scy_df'].empty:
         scy_copy = session['scy_df'].copy()
-        scy_copy.drop(columns=['Points', 'TimeStandard'])
-        scy_copy['SwimDate'] = scy_copy['SwimDate'].apply(lambda x: pd.to_datetime(x))
+        scy_copy.loc[:, 'SwimDate'] = pd.to_datetime(scy_copy['SwimDate'])
         scy_min_season_row = scy_copy[(scy_copy["SwimDate"] >= season_start) & (scy_copy["SwimDate"] <= season_end) & (scy_copy["national_rank"] > 0)]
-        scy_min_season_row['SwimDate'] = scy_min_season_row['SwimDate'].apply(lambda x: x.strftime('%m/%d/%Y'))
         
         if not scy_min_season_row.empty:
-            if isinstance(scy_min_season_row,pd.DataFrame):
-                scy_min_season_row = scy_min_season_row.to_dict(orient='records')
-            else:
-                scy_min_season_row = scy_min_season_row.to_dict()
+            scy_min_season_row.loc[:, 'SwimDate'] = scy_min_season_row['SwimDate'].apply(lambda x: x.strftime('%m/%d/%Y'))
+            scy_min_season_row = scy_min_season_row.to_dict(orient='records')
             session['season_rankings_table'].rows.extend(scy_min_season_row)
     
     if not session['lcm_df'].empty:
         lcm_copy = session['lcm_df'].copy()
-        lcm_copy['SwimDate'] = lcm_copy['SwimDate'].apply(lambda x: pd.to_datetime(x))
+        lcm_copy.loc[:, 'SwimDate'] = pd.to_datetime(lcm_copy['SwimDate'])
         lcm_min_season_row = lcm_copy[(lcm_copy["SwimDate"] >= season_start) & (lcm_copy["SwimDate"] <= season_end) & (lcm_copy["national_rank"] > 0)]
-        lcm_min_season_row['SwimDate'] = lcm_min_season_row['SwimDate'].apply(lambda x: x.strftime('%m/%d/%Y'))
+        
         if not lcm_min_season_row.empty:
-            if isinstance(lcm_min_season_row,pd.DataFrame):
-                lcm_min_season_row = lcm_min_season_row.to_dict(orient='records')
-            else:
-                lcm_min_season_row = lcm_min_season_row.to_dict()
+            lcm_min_season_row.loc[:, 'SwimDate'] = lcm_min_season_row['SwimDate'].apply(lambda x: x.strftime('%m/%d/%Y'))
+            lcm_min_season_row = lcm_min_season_row.to_dict(orient='records')
             session['season_rankings_table'].rows.extend(lcm_min_season_row)
     session['season_rankings_table'].visible = True
     session['season_rankings_table'].update()
@@ -709,13 +703,13 @@ async def graph_page(person_key: str):
             session['upcoming_meets_table'] = ui.table(rows=[]).classes('custom-table')
         session['upcoming_meets_table'].visible = False
     with session['season_rankings_column']: 
-        with ui.row().classes('w-full justify-center'):
+        with ui.row().classes('w-full justify-center items-center'):
             session['season_rankings_label'] = ui.label('Current Season Rankings: ').style('font-size: 1.6rem')
             session['season_rankings_select'] = ui.select(
                 options=all_seasons,
                 value=session['current_season'],
                 on_change=lambda: update_season_rankings_table()
-            )
+            ).classes('w-full sm:min-w-[200px] sm:w-auto').style('font-size: 1.3rem')
         with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
             session['season_rankings_table'] = ui.table(rows=[]).classes('custom-table')
         session['season_rankings_table'].visible = False
