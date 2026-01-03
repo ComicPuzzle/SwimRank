@@ -26,11 +26,11 @@ def footer():
 PAGE_TITLES = {
     '/': 'Swimmer Search',
     '/rankings': 'Rankings',
-    '/discussion': 'Discussion',
     '/aboutme': 'About Me',
     '/privacy': 'Privacy Policy',
     '/feedback': 'Feedback',
-}
+    '/discussion': 'Discussion',}
+
 
 WIDTH = 0
 HEIGHT = 0
@@ -97,15 +97,13 @@ async def navbar():
             with ui.tabs().classes('justify-center') as tabs:
                 ui.tab('Swimmer Search').on('click', lambda: ui.navigate.to('/'))
                 ui.tab('Rankings').on('click', lambda: ui.navigate.to('/rankings'))
-                ui.tab('Discussion').on('click', lambda: ui.navigate.to('/discussion'))
                 ui.tab('About Me').on('click', lambda: ui.navigate.to('/aboutme'))
                 ui.tab('Privacy Policy').on('click', lambda: ui.navigate.to('/privacy'))
                 ui.tab('Feedback').on('click', lambda: ui.navigate.to('/feedback'))
+                ui.tab('Discussion').on('click', lambda: ui.navigate.to('/discussion'))
 
             # Styling for all tabs
             tabs.props('dense').classes('font-bold text-[#5898d4]')
-
-
 
 async def get_global_pool():
     """Return a shared asyncpg pool for all requests."""
