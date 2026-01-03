@@ -1390,6 +1390,8 @@ async def feedback_page():
             ui.button('Send Feedback', on_click=submit).classes('w-full bg-blue-600 text-white').style('font-size: 1.1rem')
 
     footer()
+    
 
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(title='SwimmingRank', reload='FLY_ALLOC_ID' not in os.environ)
+    app.add_static_file(local_file='static/sitemap.txt', url_path='/sitemap')
