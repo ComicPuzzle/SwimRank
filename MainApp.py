@@ -728,8 +728,6 @@ async def graph_page(person_key: str):
 @ui.page('/')
 async def main_page():
     ui.add_head_html('''
-                    <title>Swimming Rank</title>
-
                     <meta name="description" content="SwimmingRank provides rankings, swimmer times, team rankings, and performance analytics across age groups and events.">
 
                     <meta name="keywords" content="swimming rankings, USA swimming, swimmer rankings, swim times, swim teams, age group swimming">
@@ -762,7 +760,7 @@ async def main_page():
                     }
                 </style>
             """)
-            ui.label('Swimmer Search').style('font-size: 1.8rem')
+            ui.html('<h1>Swimmer Search</h1>').style('font-size: 1.8rem')
             ui.label('This website provides up-to-date swimming results and rankings data for competitive swimmers in the United States').style('font-size: 1.1rem;')
             ui.label('It contains data for over 1 million swimmers over the past 10 years').style('font-size: 1.1rem')
 
@@ -920,8 +918,6 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
     await ui.context.client.connected()
     session = app.storage.tab
     ui.add_head_html('''
-                    <title>SwimmingRank Ranking page</title>
-
                     <meta name="description" content=Default rankings page for USA registered swimmers">
 
                     <meta name="keywords" content="swimming rankings, USA swimming, swimmer rankings, swim times, swim teams, age group swimming">
@@ -980,9 +976,9 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
             session['spinner'] = ui.spinner(size='lg')
         
         scy_table, lcm_table = event_map[event]
-        if session['current_season']:
+        try:
             season = session['current_season']
-        else:
+        except:
             season = get_current_season()
         if age_group == "10 ":
             age_group = '10 & Under'
@@ -1007,7 +1003,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
         end_year = int(end_year)
         all_seasons = [f"{start_month_day}/{start_year - i} - {end_month_day}/{end_year - i}" for i in range(10)]
         with ui.row().classes('w-full justify-center'):  
-            ui.label('Rankings').style('font-size: 2rem').classes('font-semibold')
+            ui.html('<h1>Rankings</h1>').style('font-size: 2rem; margin: 0; padding: 0; line-height: 1.2').classes('font-semibold')
         # Dropdowns row
         SELECT_CLASSES = 'w-full sm:min-w-[200px] sm:w-auto'
         with ui.column().classes('w-full gap-4 flex flex-col lg:flex-row items-start justify-center'):
