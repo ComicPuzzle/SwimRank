@@ -31,8 +31,10 @@ def make_ncaa_request(token, event, gender, divison, season):
     response = None
 
     while response == None:
-        response = requests.request("POST", url, headers=headers, data=payload, 
-                                verify=["/Users/daniel/Desktop/others -imp/SwimRank/_.usaswimming.org.pem", "/Users/daniel/Desktop/others -imp/SwimRank/cacert.pem"], 
-                                        impersonate="chrome").json()
-
+        try:
+            response = requests.request("POST", url, headers=headers, data=payload, 
+                                    verify=["/Users/daniel/Desktop/others -imp/SwimRank/_.usaswimming.org.pem", "/Users/daniel/Desktop/others -imp/SwimRank/cacert.pem"], 
+                                            impersonate="chrome").json()
+        except Exception as e:
+            print(e)
     return response

@@ -111,7 +111,17 @@ def get_ncaa_rankings():
                         )
                         cur.executemany(query, records)
                         conn.commit()
+    with psycopg.connect(f"dbname={dbname} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
+        with conn.cursor() as cur:
+            query = """GRANT SELECT ON TABLE "ResultsSchema"."DivIII_Female" TO swimrank_read;
+                        GRANT SELECT ON TABLE "ResultsSchema"."DivII_Female" TO swimrank_read;
+                        GRANT SELECT ON TABLE "ResultsSchema"."DivI_Female" TO swimrank_read;
+                        GRANT SELECT ON TABLE "ResultsSchema"."DivIII_Male" TO swimrank_read;
+                        GRANT SELECT ON TABLE "ResultsSchema"."DivII_Male" TO swimrank_read;
+                        GRANT SELECT ON TABLE "ResultsSchema"."DivI_Male" TO swimrank_read;
 
+                    """
+            cur.execute(query)
 
 if __name__ == "__main__":
     get_ncaa_rankings()
