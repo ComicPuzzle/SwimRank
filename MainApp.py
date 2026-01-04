@@ -35,6 +35,12 @@ PAGE_TITLES = {
 WIDTH = 0
 HEIGHT = 0
 
+DIVISION_CONFERENCES = {
+    'Div I': [c.strip() for c in open('DivI_conferences.txt')],
+    'Div II': [c.strip() for c in open('DivII_conferences.txt')],
+    'Div III': [c.strip() for c in open('DivIII_conferences.txt')],
+}
+
 async def navbar():
     global WIDTH, HEIGHT
     ui.add_head_html('''
@@ -127,6 +133,7 @@ def get_current_season():
     else:
         session['current_season'] = f"{'9/01/' + str(session['current_year'] - 1) + ' - 8/31/' + str(session['current_year'])}"
     return session['current_season']
+
 @app.on_shutdown
 async def shutdown():
     """Close global pool on app shutdown."""
@@ -180,6 +187,12 @@ def str_to_timedelta(t_str):
         total_seconds = float(parts[0])
     return timedelta(seconds=total_seconds)
 
+def update_conference_options():
+    session = app.storage.tab
+    session['conference_select'].options = DIVISION_CONFERENCES[session['division_select'].value]
+    session['conference_select'].value = None
+    session['conference_select'].update()
+
 async def handle_key(e: KeyEventArguments):
     await ui.context.client.connected()
     session = app.storage.tab
@@ -220,7 +233,6 @@ async def fetch_people(name):
     await update_id_table()
 
 async def fetch_team_swimmers(team: str):
-    print(team)
     pool = await get_global_pool()
     async with pool.acquire() as con:
         rows = await con.fetch(
@@ -287,6 +299,17 @@ async def fetch_ncaa_comp_data(time, gender, event):
                 FROM "ResultsSchema"."{tables[2]}"
                 WHERE "Event" = '{event}';
                 """
+    pool = await get_global_pool()
+    async with pool.acquire() as con:
+        rows = await con.fetch(query)
+    return rows
+
+async def fetch_conference_comp_data(time, gender, event, division, conference):
+    table = division.replace(' ', '') + "_"  + gender
+    query = f"""SELECT 100.0 * COUNT(*) FILTER (WHERE EXTRACT(EPOCH FROM "SwimTime") > {time}) / COUNT(*) AS pct_faster
+                FROM "ResultsSchema"."{table}"
+                WHERE "Event" = '{event}' AND "ConferenceName" = '{conference}';"""
+    
     pool = await get_global_pool()
     async with pool.acquire() as con:
         rows = await con.fetch(query)
@@ -459,11 +482,89 @@ async def update_ncaa_comparison_table(event):
     session = app.storage.tab
     session['ncaa_comparisons'] = await fetch_ncaa_comp_data(str_to_timedelta(session['current_event_besttime'].strip('r')).total_seconds(), session['person']['Gender'], event)
     session['ncaa_comparisons'] = ["{:.2f}".format(r['pct_faster']) + "%" for r in session['ncaa_comparisons']]
-    session['ncaa_comparison_table'].columns = [{'name': col, 'label': col, 'field': col} for col in ["BestTime", "Division I", "Division II", "Division III"]]
+    session['ncaa_comparison_table'].columns = [{'name': col, 'label': "Best Time" if col == "BestTime" else col, 'field': col} for col in ["BestTime", "Division I", "Division II", "Division III"]]
     session['ncaa_comparison_table'].rows = [{'BestTime': session['current_event_besttime'].strip('r'), 'Division I' : session['ncaa_comparisons'][0], 'Division II' : session['ncaa_comparisons'][1], 'Division III' : session['ncaa_comparisons'][2]}]
     session['ncaa_comparison_table'].visible = True
     session['ncaa_comparison_table'].update()
 
+async def add_column_conference_comp_table(e):
+    session = app.storage.tab
+    conference = session['conference_select'].value
+    if not conference:
+        return
+
+    if conference in session['selected_conferences']:
+        ui.notify('Conference already added')
+        return
+
+    if len(session['selected_conferences']) >= 5:
+        ui.notify('Maximum of 5 conferences')
+        return
+
+    session['selected_conferences'].append(conference)
+    try:
+        session['conference_div_map']
+    except:
+        session['conference_div_map'] = {}
+    session['conference_div_map'][conference] = session['division_select'].value
+    await update_conference_comparison_table(e)
+
+def remove_conference_column(msg):
+    session = app.storage.tab
+    try:
+        i = session['selected_conferences'].index(msg)
+    except:
+        return
+    session['selected_conferences'].pop(i)
+    session['conference_div_map'].pop(i)
+    session['conference_data'].pop(i)
+
+    columns = [{'name': 'BestTime', 'label': 'Best Time', 'field': 'BestTime'}]
+    row = {'BestTime': session['current_event_besttime'].strip('r')}
+    for conf in session['selected_conferences']:
+        columns.append({'name': conf, 'label': conf, 'field': conf})
+        row[conf] = session['conference_data'][conf]
+    session['conference_comparison_table'].columns = columns
+    session['conference_comparison_table'].rows = [row]
+    session['conference_comparison_table'].visible = True
+    session['conference_comparison_table'].update()
+
+async def update_conference_comparison_table(e):
+    session = app.storage.tab
+    for conference in session['selected_conferences']:
+        pct = await fetch_conference_comp_data(
+            str_to_timedelta(session['current_event_besttime'].strip('r')).total_seconds(),
+            session['person']['Gender'],
+            e,
+            session['conference_div_map'][conference],
+            conference,
+        )
+        session['conference_data'][conference] = "{:.2f}".format(pct[0]['pct_faster']) + "%"
+
+    columns = [{'name': 'BestTime', 'label': 'Best Time', 'field': 'BestTime'}]
+    row = {'BestTime': session['current_event_besttime'].strip('r')}
+    for conf in session['selected_conferences']:
+        columns.append({'name': conf, 'label': conf, 'field': conf})
+        row[conf] = session['conference_data'][conf]
+    session['conference_comparison_table'].columns = columns
+    session['conference_comparison_table'].rows = [row]
+    session['conference_comparison_table'].visible = True
+    for conf in session['selected_conferences']:
+        session['conference_comparison_table'].add_slot(f'header-cell-{conf}', f'''
+        <q-th>
+            <div class="flex items-center gap-2">
+                <span>{conf}</span>
+                <q-btn
+                    flat dense round icon="close" size="sm"
+                    @click="$parent.$emit('remove', '{conf}')"
+                />
+            </div>
+        </q-th>
+        ''')
+
+    session['conference_comparison_table'].on('remove', lambda e: remove_conference_column(e.args))
+    session['conference_comparison_table'].update()
+    
 async def update_best_rankings_table():
     await ui.context.client.connected()
     session = app.storage.tab
@@ -564,9 +665,10 @@ async def display_event_data(e, df):
     session = app.storage.tab
     session['lcm_df'] = df.loc[df['Event'].str.contains("LCM")]
     session['scy_df'] = df.loc[df['Event'].str.contains("SCY")]
-    
+    session['current_event_graph_page'] = e
     await update_best_rankings_table()
     await update_ncaa_comparison_table(e)
+    await update_conference_comparison_table(e)
     await update_upcoming_meets_table()
     await update_season_rankings_table()
     with session['results_column']:
@@ -682,9 +784,10 @@ async def graph_page(person_key: str):
     first_non_empty_event, first_non_empty_event_df = await make_event_buttons(session['all_event_data_df'])
     session['lcm_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['Event'].str.contains("LCM")]
     session['scy_df'] = first_non_empty_event_df.loc[first_non_empty_event_df['Event'].str.contains("SCY")]
-
+    session['current_event_graph_page'] = first_non_empty_event
     session['best_times_column'] = ui.column().classes('w-full items-center')
     session['ncaa_comparison_column'] = ui.column().classes('w-full items-center')
+    session['conference_comparison_column'] = ui.column().classes('w-full items-center')
     session['upcoming_meets_column'] = ui.column().classes('w-full items-center')
     session['season_rankings_column'] = ui.column().classes('w-full items-center')
     session['results_column'] = ui.column().classes('w-full items-center')
@@ -699,6 +802,29 @@ async def graph_page(person_key: str):
         with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
             session['ncaa_comparison_table'] = ui.table(rows=[]).classes('custom-table')
         session['ncaa_comparison_table'].visible = False
+    with session['conference_comparison_column']:
+        session['conference_comparison_label'] = ui.label("""Conference Comparison - Add up to 5 conferences""").style('font-size: 1.6rem')
+        session['selected_conferences'] = []
+        session['conference_data'] = {}
+        with ui.row().classes('w-full lg:w-fit p-4 gap-4 bg-gray-100 rounded shadow-sm justify-center items-center'):
+            session['division_select'] = ui.select(
+                    options=['Div I', 'Div II', 'Div III'],
+                    value='Div I',
+                    label='Division',
+                    on_change=lambda e: update_conference_options(),
+                ).classes('w-fit sm:min-w-[200px] sm:w-auto').style('font-size: 1.1rem')
+            session['conference_select'] = ui.select(
+                    options=DIVISION_CONFERENCES['Div I'],
+                    label='Conference',
+                    with_input=True,
+                ).classes('w-fit sm:min-w-[200px]').style('font-size: 1.1rem')
+            ui.button(
+                    'Add',
+                    on_click=lambda: add_column_conference_comp_table(session['current_event_graph_page'])
+                ).props('color=primary').classes('w-fit sm:min-w-[200px]').style('font-size: 1.1rem')
+        with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
+            session['conference_comparison_table'] = ui.table(rows=[]).classes('custom-table')
+        session['conference_comparison_table'].visible = False
     with session['upcoming_meets_column']:
         session['meets_label'] = ui.label('Upcoming Championship Meets').style('font-size: 1.6rem')
         with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
@@ -1384,7 +1510,6 @@ async def feedback_page():
                     status.set_text('Thanks! Your message was sent.')
                     status.classes(add='text-green-600', remove='text-red-600')
                 except Exception as e:
-                    print(e)
                     status.set_text('Error sending feedback. Please try again later.')
                     status.classes(add='text-red-600', remove='text-green-600')
 
