@@ -762,7 +762,7 @@ async def main_page():
                     }
                 </style>
             """)
-            ui.html('<h1>Swimmer Search *Adding databasing, some features may not work. Please come back in a few minutes</h1>').style('font-size: 2rem').classes('h-fit font-semibold')
+            ui.html('<h1>Swimmer Search</h1>').style('font-size: 2rem').classes('h-fit font-semibold')
             ui.label('This website provides up-to-date swimming results and rankings data for competitive swimmers in the United States').style('font-size: 1.1rem;')
             ui.label('It contains data for over 1 million swimmers over the past 10 years').style('font-size: 1.1rem')
 

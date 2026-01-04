@@ -36,7 +36,7 @@ def get_ncaa_rankings():
     dbname, port, password, host, _ = get_credentials()
     tables = ["DivI_Male",  "DivI_Female",  "DivII_Male",  "DivII_Female",  "DivIII_Male",  "DivIII_Female"]
     c = ["Event", "Sex", "SwimTime", "NcaaSwimTimeKey", "ConferenceName"]
-    f = ["text", "text", "interval", "integer"]
+    f = ["text", "text", "interval", "integer", "text"]
     k = "NcaaSwimTimeKey"   
 
     with psycopg.connect(f"dbname={dbname} port={port} user=swimrank_write host={host} password={password}") as conn:
@@ -76,6 +76,7 @@ def get_ncaa_rankings():
                 print(event)
                 response = make_ncaa_request(bearer_token, event, gender, division, current_season)
                 response = response.get("values")
+                print(response)
                 response = [tuple(data.get('text') for data in row) for row in response]
                 row_list.extend(response)
             headers = ["SwimTime", "SwimEventKey", "TypeName", "EventCompetitionCategoryKey", "NCAASeason", "EventCode", "SwimTimeSeconds", "SortKey", "NcaaSwimTimeKey", "Rank", "ConferenceName"]
