@@ -21,7 +21,8 @@ def make_ncaa_request(token, event, gender, divison, season):
     {"jaql":{"title":"TypeName","dim":"[EventCompetitionCategory.TypeName]","datatype":"text","filter":{"members":[gender]}},"panel":"scope"},
     {"jaql":{"title":"EventCode","dim":"[SwimEvent.EventCode]","datatype":"text","filter":{"members":[event]}},"panel":"scope"},
     {"jaql":{"title":"SeasonBest","dim":"[NcaaSwimTime.SeasonBest]","datatype":"text","filter":{"equals":True}},"panel":"scope"},
-    {"jaql":{"title":"Ineligible","dim":"[NcaaSwimTime.Ineligible]","datatype":"text","filter":{"equals":False}},"panel":"scope"}],
+    {"jaql":{"title":"Ineligible","dim":"[NcaaSwimTime.Ineligible]","datatype":"text","filter":{"equals":False}},"panel":"scope"}, 
+    {"jaql":{"title":"ConferenceName", "dim":"[OrgUnit.ConferenceName]","datatype":"text"}}],
     "datasource":"NCAA Times","by":"ComposeSDK","queryGuid":"dece1d8a-1ae5-4946-9252-d04494ca37d0"})
 
     headers = {

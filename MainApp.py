@@ -256,9 +256,10 @@ async def fetch_ranking_data(table1, table2, age_group, sex, season):
                         WHERE "national_rank" != -1 AND "SwimDate" >= '{season_start}' AND "SwimDate" < '{season_end}' AND "AgeGroup" = '{age_group}' AND "Sex" = {sex} """
             
             return query
-        
+    
     query = add_query(table1, age_group, sex)
-    query = query + " UNION ALL " + add_query(table2, age_group, sex)
+    if table1 != '100_IM_SCY_results':
+        query = query + " UNION ALL " + add_query(table2, age_group, sex)
     query += """ORDER BY "national_rank" ASC"""
     pool = await get_global_pool()
     async with pool.acquire() as con:
@@ -582,7 +583,7 @@ async def make_event_buttons(all_event_data_df):
               ('50 FL SCY', '50 FL LCM'), ('100 FL SCY', '100 FL LCM'), ('200 FL SCY', '200 FL LCM'),
               ('50 BR SCY', '50 BR LCM'), ('100 BR SCY', '100 BR LCM'), ('200 BR SCY', '200 BR LCM'),
               ('50 BK SCY', '50 BK LCM'), ('100 BK SCY', '100 BK LCM'), ('200 BK SCY', '200 BK LCM'),
-              ('100 IM SCY'), ('200 IM SCY', '200 IM LCM'), ('400 IM SCY', '400 IM LCM')
+              ('100 IM SCY', '100 IM SCY'), ('200 IM SCY', '200 IM LCM'), ('400 IM SCY', '400 IM LCM')
             ]
     
     first_non_empty_event = None
@@ -1081,13 +1082,13 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
 
                 # ---------------- LCM TABLE ----------------
                 with ui.column().classes('w-full  md:w-full lg:w-fit items-center lg:mr-20'):
-                    ui.label("LCM Rankings").classes('font-semibold').style('font-size: 1.6rem')
+                    ui.label("LCM Rankings").classes('font-semibold').style('font-size: 1.6rem').classes('custom-table').bind_visibility_from(session['event_select'], 'value',backward=lambda v: v != '100 IM')
                     with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                         session['ranking_table_lcm'] = ui.table(
                         rows=[],
                         columns=[],
                         pagination=25
-                        ).classes('custom-table')
+                        ).classes('custom-table').bind_visibility_from(session['event_select'], 'value',backward=lambda v: v != '100 IM')
         
         await refresh_table_ranksys()
         await show_page()

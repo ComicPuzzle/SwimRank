@@ -35,7 +35,7 @@ def get_ncaa_rankings():
 
     dbname, port, password, host, _ = get_credentials()
     tables = ["DivI_Male",  "DivI_Female",  "DivII_Male",  "DivII_Female",  "DivIII_Male",  "DivIII_Female"]
-    c = ["Event", "Sex", "SwimTime", "NcaaSwimTimeKey"]
+    c = ["Event", "Sex", "SwimTime", "NcaaSwimTimeKey", "ConferenceName"]
     f = ["text", "text", "interval", "integer"]
     k = "NcaaSwimTimeKey"   
 
@@ -78,10 +78,10 @@ def get_ncaa_rankings():
                 response = response.get("values")
                 response = [tuple(data.get('text') for data in row) for row in response]
                 row_list.extend(response)
-            headers = ["SwimTime", "SwimEventKey", "TypeName", "EventCompetitionCategoryKey", "NCAASeason", "EventCode", "SwimTimeSeconds", "SortKey", "NcaaSwimTimeKey", "Rank"]
+            headers = ["SwimTime", "SwimEventKey", "TypeName", "EventCompetitionCategoryKey", "NCAASeason", "EventCode", "SwimTimeSeconds", "SortKey", "NcaaSwimTimeKey", "Rank", "ConferenceName"]
             df = pd.DataFrame(row_list, columns=headers)
             df = df.rename(columns={'EventCode':'Event', 'TypeName':'Sex'})
-            df = df[['Event', 'Sex', 'SwimTime', 'NcaaSwimTimeKey']]
+            df = df[['Event', 'Sex', 'SwimTime', 'NcaaSwimTimeKey', 'ConferenceName']]
             df['SwimTime'] = df['SwimTime'].apply(lambda x: convert_to_interval(x))
           
             table_name = ""
@@ -99,7 +99,7 @@ def get_ncaa_rankings():
 
             with psycopg.connect(f"dbname={dbname} port={port} user=swimrank_write host='{host}' password='{password}'") as conn:
                 with conn.cursor() as cur:
-                        db_columns = ['Event', 'Sex', 'SwimTime', 'NcaaSwimTimeKey']
+                        db_columns = ['Event', 'Sex', 'SwimTime', 'NcaaSwimTimeKey', 'ConferenceName']
                         records = list(df.itertuples(index=False))
                         placeholders = sql.SQL(', ').join(sql.SQL('%s') for _ in db_columns)
                         query = sql.SQL("""
