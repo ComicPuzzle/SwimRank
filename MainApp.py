@@ -823,6 +823,7 @@ async def show_page():
         person = msg.args  # full row data (Name, Age, etc.)
         # store full info in session (not in URL)
         session['person'] = person
+        session['person']['Gender'] = "Male" if session['person']['Gender'] == 0 else "Female"
         # navigate using only the person key
         ui.navigate.to(f'/swimmer/{person["PersonKey"]}')
 
@@ -1069,7 +1070,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                 ).classes(SELECT_CLASSES).style('font-size: 1.1rem')
             with ui.row().classes('w-full flex flex-col lg:flex-row gap-2 justify-between lg:justify-center'):
                 # ---------------- SCY TABLE ----------------
-                with ui.column().classes('w-full md:w-full lg:w-2/5 items-center lg:ml-20'):
+                with ui.column().classes('w-full md:w-full lg:w-fit items-center lg:ml-20'):
                     ui.label("SCY Rankings").classes('font-semibold').style('font-size: 1.6rem')
                     with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto md:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                         session['ranking_table_scy'] = ui.table(
@@ -1079,7 +1080,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                         ).classes('custom-table')
 
                 # ---------------- LCM TABLE ----------------
-                with ui.column().classes('w-full  md:w-full lg:w-2/5 items-center lg:mr-20'):
+                with ui.column().classes('w-full  md:w-full lg:w-fit items-center lg:mr-20'):
                     ui.label("LCM Rankings").classes('font-semibold').style('font-size: 1.6rem')
                     with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                         session['ranking_table_lcm'] = ui.table(
