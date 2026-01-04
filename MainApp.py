@@ -220,6 +220,7 @@ async def fetch_people(name):
     await update_id_table()
 
 async def fetch_team_swimmers(team: str):
+    print(team)
     pool = await get_global_pool()
     async with pool.acquire() as con:
         rows = await con.fetch(
@@ -662,7 +663,7 @@ async def graph_page(person_key: str):
     spinnerrow.delete()
     spinner.delete()
     with ui.column().classes('w-full items-center'):
-        ui.label(name).style('font-size: 2rem')
+        ui.label(name).style('font-size: 2rem').classes('font-semibold')
         with ui.grid(columns=2).classes('fit-content gap-0 bg-gray-300'):
             def cell(text, extra_classes=''):
                 return ui.label(text).classes(
@@ -760,7 +761,7 @@ async def main_page():
                     }
                 </style>
             """)
-            ui.html('<h1>Swimmer Search</h1>').style('font-size: 1.8rem')
+            ui.html('<h1>Swimmer Search</h1>').style('font-size: 2rem').classes('h-fit font-semibold')
             ui.label('This website provides up-to-date swimming results and rankings data for competitive swimmers in the United States').style('font-size: 1.1rem;')
             ui.label('It contains data for over 1 million swimmers over the past 10 years').style('font-size: 1.1rem')
 
@@ -1150,6 +1151,7 @@ async def team_page(team: str):
 
         def update_tables():
             filtered = filter_df()
+            filtered = filtered.rename(columns={'Sex':'Gender'})
             males = filtered[filtered['Gender'] == 0]
             females = filtered[filtered['Gender'] == 1]
 
@@ -1163,6 +1165,7 @@ async def team_page(team: str):
             person = msg.args  # full row data (Name, Age, etc.)
             # store full info in session (not in URL)
             session['person'] = person
+            session['person']['Gender'] = "Male" if session['person']['Gender'] == 0 else "Female"
             # navigate using only the person key
             ui.navigate.to(f'/swimmer/{person["PersonKey"]}')
             
@@ -1228,7 +1231,7 @@ async def aboutme_page():
         
         with ui.row().classes('w-full justify-center'):
             with ui.row().classes('w-full lg:w-3/5 justify-center'):
-                ui.label('About Me').style('font-size: 2rem')
+                ui.label('About Me').style('font-size: 2rem').classes('font-semibold')
             with ui.column().classes('w-full lg:w-3/5 items-start'):
                 ui.label(
                     "I am a college student and a competitive swimmer. During my swimming career, I used the swimmingrank.com website frequently to check my rankings"
@@ -1272,7 +1275,7 @@ async def privacypolicy_page():
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         with ui.row().classes('w-full justify-center items-start'):
             with ui.row().classes('w-full lg:w-3/5 justify-center'):
-                ui.label('Privacy Policy').style('font-size: 2rem')
+                ui.label('Privacy Policy').style('font-size: 2rem').classes('font-semibold')
             with ui.column().classes('w-full lg:w-3/5 items-start text-start'):
                 ui.label("""SwimmingRank.org is designed to be as privacy friendly as possible. I do not track, collect, or store any of your activities on the site, nor do I use any third-party trackers or ads.
                          All of the data available on this website is publicly available via USA Swimming. I update this website several days a week with meet results.
@@ -1306,7 +1309,7 @@ async def donate_page():
     with ui.column().classes('min-h-screen w-full flex flex-col'):
         with ui.row().classes('w-full justify-center items-center'):
             with ui.column().classes('w-full lg:w-3/5 items-center text-center'):
-                ui.label('Support This Website').style('font-size: 2rem')
+                ui.label('Support This Website').style('font-size: 2rem').classes('font-semibold')
 
                 ui.label('Donate securely using Zelle through your bank app.').classes('text-center text-lg font-semibold').style('font-size: 1.1rem')
                 ui.image('static/zelle_qr.png').classes('w-48 h-48')
@@ -1342,7 +1345,7 @@ async def feedback_page():
     await navbar()
     with ui.column().classes('min-h-screen w-full flex flex-row'):
         with ui.column().classes('w-full max-w-xl mx-auto p-6 gap-4 bg-white rounded-lg shadow-md items-center'):
-            ui.label('Feedback').classes('font-bold text-center').style('font-size: 1.6rem')
+            ui.label('Feedback').classes('font-bold text-center').style('font-size: 2rem')
             ui.label('Have a bug, suggestion, or question? Send it below.').classes('text-gray-600 text-center').style('font-size: 1.1rem')
 
             email_input = ui.input(
