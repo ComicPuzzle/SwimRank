@@ -315,6 +315,14 @@ async def fetch_conference_comp_data(time, gender, event, division, conference):
         rows = await con.fetch(query)
     return rows
 
+async def fetch_conference_top16_data(gender, event, division, conference):
+    table = division.replace(' ', '') + "_"  + gender
+    query = f"""SELECT * FROM "ResultsSchema"."{table}" WHERE "ConferenceName" = '{conference}' AND "Event" = '{event}' ORDER BY "SwimTime" LIMIT 16"""
+    pool = await get_global_pool()
+    async with pool.acquire() as con:
+        rows = await con.fetch(query)
+    return rows
+
 async def collect_all_event_data(person_key):
     db_table_names = ['50_FR_SCY_results', '50_FR_LCM_results', '100_FR_SCY_results', '100_FR_LCM_results',
                         '200_FR_SCY_results', '200_FR_LCM_results', '400_FR_LCM_results', '500_FR_SCY_results', 
@@ -519,13 +527,15 @@ def remove_conference_column(msg):
     session['conference_div_map'].pop(i)
     session['conference_data'].pop(i)
 
-    columns = [{'name': 'BestTime', 'label': 'Best Time', 'field': 'BestTime'}]
-    row = {'BestTime': session['current_event_besttime'].strip('r')}
+    columns = [{'name': 'Categories', 'label': 'Categories', 'field': 'Categories'}]
+    rows = [{'Categories': 'Percentage Better Than'}, {'Categories': 'Top 8 Time'}, {'Categories': 'Top 16 Time'}]
     for conf in session['selected_conferences']:
         columns.append({'name': conf, 'label': conf, 'field': conf})
-        row[conf] = session['conference_data'][conf]
+        rows[0][conf] = session['conference_data'][conf][0]
+        rows[1][conf] = session['conference_data'][conf][1]
+        rows[2][conf] = session['conference_data'][conf][2]
     session['conference_comparison_table'].columns = columns
-    session['conference_comparison_table'].rows = [row]
+    session['conference_comparison_table'].rows = rows
     session['conference_comparison_table'].visible = True
     session['conference_comparison_table'].update()
 
@@ -539,15 +549,28 @@ async def update_conference_comparison_table(e):
             session['conference_div_map'][conference],
             conference,
         )
-        session['conference_data'][conference] = "{:.2f}".format(pct[0]['pct_faster']) + "%"
+        top16 = await fetch_conference_top16_data(
+            session['person']['Gender'],
+            e,
+            session['conference_div_map'][conference],
+            conference,
+        )
+        top16time = convert_timedelta(top16[-1]["SwimTime"])
+        if len(top16) < 8:
+            top8time = top16time
+        else:
+            top8time = convert_timedelta(top16[7]["SwimTime"])
+        session['conference_data'][conference] = ("{:.2f}".format(pct[0]['pct_faster']) + "%", top8time, top16time)
 
-    columns = [{'name': 'BestTime', 'label': 'Best Time', 'field': 'BestTime'}]
-    row = {'BestTime': session['current_event_besttime'].strip('r')}
+    columns = [{'name': 'Categories', 'label': 'Categories', 'field': 'Categories'}]
+    rows = [{'Categories': 'Percentage'}, {'Categories': 'Top 8 Time'}, {'Categories': 'Top 16 Time'}]
     for conf in session['selected_conferences']:
         columns.append({'name': conf, 'label': conf, 'field': conf})
-        row[conf] = session['conference_data'][conf]
+        rows[0][conf] = session['conference_data'][conf][0]
+        rows[1][conf] = session['conference_data'][conf][1]
+        rows[2][conf] = session['conference_data'][conf][2]
     session['conference_comparison_table'].columns = columns
-    session['conference_comparison_table'].rows = [row]
+    session['conference_comparison_table'].rows = rows
     session['conference_comparison_table'].visible = True
     for conf in session['selected_conferences']:
         session['conference_comparison_table'].add_slot(f'header-cell-{conf}', f'''
