@@ -1519,5 +1519,5 @@ async def feedback_page():
     
 
 if __name__ in {"__main__", "__mp_main__"}:
-    ui.run(title='SwimmingRank - Swimmer Progress, Analytics, and Comparisons', reload='FLY_ALLOC_ID' not in os.environ)
+    ui.run(title='SwimmingRank - Swimmer Progress and Analytics', reload='FLY_ALLOC_ID' not in os.environ)
     app.add_static_file(local_file='static/sitemap.txt', url_path='/sitemap')
