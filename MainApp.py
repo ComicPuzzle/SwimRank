@@ -1329,8 +1329,8 @@ async def team_page(team: str):
             value='All',
             on_change=lambda _: update_tables(),
             ).classes('w-fit-content').style('font-size: 1.1em')
-        with ui.row().classes('w-full lg:w-3/5 flex flex-col md:flex-col lg:flex-row gap-2 justify-center items-center'):
-            with ui.column().classes('w-full lg:w-2/5 items-center'):
+        with ui.row().classes('w-full lg:w-4/5 flex-col md:flex-col lg:flex-row gap-2 justify-center items-center'):
+            with ui.column().classes('w-full lg:w-fit items-center'):
                 ui.label('Male').classes('font-semibold').style('font-size: 1.5rem')
                 with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                     session['team_male_table'] = ui.table(
@@ -1341,7 +1341,7 @@ async def team_page(team: str):
                     rows=[],
                     pagination=20).classes('w-full my-table').style('font-size: 1.1rem')
             
-            with ui.column().classes('w-full lg:w-2/5 items-center'):
+            with ui.column().classes('w-full lg:w-fit items-center'):
                 ui.label('Female').classes('font-semibold').style('font-size: 1.5rem')
                 with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                     session['team_female_table'] = ui.table(
