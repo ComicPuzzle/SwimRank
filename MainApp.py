@@ -13,16 +13,24 @@ import qrcode
 from io import BytesIO
 import smtplib
 from email.message import EmailMessage
+import stripe
+from fastapi.responses import RedirectResponse
+from flask import Flask, jsonify, redirect, request
 
 # --- GLOBAL DB POOL ---
 global_pool = None
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
 
 def footer():
     bg_color = 'bg-gray-200/70'
     with ui.footer(fixed=False).classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
-        ui.label('© SwimmingRank.org 2025-2026. All rights reserved.').classes('text-gray-600').style('font-size: 15px')
+        with ui.column().classes('items-center'):
+            ui.label('© SwimmingRank.org 2025-2026. All rights reserved.').classes('text-gray-600').style('font-size: 15px')
+            ui.label('Developed and Maintained by a Swimmer.').classes('text-gray-600').style('font-size: 15px')
+            ui.link('Donate!', '/donate').classes('text-gray-600').style('font-size: 15px')
 PAGE_TITLES = {
     '/': 'Swimmer Search',
     '/rankings': 'Rankings',
@@ -1446,26 +1454,104 @@ async def privacypolicy_page():
             """
     footer()
 
-def make_qr(data: str):
-        qr = qrcode.make(data)
-        buf = BytesIO()
-        qr.save(buf, format='PNG')
-        buf.seek(0)
-        return buf
+def create_intent(amount):
+    return stripe.PaymentIntent.create(
+        amount=amount * 100,
+        currency='usd',
+        automatic_payment_methods={'enabled': True},
+    )
 
 @ui.page('/donate')
 async def donate_page():
     await ui.context.client.connected()
     await navbar()
-    with ui.column().classes('min-h-screen w-full flex flex-col'):
-        with ui.row().classes('w-full justify-center items-center'):
-            with ui.column().classes('w-full lg:w-3/5 items-center text-center'):
-                ui.label('Support This Website').style('font-size: 2rem').classes('font-semibold')
 
-                ui.label('Donate securely using Zelle through your bank app.').classes('text-center text-lg font-semibold').style('font-size: 1.1rem')
-                ui.image('static/zelle_qr.png').classes('w-48 h-48')
+    with ui.row().classes('justify-between w-full p-8 gap-6'):
+        with ui.card().classes('gap-4 w-fit items-center'):
+            ui.label('Support the Project!').classes('font-bold').style('font-size: 2rem')
+            ui.label("Running this site isn't free, and donations help cover things like hosting, services, \
+                     and the time it takes to keep everything working smoothly and stay ad free. Your support helps me \
+                     maintain the site, fix bugs, and roll out new features over time. As a college student, even a small \
+                     contribution goes a long way and is genuinely appreciated!").style('font-size: 1.2rem')
+        with ui.card().classes('gap-4 w-full items-center'):
+            with ui.row().classes('w-full justify-between'):
+                for amt in [1, 5, 10, 20]:
+                    ui.button(
+                        f'${amt}',
+                        on_click=lambda a=amt: set_amount_buttons(a),
+                    ).classes('flex-1')
+
+            custom = ui.number(
+                label='Custom Amount',
+                on_change=lambda e: set_amount(int(e.value)),
+                min=1
+            ).props('prefix: $').style('font-size: 1.2rem')
+
+            ui.separator()
+
+            ui.element('div').props("id='payment-element'").classes('w-full')
+            ui.label('').props("id='stripe-error'").classes('text-red-500')
+
+            donate_btn = ui.button('Donate', color='primary').classes('w-full')
+
+    # ---------- DEFINE ALL JS ONCE ----------
+    ui.run_javascript(f'''
+        window.ensureStripe = function(callback) {{
+            if (window.Stripe) {{
+                callback();
+                return;
+            }}
+            const s = document.createElement('script');
+            s.src = 'https://js.stripe.com/v3/';
+            s.onload = callback;
+            document.head.appendChild(s);
+        }}
+
+        window.mountStripe = function(clientSecret) {{
+            if (!window.stripe) {{
+                window.stripe = Stripe("{PUBLISHABLE_KEY}");
+            }}
+
+            if (window.elements) {{
+                document.getElementById("payment-element").innerHTML = "";
+            }}
+
+            window.elements = stripe.elements({{ clientSecret }});
+            const pe = elements.create("payment");
+            pe.mount("#payment-element");
+        }}
+
+        window.submitStripePayment = async function() {{
+            const {{ error }} = await stripe.confirmPayment({{
+                elements,
+                confirmParams: {{
+                    return_url: window.location.origin + "/thank-you"
+                }}
+            }});
+
+            if (error) {{
+                document.getElementById("stripe-error").innerText = error.message;
+            }}
+        }}
+    ''')
+    def set_amount_buttons(amount):
+        custom.value = amount
+        set_amount(amount)
+    # ---------- PYTHON → JS BRIDGE ----------
+    def set_amount(amount=5):
+        intent = create_intent(amount)
+        ui.run_javascript(f'''
+            ensureStripe(() => mountStripe("{intent.client_secret}"));
+        ''')
+
+    donate_btn.on('click', lambda: ui.run_javascript('submitStripePayment()'))
+
+    set_amount()
     footer()
 
+@ui.page('/thank-you')
+def thank_you():
+    ui.label('Thank you for your donation!').classes('text-2xl p-8')
 
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
