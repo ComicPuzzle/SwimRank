@@ -1087,8 +1087,8 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
     ui.add_head_html("""
         <style>
         :root {
-            --table-header-font-size: 1.1rem;
-            --table-body-font-size: 1rem;
+            --table-header-font-size: 0.9rem;
+            --table-body-font-size: 0.9rem;
         }
 
         /* Apply to all tables that use .custom-table */
@@ -1102,10 +1102,10 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
         }
                      
         .custom-table big-cell {
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
         .custom-table .big-cell .q-btn__content {
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
         </style>
      """)
@@ -1226,9 +1226,8 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                     session['rank_type_select'], 'value',
                     backward=lambda v: v == 'Team'
                 ).classes(SELECT_CLASSES).style('font-size: 1.1rem')
-            with ui.row().classes('w-full flex flex-col lg:flex-row gap-2 justify-between lg:justify-center'):
-                # ---------------- SCY TABLE ----------------
-                with ui.column().classes('w-full md:w-full lg:w-fit items-center lg:ml-20'):
+            with ui.row().classes('w-full flex flex-col md:flex-col lg:flex-row gap-2 justify-center items-center'):
+                with ui.column().classes('w-full lg:w-fit items-center'):
                     ui.label("SCY Rankings").classes('font-semibold').style('font-size: 1.6rem')
                     with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto md:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                         session['ranking_table_scy'] = ui.table(
@@ -1238,7 +1237,7 @@ async def rankings_page(rank_type: str = 'National', event = '50 FR SCY', age_gr
                         ).classes('custom-table')
 
                 # ---------------- LCM TABLE ----------------
-                with ui.column().classes('w-full  md:w-full lg:w-fit items-center lg:mr-20'):
+                with ui.column().classes('w-full lg:w-fit items-center'):
                     ui.label("LCM Rankings").classes('font-semibold').style('font-size: 1.6rem').classes('custom-table').bind_visibility_from(session['event_select'], 'value',backward=lambda v: v != '100 IM')
                     with ui.element('div').classes('w-full lg:w-fit sm:overflow-x-auto rounded-md shadow-lg border border-gray-300'):
                         session['ranking_table_lcm'] = ui.table(
@@ -1470,7 +1469,7 @@ async def donate_page():
         with ui.card().classes('gap-4 w-fit items-center'):
             ui.label('Support the Project!').classes('font-bold').style('font-size: 2rem')
             ui.label("Running this site isn't free, and donations help cover things like hosting, services, \
-                     and the time it takes to keep everything working smoothly and stay ad free. Your support helps me \
+                     and the time it takes to keep everything working smoothly and stay ad/subscription free. Your support helps me \
                      maintain the site, fix bugs, and roll out new features over time. As a college student, even a small \
                      contribution goes a long way and is genuinely appreciated!").style('font-size: 1.2rem')
         with ui.card().classes('gap-4 w-full items-center'):
