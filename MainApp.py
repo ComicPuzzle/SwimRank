@@ -29,8 +29,8 @@ def footer():
     with ui.footer(fixed=False).classes(f'w-full {bg_color} py-4 justify-center items-center flex-wrap md:flex-nowrap shadow-sm'):
         with ui.column().classes('items-center'):
             ui.label('© SwimmingRank.org 2025-2026. All rights reserved.').classes('text-gray-600').style('font-size: 15px')
-            ui.label('Developed and Maintained by a Swimmer.').classes('text-gray-600').style('font-size: 15px')
-            ui.link('Donate!', '/donate').classes('text-gray-600').style('font-size: 15px')
+            ui.label('Developed and Maintained by a Swimmer for the Swimming Community.').classes('text-gray-600').style('font-size: 15px')
+            ui.link('Please Donate!', '/donate').classes('text-gray-600').style('font-size: 15px')
 PAGE_TITLES = {
     '/': 'Swimmer Search',
     '/rankings': 'Rankings',
@@ -1424,6 +1424,14 @@ async def aboutme_page():
                             Thank you!
                         </p>
                         ''')
+                with ui.row().classes('items-start gap-1'):
+                    ui.html('''
+                        <p style="font-size:1.1rem;">
+                            PS: I'm a senior Electrical Engineering and Computer Science student and I'm currently on the job search.
+                            If you like the site and you know of any opportunities that could be a good fit, I would love to get in touch! 
+                            Please message me through the <a href="/feedback" class="text-blue-600 hover:underline">Feedback page</a> with the 'Job Opportunity' subject selection. Thank you! 
+                        </p>
+                        ''')
     footer()
 
 @ui.page('/privacy')
@@ -1490,6 +1498,7 @@ async def donate_page():
 
             ui.element('div').props("id='payment-element'").classes('w-full')
             ui.label('').props("id='stripe-error'").classes('text-red-500')
+            ui.label('').props("id='stripe-success'").classes('text-green-600')
 
             donate_btn = ui.button('Donate', color='primary').classes('w-full')
 
@@ -1521,16 +1530,18 @@ async def donate_page():
         }}
 
         window.submitStripePayment = async function() {{
-            const {{ error }} = await stripe.confirmPayment({{
+            stripe.confirmPayment({{
                 elements,
-                confirmParams: {{
-                    return_url: window.location.origin + "/thank-you"
-                }}
-            }});
-
-            if (error) {{
-                document.getElementById("stripe-error").innerText = error.message;
-            }}
+                redirect: 'if_required',
+            }}).then(function(result) {{
+                if (result.error) {{
+                    document.getElementById("stripe-success").innerText = '';
+                    document.getElementById("stripe-error").innerText = result.error.message;
+                    }} 
+                else {{
+                    document.getElementById("stripe-success").innerText = "Donation successful! Thank you for your support.";
+                    document.getElementById("stripe-error").innerText = '';}}
+                }});
         }}
     ''')
     def set_amount_buttons(amount):
@@ -1590,7 +1601,7 @@ async def feedback_page():
             ).classes('w-full').props('type=email outlined').style('font-size: 1.1rem')
 
             category = ui.select(
-                ['Bug', 'Feature Request', 'General Feedback'],
+                ['Bug', 'Feature Request', 'General Feedback', 'Job Opportunity'],
                 value='General Feedback',
                 label='Category'
             ).classes('w-full').style('font-size: 1.1rem')
