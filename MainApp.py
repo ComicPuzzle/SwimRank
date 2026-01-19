@@ -524,9 +524,9 @@ async def update_upcoming_meets_table(course):
             else:
                 age_group = 'STANDARDS'
         if session['person']['Gender'] == "Male":
-            scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][2]
+            scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][3]
             scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
-            lcm_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][3]
+            lcm_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][2]
             lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
         else:
             scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][0]
@@ -540,9 +540,9 @@ async def update_upcoming_meets_table(course):
         if 'BONUS STANDARDS' in standards:
             age_group = 'BONUS STANDARDS'
             if session['person']['Gender'] == "Male":
-                scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][2]
+                scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][3]
                 scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
-                lcm_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][3]
+                lcm_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][2]
                 lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
             else:
                 scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][0]
