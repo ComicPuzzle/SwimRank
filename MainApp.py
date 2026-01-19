@@ -16,6 +16,7 @@ from email.message import EmailMessage
 import stripe
 from fastapi.responses import RedirectResponse
 from flask import Flask, jsonify, redirect, request
+import json
 
 # --- GLOBAL DB POOL ---
 global_pool = None
@@ -48,6 +49,9 @@ DIVISION_CONFERENCES = {
     'Div II': [c.strip() for c in open('DivII_conferences.txt')],
     'Div III': [c.strip() for c in open('DivIII_conferences.txt')],
 }
+with open('upcoming_championship_standards.txt') as f:
+    STANDARDS = json.loads(f.read())
+    f.close()
 
 async def navbar():
     global WIDTH, HEIGHT
@@ -489,17 +493,78 @@ async def update_results_table(course):
     session['event_results_table'].visible = True
     session['event_results_table'].update()
 
-async def update_upcoming_meets_table():
+async def update_upcoming_meets_table(course):
     session = app.storage.tab
+    if session['current_event_graph_page'] == "100 IM":
+        session['upcoming_meets_table'].visible = False
+        return
+    upcoming_meets = STANDARDS.keys()
+    rows = []
+    age_group = ""
+    event_map = {
+        '50 FR SCY': '50 FR', '50 FR LCM': '50 FR', '100 FR SCY': '100 FR', '100 FR LCM': '100 FR',
+        '200 FR SCY': '200 FR', '200 FR LCM': '200 FR', '400 FR LCM': '400/500 FR', '500 FR SCY': '400/500 FR',
+        '800 FR LCM': '800/1000 FR', '1000 FR SCY': '800/1000 FR', '1500 FR LCM': '1500/1650 FR', '1650 FR SCY': '1500/1650 FR',
+        '50 BK SCY': '50 BK', '50 BK LCM': '50 BK', '100 BK SCY': '100 BK', '100 BK LCM': '100 BK',
+        '200 BK SCY': '200 BK', '200 BK LCM': '200 BK', '50 BR SCY': '50 BR', '50 BR LCM': '50 BR',
+        '100 BR SCY': '100 BR', '100 BR LCM': '100 BR', '200 BR SCY': '200 BR', '200 BR LCM': '200 BR',
+        '50 FL SCY': '50 FL', '50 FL LCM': '50 FL', '100 FL SCY': '100 FL', '100 FL LCM': '100 FL',
+        '200 FL SCY': '200 FL', '200 FL LCM': '200 FL', '200 IM SCY': '200 IM', '200 IM LCM': '200 IM', '400 IM SCY': '400 IM', '400 IM LCM': '400 IM',
+    }
+    for meet in upcoming_meets:
+        standards = STANDARDS[meet].keys()
+        if session['person']['Age'] < 19: 
+            if '18 & UNDER STANDARDS' in standards:
+                age_group = '18 & UNDER STANDARDS'
+            else:
+                age_group = 'STANDARDS'
+        else:
+            if '19 & OVER STANDARDS' in standards:
+                age_group = '19 & OVER STANDARDS'
+            else:
+                age_group = 'STANDARDS'
+        if session['person']['Gender'] == "Male":
+            scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][2]
+            scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
+            lcm_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][3]
+            lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
+        else:
+            scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][0]
+            scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
+            lcm_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][1]
+            lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
+        if course == "SCY":
+            rows.append({"Meet Name":meet, "Qualifying Time": scy_time, "Course": 'SCY', "Time to Drop": scy_diff})
+        else:
+            rows.append({"Meet Name":meet, "Qualifying Time": lcm_time, "Course": 'LCM', "Time to Drop": lcm_diff})
+        if 'BONUS STANDARDS' in standards:
+            age_group = 'BONUS STANDARDS'
+            if session['person']['Gender'] == "Male":
+                scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][2]
+                scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
+                lcm_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][3]
+                lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
+            else:
+                scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][0]
+                scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
+                lcm_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][1]
+                lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
+            if course == "SCY":
+                rows.append({"Meet Name":meet, "Qualifying Time": scy_time, "Course": 'SCY (Bonus)', "Time to Drop": scy_diff + " sec"})
+            else:
+                rows.append({"Meet Name":meet, "Qualifying Time": lcm_time, "Course": 'LCM (Bonus)', "Time to Drop": lcm_diff + " sec"})
+        
+    session['upcoming_meets_table'].columns = [{'name': col, 'label': col, 'field': col} for col in ["Meet Name", "Qualifying Time", "Course", "Time to Drop"]]
+    session['upcoming_meets_table'].rows = rows
     session['upcoming_meets_table'].visible = True
     session['upcoming_meets_table'].update()
 
 async def update_ncaa_comparison_table(event):
     session = app.storage.tab
-    session['ncaa_comparisons'] = await fetch_ncaa_comp_data(str_to_timedelta(session['current_event_besttime'].strip('r')).total_seconds(), session['person']['Gender'], event)
+    session['ncaa_comparisons'] = await fetch_ncaa_comp_data(str_to_timedelta(session['current_event_besttime']).total_seconds(), session['person']['Gender'], event)
     session['ncaa_comparisons'] = ["{:.2f}".format(r['pct_faster']) + "%" for r in session['ncaa_comparisons']]
     session['ncaa_comparison_table'].columns = [{'name': col, 'label': "Best Time" if col == "BestTime" else col, 'field': col} for col in ["BestTime", "Division I", "Division II", "Division III"]]
-    session['ncaa_comparison_table'].rows = [{'BestTime': session['current_event_besttime'].strip('r'), 'Division I' : session['ncaa_comparisons'][0], 'Division II' : session['ncaa_comparisons'][1], 'Division III' : session['ncaa_comparisons'][2]}]
+    session['ncaa_comparison_table'].rows = [{'BestTime': session['current_event_besttime'], 'Division I' : session['ncaa_comparisons'][0], 'Division II' : session['ncaa_comparisons'][1], 'Division III' : session['ncaa_comparisons'][2]}]
     session['ncaa_comparison_table'].visible = True
     session['ncaa_comparison_table'].update()
 
@@ -551,7 +616,7 @@ async def update_conference_comparison_table(e):
     session = app.storage.tab
     for conference in session['selected_conferences']:
         pct = await fetch_conference_comp_data(
-            str_to_timedelta(session['current_event_besttime'].strip('r')).total_seconds(),
+            str_to_timedelta(session['current_event_besttime']).total_seconds(),
             session['person']['Gender'],
             e,
             session['conference_div_map'][conference],
@@ -606,12 +671,13 @@ async def update_best_rankings_table():
         scy_copy['SwimTime'] = scy_copy['SwimTime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
         scy_min_row = session['scy_df'].loc[scy_copy['SwimTime'].idxmin()].to_dict()  
         session['best_rankings_table'].rows.append(scy_min_row)
-        session['current_event_besttime'] = scy_min_row['SwimTime']
+        session['current_event_besttime'] = scy_min_row['SwimTime'].strip('r')
     if not session['lcm_df'].empty:
         lcm_copy = session['lcm_df'].copy()
         lcm_copy['SwimTime'] = lcm_copy['SwimTime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
         lcm_min_row = session['lcm_df'].loc[lcm_copy['SwimTime'].idxmin()].to_dict()
         session['best_rankings_table'].rows.append(lcm_min_row)
+        session['current_event_besttime_lcm'] = lcm_min_row['SwimTime'].strip('r')
     session['best_rankings_table'].visible = True
     session['best_rankings_table'].update()
 
@@ -700,7 +766,7 @@ async def display_event_data(e, df):
     await update_best_rankings_table()
     await update_ncaa_comparison_table(e)
     await update_conference_comparison_table(e)
-    await update_upcoming_meets_table()
+    await update_upcoming_meets_table(session['upcoming_meets_course_radio'].value)
     await update_season_rankings_table()
     with session['results_column']:
         if session['event_label']:
@@ -858,6 +924,7 @@ async def graph_page(person_key: str):
         session['conference_comparison_table'].visible = False
     with session['upcoming_meets_column']:
         session['meets_label'] = ui.label('Upcoming Championship Meets').style('font-size: 1.6rem')
+        session['upcoming_meets_course_radio'] = ui.radio(["SCY", "LCM"], value="SCY", on_change=lambda: update_upcoming_meets_table(session['upcoming_meets_course_radio'].value)).props('inline').style('font-size: 1.6rem')
         with ui.element('div').classes('w-full lg:max-w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
             session['upcoming_meets_table'] = ui.table(rows=[]).classes('custom-table')
         session['upcoming_meets_table'].visible = False
