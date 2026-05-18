@@ -15,6 +15,10 @@ from get_credentials import get_credentials
 from collections import defaultdict
 import random
 
+def get_last_n_days(n: int) -> list[str]:
+    today = datetime.today()
+    return [(today - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(n)]
+
 def get_previous_week_dates(today_date):
     current_week_start = today_date - timedelta(days=today_date.isoweekday() - 1)
     previous_week_start = current_week_start - timedelta(weeks=1)
@@ -252,7 +256,7 @@ def get_meet_results():
     all_formatted_responses = []
     today = datetime.today()
     previous_week_dates = get_previous_week_dates(today)
-    print(previous_week_dates)
+    #previous_week_dates = get_last_n_days(90)
     loop = asyncio.get_event_loop()
     meet_keys = []
     bearer_token = get_token()

@@ -523,16 +523,22 @@ async def update_upcoming_meets_table(course):
                 age_group = '19 & OVER STANDARDS'
             else:
                 age_group = 'STANDARDS'
+        scy_diff = "NA"
+        lcm_diff = "NA"
         if session['person']['Gender'] == "Male":
             scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][3]
-            scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
+            if session['current_event_besttime'] != "":
+                scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
             lcm_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][2]
-            lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
+            if session['current_event_besttime_lcm'] != "":
+                lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
         else:
             scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][0]
-            scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
+            if session['current_event_besttime'] != "":
+                scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
             lcm_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][1]
-            lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
+            if session['current_event_besttime_lcm'] != "":
+                lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
         if course == "SCY":
             rows.append({"Meet Name":meet, "Qualifying Time": scy_time, "Course": 'SCY', "Time to Drop": scy_diff})
         else:
@@ -541,18 +547,22 @@ async def update_upcoming_meets_table(course):
             age_group = 'BONUS STANDARDS'
             if session['person']['Gender'] == "Male":
                 scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][3]
-                scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
+                if session['current_event_besttime'] != "":
+                    scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
                 lcm_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][2]
-                lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
+                if session['current_event_besttime_lcm'] != "":
+                    lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
             else:
                 scy_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][0]
-                scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
+                if session['current_event_besttime'] != "":
+                    scy_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime']) - str_to_timedelta(scy_time))
                 lcm_time = STANDARDS[meet][age_group][event_map[session['current_event_graph_page']]][1]
-                lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
+                if session['current_event_besttime_lcm'] != "":
+                    lcm_diff = convert_timedelta(str_to_timedelta(session['current_event_besttime_lcm']) - str_to_timedelta(lcm_time))
             if course == "SCY":
-                rows.append({"Meet Name":meet, "Qualifying Time": scy_time, "Course": 'SCY (Bonus)', "Time to Drop": scy_diff + " sec"})
+                rows.append({"Meet Name":meet, "Qualifying Time": scy_time, "Course": 'SCY (Bonus)', "Time to Drop": scy_diff})
             else:
-                rows.append({"Meet Name":meet, "Qualifying Time": lcm_time, "Course": 'LCM (Bonus)', "Time to Drop": lcm_diff + " sec"})
+                rows.append({"Meet Name":meet, "Qualifying Time": lcm_time, "Course": 'LCM (Bonus)', "Time to Drop": lcm_diff})
         
     session['upcoming_meets_table'].columns = [{'name': col, 'label': col, 'field': col} for col in ["Meet Name", "Qualifying Time", "Course", "Time to Drop"]]
     session['upcoming_meets_table'].rows = rows
@@ -561,6 +571,11 @@ async def update_upcoming_meets_table(course):
 
 async def update_ncaa_comparison_table(event):
     session = app.storage.tab
+    if session['current_event_besttime'] == "":
+        session['ncaa_comparison_label'].visible = False
+        session['ncaa_comparison_table'].visible = False
+        return
+    session['ncaa_comparison_label'].visible = True
     session['ncaa_comparisons'] = await fetch_ncaa_comp_data(str_to_timedelta(session['current_event_besttime']).total_seconds(), session['person']['Gender'], event)
     session['ncaa_comparisons'] = ["{:.2f}".format(r['pct_faster']) + "%" for r in session['ncaa_comparisons']]
     session['ncaa_comparison_table'].columns = [{'name': col, 'label': "Best Time" if col == "BestTime" else col, 'field': col} for col in ["BestTime", "Division I", "Division II", "Division III"]]
@@ -614,6 +629,13 @@ def remove_conference_column(msg):
 
 async def update_conference_comparison_table(e):
     session = app.storage.tab
+    if session['current_event_besttime'] == "":
+        session['conference_comparison_label'].visible = False
+        session['conference_comparison_table'].visible = False
+        session['conference_comparison_row'].visible = False
+        return
+    session['conference_comparison_label'].visible = True
+    session['conference_comparison_row'].visible = True
     for conference in session['selected_conferences']:
         pct = await fetch_conference_comp_data(
             str_to_timedelta(session['current_event_besttime']).total_seconds(),
@@ -666,6 +688,8 @@ async def update_best_rankings_table():
     session = app.storage.tab
     session['best_rankings_table'].rows = []
     session['best_rankings_table'].columns = [{'name': col, 'label': col, 'field': col} for col in ["Event", "SwimTime","Age", "Points", "TimeStandard", "Meet", "Team", "SwimDate"]]
+    session['current_event_besttime'] = ""
+    session['current_event_besttime_lcm'] = ""
     if not session['scy_df'].empty:
         scy_copy = session['scy_df'].copy()
         scy_copy['SwimTime'] = scy_copy['SwimTime'].apply(lambda x: str_to_datetime(x.replace('r', "")))
@@ -737,21 +761,21 @@ async def update_season_rankings_table():
     season_end   = pd.to_datetime(end_str)
     if not session['scy_df'].empty:
         scy_copy = session['scy_df'].copy()
-        scy_copy.loc[:, 'SwimDate'] = pd.to_datetime(scy_copy['SwimDate'])
+        scy_copy['SwimDate'] = pd.to_datetime(scy_copy['SwimDate'])
         scy_min_season_row = scy_copy[(scy_copy["SwimDate"] >= season_start) & (scy_copy["SwimDate"] <= season_end) & (scy_copy["national_rank"] > 0)]
-        
+       
         if not scy_min_season_row.empty:
-            scy_min_season_row.loc[:, 'SwimDate'] = scy_min_season_row['SwimDate'].apply(lambda x: x.strftime('%m/%d/%Y'))
+            scy_min_season_row['SwimDate'] = scy_min_season_row['SwimDate'].apply(lambda x: x.strftime('%m/%d/%Y'))
             scy_min_season_row = scy_min_season_row.to_dict(orient='records')
             session['season_rankings_table'].rows.extend(scy_min_season_row)
     
     if not session['lcm_df'].empty:
         lcm_copy = session['lcm_df'].copy()
-        lcm_copy.loc[:, 'SwimDate'] = pd.to_datetime(lcm_copy['SwimDate'])
+        lcm_copy['SwimDate'] = pd.to_datetime(lcm_copy['SwimDate'])
         lcm_min_season_row = lcm_copy[(lcm_copy["SwimDate"] >= season_start) & (lcm_copy["SwimDate"] <= season_end) & (lcm_copy["national_rank"] > 0)]
         
         if not lcm_min_season_row.empty:
-            lcm_min_season_row.loc[:, 'SwimDate'] = lcm_min_season_row['SwimDate'].apply(lambda x: x.strftime('%m/%d/%Y'))
+            lcm_min_season_row['SwimDate'] = lcm_min_season_row['SwimDate'].apply(lambda x: x.strftime('%m/%d/%Y'))
             lcm_min_season_row = lcm_min_season_row.to_dict(orient='records')
             session['season_rankings_table'].rows.extend(lcm_min_season_row)
     session['season_rankings_table'].visible = True
@@ -903,7 +927,8 @@ async def graph_page(person_key: str):
         session['conference_comparison_label'] = ui.label("""Conference Comparison - Add up to 5 conferences""").style('font-size: 1.6rem')
         session['selected_conferences'] = []
         session['conference_data'] = {}
-        with ui.row().classes('w-full lg:w-fit p-4 gap-4 bg-gray-100 rounded shadow-sm justify-center items-center'):
+        session['conference_comparison_row'] = ui.row().classes('w-full lg:w-fit p-4 gap-4 bg-gray-100 rounded shadow-sm justify-center items-center')
+        with session['conference_comparison_row']:
             session['division_select'] = ui.select(
                     options=['Div I', 'Div II', 'Div III'],
                     value='Div I',
@@ -1491,14 +1516,6 @@ async def aboutme_page():
                             Thank you!
                         </p>
                         ''')
-                with ui.row().classes('items-start gap-1'):
-                    ui.html('''
-                        <p style="font-size:1.1rem;">
-                            PS: I'm a senior Electrical Engineering and Computer Science student and I'm currently on the job search.
-                            If you like the site and you know of any opportunities that could be a good fit, I would love to get in touch! 
-                            Please message me through the <a href="/feedback" class="text-blue-600 hover:underline">Feedback page</a> with the 'Job Opportunity' subject selection. Thank you! 
-                        </p>
-                        ''')
     footer()
 
 @ui.page('/privacy')
@@ -1514,7 +1531,7 @@ async def privacypolicy_page():
                          All of the data available on this website is publicly available via USA Swimming. I update this website several days a week with meet results.
                          Only meets registered with USA Swimming will be included in the rankings and results, so regular high school dual meets or college
                          meets may not be included.""").style('font-size: 18px')
-                ui.label("""Last updated: December 29th, 2025""").style('font-size: 1.1rem')
+                ui.label("""Last updated: May 18th, 2025""").style('font-size: 1.1rem')
             """with ui.column().classes('w-3/5 items-center text-center'):
                 ui.label('FAQ').style('font-size: 28px')
             with ui.column().classes('w-3/5'):
