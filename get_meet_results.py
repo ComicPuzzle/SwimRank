@@ -19,7 +19,7 @@ def get_previous_week_dates(today_date):
     current_week_start = today_date - timedelta(days=today_date.isoweekday() - 1)
     previous_week_start = current_week_start - timedelta(weeks=1)
     previous_week_dates = []
-    for i in range(7):
+    for i in range(4):
         previous_week_dates.append((previous_week_start + timedelta(days=i)).strftime("%Y-%m-%d"))
     return previous_week_dates
 
