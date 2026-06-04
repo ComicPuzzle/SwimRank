@@ -1,6 +1,7 @@
 import json
 from MakeMeetRequest import make_meet_keys_request
 from MakeMeetResultRequest import make_meet_results_request
+from MakeRecentResultRequest import make_recent_results_request
 from GetToken import get_token
 from seleniumwire import webdriver
 import pandas as pd
@@ -151,6 +152,10 @@ async def fetch_meet_keys(bearer_token, start_dates):
 async def fetch_meet_results(bearer_token, meet_keys):
     async with AsyncSession() as session:
         return await make_meet_results_request(session, bearer_token, meet_keys)
+    
+async def fetch_recent_results(bearer_token, date):
+    async with AsyncSession() as session:
+        return await make_recent_results_request(session, bearer_token, date)
 
 # Asynchronous function to process requests concurrently
 async def process_requests(bearer_token, keys, swimmers_per_request, session):
@@ -252,88 +257,71 @@ def split_name(full_name):
 
 def get_meet_results():
     loop = asyncio.get_event_loop()
-    all_ids = get_personkeys()
     all_formatted_responses = []
     today = datetime.today()
-    previous_week_dates = get_previous_week_dates(today)
-    #previous_week_dates = get_last_n_days(90)
-    loop = asyncio.get_event_loop()
-    meet_keys = []
+    previous_week_dates = get_last_n_days(3)
     bearer_token = get_token()
-    meets = loop.run_until_complete(fetch_meet_keys(bearer_token, previous_week_dates))
-    for meet in meets['values']:
-        meet_key = meet[6]['data']
-        meet_keys.append(int(meet_key))
-    time.sleep(3)
-    print(len(meet_keys))
     loop = asyncio.get_event_loop()
-    index = 0
     responses = []
-    while index < len(meet_keys):
-        if index + 5 < len(meet_keys):
-            keys = meet_keys[index:index+5]
-            responses.append(loop.run_until_complete(fetch_meet_results(bearer_token, keys)))
-            time.sleep(0.5+random.random())
-        else:
-            keys = meet_keys[index:]
-            responses.append(loop.run_until_complete(fetch_meet_results(bearer_token, keys)))
-            break
-        index += 5
+    index = 0
 
     db_columns = [
         "Name","Sex","Age","AgeGroup","Event","Place","Session","Points",
         "SwimDate","LSC","Team","Meet","SwimTime","Relay","TimeStandard",
         "MeetKey","UsasSwimTimeKey","PersonKey","SwimEventKey"
     ]
-    formatted = build_records(responses, db_columns)
-    grouped_dict = defaultdict(list)
-    for item in formatted:
-        personkey = item["PersonKey"]
-        grouped_dict[personkey].append(item)
 
-    new_id_rows = []
-    age_updates = []
-    print(len(grouped_dict))
+    for date in previous_week_dates:
+        responses.append(fetch_recent_results(bearer_token, date))
+        time.sleep(0.5+random.random())
     
+        formatted = build_records(responses, db_columns)
+        grouped_dict = defaultdict(list)
+        for item in formatted:
+            personkey = item["PersonKey"]
+            grouped_dict[personkey].append(item)
+
+        new_id_rows = []
+        age_updates = []
+        
+        all_ids = get_personkeys()
         # all_ids is set of tuples: {(PersonKey, Age), ...}
-    existing_keys = {pk for pk, age in all_ids}
-    existing_age_pairs = all_ids  # already tuples
+        existing_keys = {pk for pk, age in all_ids}
+        existing_age_pairs = all_ids  # already tuples
 
-    new_id_rows = []
-    age_updates = []
+        new_id_rows = []
+        age_updates = []
 
-    for personkey, rows in grouped_dict.items():
-        first = rows[0]
-        name = first["Name"]
-        firstname, middlename, lastname = split_name(name)
-        age = first["Age"]
-        team = first["Team"]
-        sex = first["Sex"]
-        lsc = first["LSC"]
-        if personkey not in existing_keys:
-            print("adding id")
-            new_id_rows.append({
-                'FirstName': firstname,
-                'MiddleName': middlename,
-                'LastName': lastname,
-                'Team': team,
-                'LSC': lsc,
-                'Age': age,
-                'PersonKey': personkey,
-                'Sex': sex
-            })
+        for personkey, rows in grouped_dict.items():
+            first = rows[0]
+            name = first["Name"]
+            firstname, middlename, lastname = split_name(name)
+            age = first["Age"]
+            team = first["Team"]
+            sex = first["Sex"]
+            lsc = first["LSC"]
+            if personkey not in existing_keys:
+                print("adding id")
+                new_id_rows.append({
+                    'FirstName': firstname,
+                    'MiddleName': middlename,
+                    'LastName': lastname,
+                    'Team': team,
+                    'LSC': lsc,
+                    'Age': age,
+                    'PersonKey': personkey,
+                    'Sex': sex
+                })
 
-        if (personkey, age) not in existing_age_pairs:
-            print("adding age")
-            age_updates.append({'PersonKey': personkey, 'Age': age})
+            if (personkey, age) not in existing_age_pairs:
+                print("adding age")
+                age_updates.append({'PersonKey': personkey, 'Age': age})
 
-    if new_id_rows:
-            print("Inserting", len(new_id_rows), "new swimmers…")
-            send_id_data_batch(new_id_rows)
-    if age_updates:
-            send_age_data_batch(age_updates)
+        if new_id_rows:
+                print("Inserting", len(new_id_rows), "new swimmers…")
+                send_id_data_batch(new_id_rows)
+        if age_updates:
+                send_age_data_batch(age_updates)
 
-    df = pd.DataFrame.from_dict(formatted)
-    send_data(df)
-
-            
+        df = pd.DataFrame.from_dict(formatted)
+        send_data(df)
