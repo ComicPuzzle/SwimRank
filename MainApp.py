@@ -1014,7 +1014,8 @@ async def main_page():
             ui.html('<h1>Swimmer Search</h1>').style('font-size: 2rem').classes('h-fit font-semibold')
             ui.label('This website provides up-to-date swimming results and rankings data for competitive swimmers in the United States').style('font-size: 1.1rem;')
             ui.label('It contains data for over 1 million swimmers over the past 10 years').style('font-size: 1.1rem')
-
+            ui.label('*NOTICE* USA swimming has changed their data system as you can see if you got to their website which now requires a login to view times and records').style('font-size: 1.1rem;')
+            ui.label('This change has rendered my data collection method unviable and I am working to find a new solution. Unfortunately, your most recent results will not be updated in the meantime. Thank you for understanding.').style('font-size: 1.5rem')
             session['search_input'] = ui.input(placeholder='Type a name...').classes('swimmer-input-class')
             session['search_input'].on('keypress.enter', lambda: fetch_people(session['search_input'].value)) 
             with ui.element('div').classes('w-full lg:w-fit overflow-x-auto rounded-md shadow-lg border border-gray-300'):
